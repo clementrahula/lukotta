@@ -105,6 +105,7 @@
     "%@ image can only be opened read-only": "%@ atvaizdį galima atverti tik skaitymui",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ yra laisva programinė įranga pagal GPL licenciją, 3 arba naujesnę versiją. Prijungimą atlieka anylinuxfs. Visas kiekvieno komponento pirminis kodas skelbiamas su kiekviena laida. Pavadinimas ir logotipas yra prekių ženklai ir ta licencija jų neapima.",
     "%@ is not able to open this file format.": "„%@“ negali atverti šio failo formato.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ dar naujas. Linux įrankiai ir tvarkyklės, kuriomis jis remiasi, gyvuoja jau daug metų ir yra gerai išbandyti. %@ sukurtas ant jų, bet pats dar tobulinamas, todėl neišvengiamai lieka dar neaptiktų trūkumų. Kol kas saugiausia juo atverti diskus ir atvaizdžius tik skaitymui. Rašymas veikia, tačiau laikykite jį eksperimentiniu ir pasilikite kopiją visko, ko netektis jums būtų nemaloni.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "„%@“ atveria „BitLocker“ ir „Linux“ diskus, virtualiųjų mašinų diskus ir disko atvaizdžius, kurių „macOS“ pati atverti negali.\n\nSkaityti diską neapdoroto įrenginio lygiu galima tik su Full Disk Access. „macOS“ nesuteikia programoms būdo šio leidimo paprašyti tiesiogiai, todėl jį reikia įjungti ranka.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "%@ prisijungus atsiveria fone ir grąžina diskus bei atvaizdžius, kurie buvo atverti, tokius, kokie buvo. Slaptažodžio reikalaujantis diskas grįžta tik tada, jei slaptažodis įrašytas raktų grandinėje.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ paleidžia nedidelę „Linux“ virtualiąją mašiną, joje atrakina diską ir perduoda diską atgal „Finder“ programai. „macOS“ negali skaityti „BitLocker“ ar „Linux“ failų sistemų. „Linux“ gali.",
@@ -157,6 +158,7 @@
     "Done": "Atlikta",
     "Download and install them": "Atsisiųsti ir įdiegti juos",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "Diskai, susieti su TPM, o ne su slaptažodžiu, įskaitant naujesnį „Ubuntu“ aparatinį šifravimą",
+    "Early Development": "Ankstyvasis kūrimo etapas",
     "Eject": "Išstumti",
     "Eject %@": "Išstumti %@",
     "Eject It and Open": "Išstumti ir atverti",
@@ -306,6 +308,7 @@
     "Third-Party Notices": "Trečiųjų šalių pranešimai",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "Ši %@ kopija nepilna: trūksta „Linux“ aplinkos. Įdiekite ją iš naujo.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Ši %@ kopija nepilna: trūksta diskų variklio. Įdiekite ją iš naujo.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "Šiame diske yra diegimo disko atvaizdis, o ne failų sistema. Ištrynimas per „Disk Utility“ arba `clean` „Windows“ diskpart pašalina atvaizdį; spartusis formatavimas jį palieka.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Šiame diske yra keli tomai, o %@ nepavyko nustatyti, kurie. Pranešimas apie tai padėtų.",
     "This drive is not encrypted.": "Šis diskas nėra šifruotas.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Šis diskas atvertas tik skaitymui: jo failų sistema nepriėmė rašymo. Gali reikėti jį pataisyti toje sistemoje, kuriai jis priklauso.",
@@ -398,8 +401,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "„%1$@“ reikia failo „%2$@“, kurio šalia nėra. Tokio tipo atvaizdis yra failų rinkinys ir reikalingi visi jie.",
     "“%@” opened in macOS": "„%@“ atvertas „macOS“ sistemoje",
     "“%@” was disconnected.": "„%@“ buvo atjungtas.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ nebuvo tinkamai išjungtas ir naujausias jo turinys neįrašytas atgal į failą. Atverkite jį kartą virtualioje mašinoje, kuriai jis priklauso, ir bandykite dar kartą.",
-    "Early Development": "Ankstyvasis kūrimo etapas",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ dar naujas. Linux įrankiai ir tvarkyklės, kuriomis jis remiasi, gyvuoja jau daug metų ir yra gerai išbandyti. %@ sukurtas ant jų, bet pats dar tobulinamas, todėl neišvengiamai lieka dar neaptiktų trūkumų. Kol kas saugiausia juo atverti diskus ir atvaizdžius tik skaitymui. Rašymas veikia, tačiau laikykite jį eksperimentiniu ir pasilikite kopiją visko, ko netektis jums būtų nemaloni."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ nebuvo tinkamai išjungtas ir naujausias jo turinys neįrašytas atgal į failą. Atverkite jį kartą virtualioje mašinoje, kuriai jis priklauso, ir bandykite dar kartą."
   }
 }

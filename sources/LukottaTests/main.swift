@@ -1654,6 +1654,26 @@ group("aSynthesisedContainerIsNotAContainerFile") {
     expect(rows.allSatisfy { $0.drive == nil }, "so neither is offered as a drive to open")
 }
 
+group("aStickThatIsStillAnInstallerSaysSo") {
+    // A USB stick made from an installer ISO keeps carrying the image after a
+    // quick format: the format writes inside a partition and the image's own
+    // structures stay at the front, where macOS and Linux both keep reading
+    // them. Measured on 2026-09-06 on a stick formatted NTFS an hour earlier
+    // that still probed as iso9660 from inside the guest.
+    let transcript = "mount: /mnt/Ubuntu_20.04.1_LTS_amd64: unknown filesystem type 'iso9660'."
+    expect(
+        Diagnosis.rule(for: transcript)?.name == "holds-a-disc-image",
+        "the drive is named for what is on it, not for what could not be mounted")
+    expect(
+        Diagnosis.summarise(transcript, fallback: "").contains("disc image"),
+        "and the sentence says so")
+    // The generic rule still answers for everything else it was written for.
+    expect(
+        Diagnosis.rule(for: "unknown filesystem type 'befs'")?.name
+            == "unrecognised-filesystem",
+        "a filesystem nobody here knows is still reported as one")
+}
+
 group("aPartitionTypeIsNeverADriveName") {
     // A volume nobody named fell through to `IORegistryEntryName`, which for a
     // partition is the type, so a nameless NTFS stick was listed in the app as

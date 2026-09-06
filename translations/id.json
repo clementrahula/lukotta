@@ -81,6 +81,7 @@
     "%@ image can only be opened read-only": "Image %@ hanya dapat dibuka baca-saja",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ adalah perangkat lunak bebas di bawah GPL versi 3 atau yang lebih baru. Pemasangan dikerjakan oleh anylinuxfs. Kode sumber lengkap untuk setiap komponen diterbitkan bersama setiap rilis. Nama dan logo adalah merek dagang dan tidak tercakup dalam lisensi tersebut.",
     "%@ is not able to open this file format.": "%@ tidak dapat membuka format berkas ini.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ masih baru. Perkakas dan driver Linux yang menjadi sandarannya sudah ada bertahun-tahun dan telah teruji. %@ dibangun di atasnya, tetapi masih dalam pengembangan, sehingga tak terhindarkan ada masalah yang belum terungkap. Untuk sekarang, paling aman menggunakannya untuk membuka drive dan image dalam mode hanya-baca. Penulisan memang berfungsi, tetapi anggaplah eksperimental dan simpanlah salinan dari apa pun yang tidak ingin Anda kehilangan.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "%@ membuka drive BitLocker, Linux, dan mesin virtual serta image disk yang tidak dapat dibuka macOS sendiri.\n\nMembaca drive pada tingkat perangkat mentah memerlukan Akses Disk Penuh. macOS tidak menyediakan cara bagi aplikasi untuk memintanya secara langsung, jadi izin itu harus dinyalakan sendiri.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "%@ terbuka di latar belakang saat Anda masuk dan mengembalikan drive dan image yang tadinya terbuka, seperti semula. Drive yang memerlukan kata sandi hanya kembali jika kata sandinya tersimpan di Keychain.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ menjalankan mesin virtual Linux kecil, membuka kunci drive di dalamnya, lalu menyerahkan drive itu ke Finder. macOS tidak dapat membaca sistem berkas BitLocker atau Linux. Linux bisa.",
@@ -133,6 +134,7 @@
     "Done": "Selesai",
     "Download and install them": "Unduh dan pasang",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "Drive yang disegel ke TPM alih-alih kata sandi, termasuk enkripsi berbasis perangkat keras Ubuntu yang lebih baru",
+    "Early Development": "Tahap pengembangan awal",
     "Eject": "Keluarkan",
     "Eject %@": "Keluarkan %@",
     "Eject It and Open": "Keluarkan dan Buka",
@@ -282,6 +284,7 @@
     "Third-Party Notices": "Pemberitahuan Pihak Ketiga",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "Salinan %@ ini tidak lengkap: lingkungan Linux tidak ada. Pasang lagi.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Salinan %@ ini tidak lengkap: mesin drive tidak ada. Pasang lagi.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "Drive ini berisi image disk installer, bukan sistem berkas. Menghapusnya di Disk Utility, atau `clean` di diskpart Windows, membersihkan image itu; format cepat membiarkannya.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Drive ini berisi beberapa volume di dalamnya, dan %@ tidak dapat menentukan yang mana. Melaporkannya akan membantu.",
     "This drive is not encrypted.": "Drive ini tidak terenkripsi.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Drive ini terbuka hanya-baca: sistem berkasnya tidak menerima penulisan. Mungkin perlu diperbaiki di sistem asalnya.",
@@ -374,8 +377,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "“%@” memerlukan “%@”, yang tidak ada di sebelahnya. Image semacam ini adalah sekumpulan berkas, dan semuanya diperlukan.",
     "“%@” opened in macOS": "“%@” dibuka di macOS",
     "“%@” was disconnected.": "“%@” telah diputus.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” tidak dimatikan dengan benar, dan isi terakhirnya belum dituliskan kembali ke berkas. Buka sekali di mesin virtual pemiliknya, lalu coba lagi.",
-    "Early Development": "Tahap pengembangan awal",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ masih baru. Perkakas dan driver Linux yang menjadi sandarannya sudah ada bertahun-tahun dan telah teruji. %@ dibangun di atasnya, tetapi masih dalam pengembangan, sehingga tak terhindarkan ada masalah yang belum terungkap. Untuk sekarang, paling aman menggunakannya untuk membuka drive dan image dalam mode hanya-baca. Penulisan memang berfungsi, tetapi anggaplah eksperimental dan simpanlah salinan dari apa pun yang tidak ingin Anda kehilangan."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” tidak dimatikan dengan benar, dan isi terakhirnya belum dituliskan kembali ke berkas. Buka sekali di mesin virtual pemiliknya, lalu coba lagi."
   }
 }

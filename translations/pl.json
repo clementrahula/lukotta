@@ -105,6 +105,7 @@
     "%@ image can only be opened read-only": "Obraz %@ można otworzyć tylko do odczytu",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ jest wolnym oprogramowaniem na licencji GPL w wersji 3 lub nowszej. Montowaniem zajmuje się anylinuxfs. Pełny kod źródłowy każdego składnika jest publikowany wraz z każdym wydaniem. Nazwa i logo są znakami towarowymi i nie są objęte tą licencją.",
     "%@ is not able to open this file format.": "%@ nie potrafi otworzyć tego formatu pliku.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ jest wciąż nowy. Narzędzia i sterowniki Linuksa, na których się opiera, istnieją od lat i są dobrze sprawdzone. %@ jest na nich zbudowany, ale sam wciąż powstaje, więc nieuchronnie kryje jeszcze nieodkryte usterki. Na razie najbezpieczniej używać go do otwierania dysków i obrazów tylko do odczytu. Zapis działa, ale traktuj go jako eksperymentalny i zachowaj kopię wszystkiego, czego utrata byłaby przykra.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "%@ otwiera dyski z BitLockerem, dyski Linux, dyski maszyn wirtualnych i obrazy dysków, których macOS sam nie potrafi otworzyć.\n\nOdczyt dysku na poziomie surowego urządzenia wymaga Pełnego dostępu do dysku. macOS nie daje programom żadnego sposobu, by poprosić o to bezpośrednio, więc trzeba włączyć go ręcznie.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "%@ otwiera się w tle po zalogowaniu i przywraca dyski oraz obrazy, które były otwarte, dokładnie tak jak były. Dysk wymagający hasła wraca tylko wtedy, gdy hasło jest zapisane w pęku kluczy.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ uruchamia małą maszynę wirtualną z Linuksem, odblokowuje w niej dysk i przekazuje go z powrotem Finderowi. macOS nie odczyta systemów plików BitLocker ani Linuksa. Linux tak.",
@@ -157,6 +158,7 @@
     "Done": "Gotowe",
     "Download and install them": "Pobieraj je i instaluj",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "Dyski powiązane z modułem TPM zamiast z hasłem, w tym nowsze szyfrowanie sprzętowe w Ubuntu",
+    "Early Development": "Wczesny etap rozwoju",
     "Eject": "Wysuń",
     "Eject %@": "Wysuń %@",
     "Eject It and Open": "Wysuń i otwórz",
@@ -306,6 +308,7 @@
     "Third-Party Notices": "Informacje o oprogramowaniu innych firm",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "Ta kopia aplikacji %@ jest niekompletna: brakuje środowiska Linux. Zainstaluj ją ponownie.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Ta kopia aplikacji %@ jest niekompletna: brakuje silnika dysków. Zainstaluj ją ponownie.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "Ten dysk zawiera obraz dysku instalacyjnego, a nie system plików. Wymazanie w Narzędziu dyskowym lub `clean` w diskpart Windows usuwa obraz; szybkie formatowanie go zostawia.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ten dysk zawiera kilka woluminów, a %@ nie zdołał ustalić, które. Zgłoszenie tego byłoby pomocne.",
     "This drive is not encrypted.": "Ten dysk nie jest zaszyfrowany.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Ten dysk otworzył się tylko do odczytu: jego system plików nie przyjął zapisu. Może wymagać naprawy w systemie, do którego należy.",
@@ -398,8 +401,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "„%1$@” wymaga pliku „%2$@”, którego nie ma obok. Obraz tego rodzaju to zestaw plików i wymagane są wszystkie.",
     "“%@” opened in macOS": "Otwarto „%@” w systemie macOS",
     "“%@” was disconnected.": "„%@” został odłączony.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@” nie został poprawnie zamknięty, a jego najnowsza zawartość nie została zapisana z powrotem do pliku. Otwórz go raz w maszynie wirtualnej, do której należy, i spróbuj ponownie.",
-    "Early Development": "Wczesny etap rozwoju",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ jest wciąż nowy. Narzędzia i sterowniki Linuksa, na których się opiera, istnieją od lat i są dobrze sprawdzone. %@ jest na nich zbudowany, ale sam wciąż powstaje, więc nieuchronnie kryje jeszcze nieodkryte usterki. Na razie najbezpieczniej używać go do otwierania dysków i obrazów tylko do odczytu. Zapis działa, ale traktuj go jako eksperymentalny i zachowaj kopię wszystkiego, czego utrata byłaby przykra."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@” nie został poprawnie zamknięty, a jego najnowsza zawartość nie została zapisana z powrotem do pliku. Otwórz go raz w maszynie wirtualnej, do której należy, i spróbuj ponownie."
   }
 }

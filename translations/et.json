@@ -89,6 +89,7 @@
     "%@ image can only be opened read-only": "%@-tõmmise saab avada ainult kirjutuskaitstuna",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ on vaba tarkvara GPL-litsentsi versiooni 3 või uuema alusel. Haakimise teeb anylinuxfs. Iga komponendi täielik lähtekood avaldatakse koos iga väljalaskega. Nimi ja logo on kaubamärgid ning need litsents ei hõlma.",
     "%@ is not able to open this file format.": "%@ ei suuda seda failivormingut avada.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ on veel uus. Linuxi tööriistad ja draiverid, millele see tugineb, on olnud olemas aastaid ja on hästi testitud. %@ on ehitatud nende peale, kuid on ise alles arendusjärgus, nii et paratamatult leidub veel avastamata probleeme. Praegu on kõige turvalisem kasutada seda ketaste ja tõmmiste avamiseks ainult lugemiseks. Kirjutamine töötab, kuid suhtuge sellesse kui katselisse ja hoidke alles koopia kõigest, mille kaotamine oleks kahju.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "%@ avab BitLockeri, Linuxi ja virtuaalmasinate kettaid ning ketta tõmmiseid, mida macOS ise avada ei oska.\n\nKetta lugemine toorseadme tasandil nõuab Full Disk Access’i. macOS ei anna rakendustele võimalust seda otse küsida, seega tuleb see käsitsi sisse lülitada.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "%@ avaneb sisselogimisel taustal ja taastab kettad ja tõmmised, mis olid avatud, täpselt nagu need olid. Parooli vajav ketas tuleb tagasi ainult siis, kui parool on võtmehoidjas salvestatud.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ käivitab väikese Linuxi virtuaalmasina, avab selle sees oleva ketta lukust ja annab ketta Finderile tagasi. macOS ei oska lugeda BitLockeri ega Linuxi failisüsteeme. Linux oskab.",
@@ -141,6 +142,7 @@
     "Done": "Valmis",
     "Download and install them": "Laadi need alla ja paigalda",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "Kettad, mis on seotud TPM-iga parooli asemel, sealhulgas Ubuntu uuem riistvarapõhine krüpteering",
+    "Early Development": "Varajane arendusjärk",
     "Eject": "Väljuta",
     "Eject %@": "Väljuta %@",
     "Eject It and Open": "Väljuta ja ava",
@@ -290,6 +292,7 @@
     "Third-Party Notices": "Kolmandate osapoolte teatised",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "See %@ koopia on puudulik: Linuxi keskkond on puudu. Paigalda see uuesti.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "See %@ koopia on puudulik: ketaste mootor on puudu. Paigalda see uuesti.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "Sellel kettal on paigaldusketta tõmmis, mitte failisüsteem. Kustutamine Disk Utility's või `clean` Windowsi diskpartis eemaldab tõmmise; kiirvormindus jätab selle alles.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "See ketas sisaldab mitut köidet ja %@ ei suutnud tuvastada, milliseid. Sellest teatamine aitaks.",
     "This drive is not encrypted.": "See ketas ei ole krüptitud.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "See ketas avanes kirjutuskaitstuna: selle failisüsteem ei võtnud kirjutamist vastu. Võib-olla vajab see parandamist süsteemis, kuhu ta kuulub.",
@@ -382,8 +385,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "„%1$@“ vajab faili „%2$@“, mida tema kõrval ei ole. Sellist liiki tõmmis on failide kogum ja vaja on neid kõiki.",
     "“%@” opened in macOS": "„%@“ avati macOS-is",
     "“%@” was disconnected.": "„%@“ ühendati lahti.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ ei suletud korralikult ja tema viimane sisu on faili tagasi kirjutamata. Ava see korra virtuaalmasinas, kuhu see kuulub, ja proovi siis uuesti.",
-    "Early Development": "Varajane arendusjärk",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ on veel uus. Linuxi tööriistad ja draiverid, millele see tugineb, on olnud olemas aastaid ja on hästi testitud. %@ on ehitatud nende peale, kuid on ise alles arendusjärgus, nii et paratamatult leidub veel avastamata probleeme. Praegu on kõige turvalisem kasutada seda ketaste ja tõmmiste avamiseks ainult lugemiseks. Kirjutamine töötab, kuid suhtuge sellesse kui katselisse ja hoidke alles koopia kõigest, mille kaotamine oleks kahju."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ ei suletud korralikult ja tema viimane sisu on faili tagasi kirjutamata. Ava see korra virtuaalmasinas, kuhu see kuulub, ja proovi siis uuesti."
   }
 }

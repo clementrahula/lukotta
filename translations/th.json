@@ -81,6 +81,7 @@
     "%@ image can only be opened read-only": "อิมเมจ %@ เปิดได้แบบอ่านอย่างเดียวเท่านั้น",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ เป็นซอฟต์แวร์เสรีภายใต้ GPL รุ่น 3 หรือใหม่กว่า การเมานต์ทำโดย anylinuxfs ซอร์สโค้ดฉบับสมบูรณ์ของทุกส่วนประกอบเผยแพร่พร้อมกับทุกรุ่นที่ปล่อยออกมา ชื่อและโลโก้เป็นเครื่องหมายการค้าและไม่อยู่ภายใต้สัญญาอนุญาตนั้น",
     "%@ is not able to open this file format.": "%@ เปิดรูปแบบไฟล์นี้ไม่ได้",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ ยังใหม่อยู่ เครื่องมือและไดรเวอร์ของ Linux ที่ใช้เป็นฐานนั้นมีมาหลายปีและผ่านการทดสอบมาอย่างดี %@ สร้างขึ้นบนสิ่งเหล่านั้น แต่ตัวมันเองยังอยู่ระหว่างการพัฒนา จึงย่อมมีปัญหาที่ยังไม่ถูกค้นพบ ในตอนนี้ วิธีที่ปลอดภัยที่สุดคือใช้เปิดไดรฟ์และอิมเมจแบบอ่านอย่างเดียว การเขียนใช้งานได้ แต่โปรดถือว่าเป็นการทดลอง และเก็บสำเนาของสิ่งที่คุณไม่อยากสูญเสียไว้ด้วย",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "%@ เปิดไดรฟ์ BitLocker, Linux และไดรฟ์ของเครื่องเสมือน รวมถึงอิมเมจดิสก์ที่ macOS เปิดเองไม่ได้\n\nการอ่านไดรฟ์ในระดับอุปกรณ์ดิบต้องใช้ การเข้าถึงดิสก์เต็มรูปแบบ macOS ไม่มีวิธีให้แอปขอสิทธิ์นี้โดยตรง จึงต้องเปิดด้วยมือ",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "%@ จะเปิดขึ้นเบื้องหลังเมื่อคุณล็อกอิน และนำไดรฟ์กับอิมเมจที่เปิดอยู่กลับมาเหมือนเดิม ไดรฟ์ที่ต้องใช้รหัสผ่านจะกลับมาก็ต่อเมื่อรหัสผ่านถูกบันทึกไว้ใน Keychain",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ จะเริ่มเครื่องเสมือน Linux ขนาดเล็ก ปลดล็อกไดรฟ์ภายในนั้น แล้วส่งไดรฟ์ต่อให้ Finder macOS อ่านระบบไฟล์ BitLocker หรือ Linux ไม่ได้ แต่ Linux อ่านได้",
@@ -133,6 +134,7 @@
     "Done": "เสร็จ",
     "Download and install them": "ดาวน์โหลดและติดตั้ง",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "ไดรฟ์ที่ผูกกับ TPM แทนรหัสผ่าน รวมถึงการเข้ารหัสด้วยฮาร์ดแวร์รุ่นใหม่ของ Ubuntu",
+    "Early Development": "อยู่ระหว่างการพัฒนาช่วงต้น",
     "Eject": "ดันออก",
     "Eject %@": "ดันออก %@",
     "Eject It and Open": "ดีดออกแล้วเปิด",
@@ -282,6 +284,7 @@
     "Third-Party Notices": "ประกาศของบุคคลที่สาม",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "สำเนา %@ นี้ไม่สมบูรณ์ ขาดสภาพแวดล้อม Linux ติดตั้งใหม่อีกครั้ง",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "สำเนา %@ นี้ไม่สมบูรณ์ ขาดเอนจินไดรฟ์ ติดตั้งใหม่อีกครั้ง",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "ไดรฟ์นี้เก็บดิสก์อิมเมจสำหรับติดตั้ง ไม่ใช่ระบบไฟล์ การลบใน Disk Utility หรือคำสั่ง `clean` ใน diskpart ของ Windows จะล้างอิมเมจนี้ ส่วนการฟอร์แมตแบบเร็วจะทิ้งไว้เหมือนเดิม",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "ไดรฟ์นี้มีหลายโวลุ่มอยู่ภายใน และ %@ ระบุไม่ได้ว่าเป็นโวลุ่มใดบ้าง การรายงานเรื่องนี้จะช่วยได้มาก",
     "This drive is not encrypted.": "ไดรฟ์นี้ไม่ได้เข้ารหัส",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "ไดรฟ์นี้เปิดแบบอ่านอย่างเดียว ระบบไฟล์ไม่ยอมรับการเขียน อาจต้องซ่อมแซมในระบบที่ไดรฟ์นี้สังกัดอยู่",
@@ -374,8 +377,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "“%@” ต้องใช้ “%@” ซึ่งไม่ได้อยู่ข้างกัน อิมเมจแบบนี้เป็นชุดของไฟล์ และต้องมีครบทุกไฟล์",
     "“%@” opened in macOS": "“%@” ถูกเปิดใน macOS",
     "“%@” was disconnected.": "“%@” ถูกตัดการเชื่อมต่อแล้ว",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” ปิดไม่เรียบร้อย และเนื้อหาล่าสุดยังไม่ถูกเขียนกลับลงไฟล์ เปิดมันหนึ่งครั้งในเครื่องเสมือนที่เป็นเจ้าของ จากนั้นลองใหม่",
-    "Early Development": "อยู่ระหว่างการพัฒนาช่วงต้น",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ ยังใหม่อยู่ เครื่องมือและไดรเวอร์ของ Linux ที่ใช้เป็นฐานนั้นมีมาหลายปีและผ่านการทดสอบมาอย่างดี %@ สร้างขึ้นบนสิ่งเหล่านั้น แต่ตัวมันเองยังอยู่ระหว่างการพัฒนา จึงย่อมมีปัญหาที่ยังไม่ถูกค้นพบ ในตอนนี้ วิธีที่ปลอดภัยที่สุดคือใช้เปิดไดรฟ์และอิมเมจแบบอ่านอย่างเดียว การเขียนใช้งานได้ แต่โปรดถือว่าเป็นการทดลอง และเก็บสำเนาของสิ่งที่คุณไม่อยากสูญเสียไว้ด้วย"
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” ปิดไม่เรียบร้อย และเนื้อหาล่าสุดยังไม่ถูกเขียนกลับลงไฟล์ เปิดมันหนึ่งครั้งในเครื่องเสมือนที่เป็นเจ้าของ จากนั้นลองใหม่"
   }
 }

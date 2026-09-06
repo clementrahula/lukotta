@@ -105,6 +105,7 @@
     "%@ image can only be opened read-only": "Slika %@ se lahko odpre samo za branje",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ je prosto programje pod licenco GPL, različica 3 ali novejša. Priklop opravi anylinuxfs. Popolna izvorna koda vsake komponente je objavljena z vsako izdajo. Ime in logotip sta blagovni znamki in ju ta licenca ne zajema.",
     "%@ is not able to open this file format.": "%@ ne zna odpreti te vrste datoteke.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ je še nov. Orodja in gonilniki Linuxa, na katere se opira, obstajajo že leta in so dobro preizkušeni. %@ je zgrajen na njih, a je sam še v razvoju, zato neizogibno ostajajo še neodkrite težave. Zaenkrat je najvarneje z njim odpirati pogone in slike samo za branje. Pisanje deluje, a ga imejte za poskusno in ohranite kopijo vsega, česar ne bi radi izgubili.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "%@ odpira diske BitLocker in Linux, diske navideznih računalnikov ter slike diskov, ki jih macOS sam ne zna odpreti.\n\nBranje diska na ravni surove naprave zahteva Full Disk Access. macOS programom ne omogoča, da bi zanj zaprosili neposredno, zato ga je treba vklopiti ročno.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "%@ se ob prijavi odpre v ozadju in povrne diske ter slike, ki so bili odprti, take, kot so bili. Disk, ki zahteva geslo, se vrne le, če je geslo shranjeno v ključevniku.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ zažene majhen navidezni stroj z Linuxom, v njem odklene pogon in ga preda nazaj Finderju. macOS ne zna brati datotečnih sistemov BitLocker ali Linux. Linux jih zna.",
@@ -157,6 +158,7 @@
     "Done": "Končano",
     "Download and install them": "Prenesi in namesti jih",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "Pogoni, vezani na TPM namesto na geslo, vključno z novejšim strojnim šifriranjem v Ubuntuju",
+    "Early Development": "Zgodnji razvoj",
     "Eject": "Izvrzi",
     "Eject %@": "Izvrzi %@",
     "Eject It and Open": "Izvrzi in odpri",
@@ -306,6 +308,7 @@
     "Third-Party Notices": "Obvestila tretjih oseb",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "Ta izvod aplikacije %@ ni popoln: manjka okolje Linux. Znova ga namestite.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Ta izvod aplikacije %@ ni popoln: manjka mehanizem za pogone. Znova ga namestite.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "Ta pogon vsebuje namestitveno sliko diska in ne datotečnega sistema. Brisanje v Disk Utility ali `clean` v Windows diskpart odstrani sliko; hitro formatiranje jo pusti.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ta pogon vsebuje več nosilcev, %@ pa ni mogel ugotoviti, katere. Prijava bi pomagala.",
     "This drive is not encrypted.": "Ta disk ni šifriran.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Ta pogon se je odprl samo za branje: njegov datotečni sistem ni sprejel pisanja. Morda ga je treba popraviti v sistemu, ki mu pripada.",
@@ -398,8 +401,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "»%1$@« potrebuje »%2$@«, ki ni ob njej. Slika te vrste je nabor datotek in potrebne so vse.",
     "“%@” opened in macOS": "»%@« je bil odprt v macOS",
     "“%@” was disconnected.": "»%@« je bil odklopljen.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "»%@« ni bil pravilno zaustavljen in njegova najnovejša vsebina ni bila zapisana nazaj v datoteko. Odprite ga enkrat v navideznem računalniku, ki mu pripada, in poskusite znova.",
-    "Early Development": "Zgodnji razvoj",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ je še nov. Orodja in gonilniki Linuxa, na katere se opira, obstajajo že leta in so dobro preizkušeni. %@ je zgrajen na njih, a je sam še v razvoju, zato neizogibno ostajajo še neodkrite težave. Zaenkrat je najvarneje z njim odpirati pogone in slike samo za branje. Pisanje deluje, a ga imejte za poskusno in ohranite kopijo vsega, česar ne bi radi izgubili."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "»%@« ni bil pravilno zaustavljen in njegova najnovejša vsebina ni bila zapisana nazaj v datoteko. Odprite ga enkrat v navideznem računalniku, ki mu pripada, in poskusite znova."
   }
 }

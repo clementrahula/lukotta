@@ -6,9 +6,9 @@
         "other": "%lld drives had stopped responding and were disconnected. You can open them again."
       },
       "ru": {
-        "one": "%lld диск перестал отвечать и был отключён. Вы можете открыть его снова.",
         "few": "%lld диска перестали отвечать и были отключены. Вы можете открыть их снова.",
         "many": "%lld дисков перестали отвечать и были отключены. Вы можете открыть их снова.",
+        "one": "%lld диск перестал отвечать и был отключён. Вы можете открыть его снова.",
         "other": "%lld диска перестали отвечать и были отключены. Вы можете открыть их снова."
       }
     },
@@ -18,9 +18,9 @@
         "other": "%lld open drives will be ejected."
       },
       "ru": {
-        "one": "%lld открытый диск будет извлечён.",
         "few": "%lld открытых диска будут извлечены.",
         "many": "%lld открытых дисков будут извлечены.",
+        "one": "%lld открытый диск будет извлечён.",
         "other": "%lld открытых диска будут извлечены."
       }
     },
@@ -30,9 +30,9 @@
         "other": "%lld volumes"
       },
       "ru": {
-        "one": "%lld том",
         "few": "%lld тома",
         "many": "%lld томов",
+        "one": "%lld том",
         "other": "%lld тома"
       }
     },
@@ -42,9 +42,9 @@
         "other": "Also delete %1$lld saved passphrases (%2$@)"
       },
       "ru": {
-        "one": "Также удалить %lld сохранённую парольную фразу (%@)",
         "few": "Также удалить %lld сохранённые парольные фразы (%@)",
         "many": "Также удалить %lld сохранённых парольных фраз (%@)",
+        "one": "Также удалить %lld сохранённую парольную фразу (%@)",
         "other": "Также удалить %lld сохранённых парольных фраз (%@)"
       }
     },
@@ -54,9 +54,9 @@
         "other": "Deleting %lld saved passphrases"
       },
       "ru": {
-        "one": "Удаление %lld сохранённой парольной фразы",
         "few": "Удаление %lld сохранённых парольных фраз",
         "many": "Удаление %lld сохранённых парольных фраз",
+        "one": "Удаление %lld сохранённой парольной фразы",
         "other": "Удаление %lld сохранённых парольных фраз"
       }
     },
@@ -66,9 +66,9 @@
         "other": "Ejecting %lld open drives"
       },
       "ru": {
-        "one": "Извлечение %lld открытого диска",
         "few": "Извлечение %lld открытых дисков",
         "many": "Извлечение %lld открытых дисков",
+        "one": "Извлечение %lld открытого диска",
         "other": "Извлечение %lld открытых дисков"
       }
     },
@@ -78,9 +78,9 @@
         "other": "Quit and leave %lld drives open?"
       },
       "ru": {
-        "one": "Выйти, оставив %lld диск открытым?",
         "few": "Выйти, оставив %lld диска открытыми?",
         "many": "Выйти, оставив %lld дисков открытыми?",
+        "one": "Выйти, оставив %lld диск открытым?",
         "other": "Выйти, оставив %lld диска открытыми?"
       }
     },
@@ -90,9 +90,9 @@
         "other": "This drive holds %lld volumes and not all of them could be opened."
       },
       "ru": {
-        "one": "Этот диск содержит %lld том, и не все из них удалось открыть.",
         "few": "Этот диск содержит %lld тома, и не все из них удалось открыть.",
         "many": "Этот диск содержит %lld томов, и не все из них удалось открыть.",
+        "one": "Этот диск содержит %lld том, и не все из них удалось открыть.",
         "other": "Этот диск содержит %lld тома, и не все из них удалось открыть."
       }
     }
@@ -105,6 +105,7 @@
     "%@ image can only be opened read-only": "Образ %@ можно открыть только для чтения",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ — свободное программное обеспечение под лицензией GPL версии 3 или новее. Монтирование выполняет anylinuxfs. Полный исходный код каждого компонента публикуется с каждым выпуском. Название и логотип являются товарными знаками и этой лицензией не покрываются.",
     "%@ is not able to open this file format.": "%@ не может открыть этот формат файла.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ ещё новое приложение. Инструменты и драйверы Linux, на которые оно опирается, существуют многие годы и хорошо проверены. %@ построено поверх них, но само пока в разработке, поэтому неизбежно остаются невыявленные неполадки. Пока безопаснее всего открывать с его помощью диски и образы только для чтения. Запись работает, но считайте её экспериментальной и храните копию всего, что не хотели бы потерять.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "%@ открывает диски BitLocker, Linux и виртуальных машин, а также образы дисков, которые macOS не открывает сам.\n\nЧтение диска на уровне устройства требует Полный доступ к диску. macOS не даёт приложению возможности запросить это напрямую, поэтому включить придётся вручную.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "%@ открывается в фоне при входе в систему и возвращает диски и образы, которые были открыты, в прежнем виде. Диск, требующий пароль, вернётся только если пароль сохранён в связке ключей.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ запускает небольшую виртуальную машину Linux, разблокирует диск внутри неё и передаёт диск обратно в Finder. macOS не умеет читать файловые системы BitLocker и Linux. Linux умеет.",
@@ -157,6 +158,7 @@
     "Done": "Готово",
     "Download and install them": "Загружать и устанавливать их",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "Диски, привязанные к TPM вместо пароля, включая новое аппаратное шифрование Ubuntu",
+    "Early Development": "Ранняя стадия разработки",
     "Eject": "Извлечь",
     "Eject %@": "Извлечь %@",
     "Eject It and Open": "Извлечь и открыть",
@@ -306,6 +308,7 @@
     "Third-Party Notices": "Уведомления третьих сторон",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "Эта копия %@ неполная: отсутствует среда Linux. Установите её заново.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Эта копия %@ неполная: отсутствует движок дисков. Установите её заново.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "На этом диске находится установочный образ, а не файловая система. Стирание в «Дисковой утилите» или `clean` в diskpart Windows удаляет образ; быстрое форматирование оставляет его на месте.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Этот диск содержит несколько томов, и %@ не смог определить, какие именно. Сообщение об этом помогло бы.",
     "This drive is not encrypted.": "Этот диск не зашифрован.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Этот диск открылся только для чтения: его файловая система не приняла запись. Возможно, её нужно исправить в той системе, которой диск принадлежит.",
@@ -398,8 +401,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "«%@» требует «%@», которого нет рядом. Образ такого рода — это набор файлов, и нужны все они.",
     "“%@” opened in macOS": "«%@» открыт в macOS",
     "“%@” was disconnected.": "«%@» был отключён.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "«%@» был завершён некорректно, и его последнее содержимое не записано обратно в файл. Откройте его один раз в той виртуальной машине, которой он принадлежит, затем попробуйте снова.",
-    "Early Development": "Ранняя стадия разработки",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ ещё новое приложение. Инструменты и драйверы Linux, на которые оно опирается, существуют многие годы и хорошо проверены. %@ построено поверх них, но само пока в разработке, поэтому неизбежно остаются невыявленные неполадки. Пока безопаснее всего открывать с его помощью диски и образы только для чтения. Запись работает, но считайте её экспериментальной и храните копию всего, что не хотели бы потерять."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "«%@» был завершён некорректно, и его последнее содержимое не записано обратно в файл. Откройте его один раз в той виртуальной машине, которой он принадлежит, затем попробуйте снова."
   }
 }

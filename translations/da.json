@@ -89,6 +89,7 @@
     "%@ image can only be opened read-only": "Et %@-diskbillede kan kun åbnes skrivebeskyttet",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ er fri software under GPL, version 3 eller nyere. Aktiveringen klares af anylinuxfs. Den fulde kildekode for hver komponent udgives med hver version. Navnet og logoet er varemærker og er ikke omfattet af den licens.",
     "%@ is not able to open this file format.": "%@ kan ikke åbne dette filformat.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ er stadig ny. De Linux-værktøjer og -drivere, den bygger på, har eksisteret i årevis og er velafprøvede. %@ er bygget oven på dem, men er stadig under udvikling, så der er uundgåeligt fejl, der endnu ikke er fundet. Indtil videre er det sikreste at bruge den til at åbne enheder og images skrivebeskyttet. Skrivning virker, men betragt det som eksperimentelt, og behold en kopi af alt, du ville ærgre dig over at miste.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "%@ åbner BitLocker-, Linux- og virtuelle maskiners diske samt diskbilleder, som macOS ikke selv kan åbne.\n\nAt læse en disk på råt enhedsniveau kræver Fuld adgang til disk. macOS giver ikke programmer nogen måde at bede om det direkte, så den skal slås til i hånden.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "%@ åbner i baggrunden, når du logger ind, og sætter de diske og diskbilleder tilbage, der var åbne, præcis som de var. En disk, der kræver en adgangskode, kommer kun tilbage, hvis adgangskoden er gemt i din nøglering.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ starter en lille virtuel Linux-maskine, låser enheden op inde i den og giver enheden tilbage til Finder. macOS kan ikke læse BitLocker- eller Linux-filsystemer. Det kan Linux.",
@@ -141,6 +142,7 @@
     "Done": "OK",
     "Download and install them": "Hent og installer dem",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "Enheder bundet til en TPM i stedet for en adgangskode, herunder Ubuntus nyere hardwarekryptering",
+    "Early Development": "Tidlig udvikling",
     "Eject": "Skub ud",
     "Eject %@": "Skub %@ ud",
     "Eject It and Open": "Skub ud, og åbn",
@@ -290,6 +292,7 @@
     "Third-Party Notices": "Meddelelser om tredjepartssoftware",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "Dette eksemplar af %@ er ufuldstændigt: Linux-miljøet mangler. Installer det igen.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Dette eksemplar af %@ er ufuldstændigt: motoren til enheder mangler. Installer det igen.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "Dette drev indeholder et installations-diskaftryk og ikke et filsystem. At slette det i Diskværktøj eller `clean` i Windows diskpart fjerner aftrykket; en hurtig formatering lader det blive.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Denne enhed indeholder flere diskenheder, og %@ kunne ikke finde ud af hvilke. Det vil hjælpe at rapportere det.",
     "This drive is not encrypted.": "Denne disk er ikke krypteret.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Denne enhed blev åbnet skrivebeskyttet: filsystemet ville ikke acceptere skrivning. Det skal måske repareres på det system, det hører til.",
@@ -382,8 +385,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "“%1$@” har brug for “%2$@”, som ikke ligger ved siden af den. Et diskbillede af denne slags er et sæt filer, og de kræves alle.",
     "“%@” opened in macOS": "“%@” blev åbnet i macOS",
     "“%@” was disconnected.": "“%@” blev frakoblet.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” blev ikke lukket ned korrekt, og dens seneste indhold er ikke skrevet tilbage til filen. Åbn den én gang i den virtuelle maskine, den hører til, og prøv igen.",
-    "Early Development": "Tidlig udvikling",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ er stadig ny. De Linux-værktøjer og -drivere, den bygger på, har eksisteret i årevis og er velafprøvede. %@ er bygget oven på dem, men er stadig under udvikling, så der er uundgåeligt fejl, der endnu ikke er fundet. Indtil videre er det sikreste at bruge den til at åbne enheder og images skrivebeskyttet. Skrivning virker, men betragt det som eksperimentelt, og behold en kopi af alt, du ville ærgre dig over at miste."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” blev ikke lukket ned korrekt, og dens seneste indhold er ikke skrevet tilbage til filen. Åbn den én gang i den virtuelle maskine, den hører til, og prøv igen."
   }
 }

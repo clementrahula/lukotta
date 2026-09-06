@@ -89,6 +89,7 @@
     "%@ image can only be opened read-only": "Образ %@ може да се отвори само за четене",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ е свободен софтуер под лиценза GPL, версия 3 или по-нова. Монтирането се извършва от anylinuxfs. Пълният изходен код на всеки компонент се публикува с всяко издание. Името и логото са търговски марки и не са обхванати от този лиценз.",
     "%@ is not able to open this file format.": "%@ не може да отвори този файлов формат.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ е все още нов. Инструментите и драйверите на Linux, на които разчита, съществуват от години и са добре изпитани. %@ е изграден върху тях, но все още е в разработка, така че неизбежно има неоткрити проблеми. Засега най-безопасно е да го използвате за отваряне на дискове и образи само за четене. Записът работи, но го смятайте за експериментален и пазете копие на всичко, което не бихте искали да загубите.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "%@ отваря дискове с BitLocker и Linux, дискове на виртуални машини и дискови образи, които macOS не може да отвори сам.\n\nЧетенето на диск на ниво сурово устройство изисква Full Disk Access. macOS не дава на приложенията начин да поискат това пряко, затова се включва ръчно.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "%@ се отваря на заден план при влизане и връща дисковете и образите, които са били отворени, точно както са били. Диск, който изисква парола, се връща само ако паролата е запазена в Keychain.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ стартира малка виртуална машина с Linux, отключва диска в нея и го предава обратно на Finder. macOS не може да чете файлови системи на BitLocker или Linux. Linux може.",
@@ -141,6 +142,7 @@
     "Done": "Готово",
     "Download and install them": "Изтегляй ги и ги инсталирай",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "Дискове, обвързани с TPM вместо с парола, включително по-новото хардуерно шифроване на Ubuntu",
+    "Early Development": "Ранна разработка",
     "Eject": "Извади",
     "Eject %@": "Извади %@",
     "Eject It and Open": "Извади и отвори",
@@ -290,6 +292,7 @@
     "Third-Party Notices": "Известия за софтуер на трети страни",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "Това копие на %@ е непълно: средата на Linux липсва. Инсталирайте го отново.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Това копие на %@ е непълно: двигателят за дискове липсва. Инсталирайте го отново.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "Това устройство съдържа инсталационен образ на диск, а не файлова система. Изтриването в Disk Utility или `clean` в Windows diskpart премахва образа; бързото форматиране го оставя на място.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Този диск съдържа няколко тома и %@ не успя да определи кои. Съобщаването за това би помогнало.",
     "This drive is not encrypted.": "Този диск не е шифрован.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Този диск се отвори само за четене: файловата му система не прие запис. Може да се нуждае от поправка в системата, към която принадлежи.",
@@ -382,8 +385,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "„%1$@“ се нуждае от „%2$@“, който не е до него. Образ от този вид е набор от файлове и всички те са задължителни.",
     "“%@” opened in macOS": "„%@“ беше отворен в macOS",
     "“%@” was disconnected.": "„%@“ беше изключен.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ не беше изключен правилно и последното му съдържание не е записано обратно във файла. Отворете го веднъж във виртуалната машина, на която принадлежи, и опитайте отново.",
-    "Early Development": "Ранна разработка",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ е все още нов. Инструментите и драйверите на Linux, на които разчита, съществуват от години и са добре изпитани. %@ е изграден върху тях, но все още е в разработка, така че неизбежно има неоткрити проблеми. Засега най-безопасно е да го използвате за отваряне на дискове и образи само за четене. Записът работи, но го смятайте за експериментален и пазете копие на всичко, което не бихте искали да загубите."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ не беше изключен правилно и последното му съдържание не е записано обратно във файла. Отворете го веднъж във виртуалната машина, на която принадлежи, и опитайте отново."
   }
 }

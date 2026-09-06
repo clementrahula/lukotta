@@ -89,6 +89,7 @@
     "%@ image can only be opened read-only": "Imazhi %@ mund të hapet vetëm si vetëm-lexim",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ është software i lirë sipas GPL, versioni 3 ose më i vonshëm. Montimi kryhet nga anylinuxfs. Burimi i plotë për çdo komponent publikohet me çdo hedhje në qarkullim. Emri dhe logoja janë marka tregtare dhe nuk mbulohen nga ajo licencë.",
     "%@ is not able to open this file format.": "%@ nuk është në gjendje ta hapë këtë format skedari.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ është ende i ri. Mjetet dhe drejtuesit e Linux mbi të cilët mbështetet ekzistojnë prej vitesh dhe janë provuar mirë. %@ është ndërtuar mbi ta, por është ende në zhvillim, prandaj në mënyrë të pashmangshme ka probleme që s’janë zbuluar. Për tani, gjëja më e sigurt është ta përdorni për të hapur disqe dhe imazhe vetëm për lexim. Shkrimi funksionon, por trajtojeni si eksperimental dhe mbani një kopje të gjithçkaje që s’do të donit ta humbnit.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "%@ hap disqe BitLocker, Linux dhe disqe makinash virtuale, si dhe imazhe disqesh që macOS nuk i hap dot vetë.\n\nLeximi i një disku në nivelin e pajisjes së papërpunuar kërkon Full Disk Access. macOS nuk i jep asnjë mënyrë një aplikacioni për ta kërkuar këtë drejtpërdrejt, ndaj duhet aktivizuar me dorë.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "%@ hapet në sfond kur hyn dhe i rikthen disqet dhe imazhet që ishin të hapura, ashtu siç ishin. Një disk që kërkon fjalëkalim kthehet vetëm nëse fjalëkalimi është ruajtur në Keychain.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ nis një makinë të vogël virtuale Linux, e shkyç diskun brenda saj dhe ia dorëzon diskun Finder-it. macOS nuk i lexon dot sistemet e skedarëve BitLocker ose Linux. Linux po.",
@@ -141,6 +142,7 @@
     "Done": "U krye",
     "Download and install them": "Shkarkoji dhe instaloji",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "Disqe të vulosur me TPM në vend të një fjalëkalimi, përfshirë enkriptimin më të ri harduerik të Ubuntu-t",
+    "Early Development": "Zhvillim i hershëm",
     "Eject": "Nxirr",
     "Eject %@": "Nxirr %@",
     "Eject It and Open": "Nxirre dhe hape",
@@ -290,6 +292,7 @@
     "Third-Party Notices": "Njoftime për palët e treta",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "Kjo kopje e %@ është e paplotë: mungon mjedisi Linux. Instaloje sërish.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Kjo kopje e %@ është e paplotë: mungon motori i disqeve. Instaloje sërish.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "Ky disk përmban një imazh disku instalimi, jo një sistem skedarësh. Fshirja në Disk Utility, ose `clean` në diskpart të Windows, e heq imazhin; një formatim i shpejtë e lë aty.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ky disk përmban disa volume brenda, dhe %@ nuk mundi të dallonte cilët. Raportimi i kësaj do të ndihmonte.",
     "This drive is not encrypted.": "Ky disk nuk është i enkriptuar.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Ky disk u hap vetëm për lexim: sistemi i tij i skedarëve nuk pranoi shkrime. Mund të ketë nevojë për riparim në sistemin të cilit i përket.",
@@ -382,8 +385,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "“%@” ka nevojë për “%@”, i cili nuk ndodhet pranë tij. Një imazh i këtij lloji është një grup skedarësh, dhe të gjithë janë të nevojshëm.",
     "“%@” opened in macOS": "“%@” u hap në macOS",
     "“%@” was disconnected.": "“%@” u shkëput.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” nuk u fik si duhet, dhe përmbajtja e tij më e fundit nuk është shkruar sërish në skedar. Hape një herë në makinën virtuale së cilës i përket, pastaj provo sërish.",
-    "Early Development": "Zhvillim i hershëm",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ është ende i ri. Mjetet dhe drejtuesit e Linux mbi të cilët mbështetet ekzistojnë prej vitesh dhe janë provuar mirë. %@ është ndërtuar mbi ta, por është ende në zhvillim, prandaj në mënyrë të pashmangshme ka probleme që s’janë zbuluar. Për tani, gjëja më e sigurt është ta përdorni për të hapur disqe dhe imazhe vetëm për lexim. Shkrimi funksionon, por trajtojeni si eksperimental dhe mbani një kopje të gjithçkaje që s’do të donit ta humbnit."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” nuk u fik si duhet, dhe përmbajtja e tij më e fundit nuk është shkruar sërish në skedar. Hape një herë në makinën virtuale së cilës i përket, pastaj provo sërish."
   }
 }

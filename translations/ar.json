@@ -1,115 +1,115 @@
 {
   "plurals": {
     "%lld drives had stopped responding and were disconnected. You can open them again.": {
+      "ar": {
+        "few": "توقفت %lld محركات أقراص عن الاستجابة وفُصلت. يمكنك فتحها من جديد.",
+        "many": "توقف %lld محرك أقراص عن الاستجابة وفُصلت. يمكنك فتحها من جديد.",
+        "one": "توقف محرك أقراص واحد عن الاستجابة وفُصل. يمكنك فتحه من جديد.",
+        "other": "توقف %lld محرك أقراص عن الاستجابة وفُصلت. يمكنك فتحها من جديد.",
+        "two": "توقف محركا أقراص عن الاستجابة وفُصلا. يمكنك فتحهما من جديد.",
+        "zero": "لم تتوقف أي محركات أقراص عن الاستجابة."
+      },
       "en": {
         "one": "%lld drive had stopped responding and was disconnected. You can open it again.",
         "other": "%lld drives had stopped responding and were disconnected. You can open them again."
-      },
-      "ar": {
-        "zero": "لم تتوقف أي محركات أقراص عن الاستجابة.",
-        "one": "توقف محرك أقراص واحد عن الاستجابة وفُصل. يمكنك فتحه من جديد.",
-        "two": "توقف محركا أقراص عن الاستجابة وفُصلا. يمكنك فتحهما من جديد.",
-        "few": "توقفت %lld محركات أقراص عن الاستجابة وفُصلت. يمكنك فتحها من جديد.",
-        "many": "توقف %lld محرك أقراص عن الاستجابة وفُصلت. يمكنك فتحها من جديد.",
-        "other": "توقف %lld محرك أقراص عن الاستجابة وفُصلت. يمكنك فتحها من جديد."
       }
     },
     "%lld open drives will be ejected.": {
+      "ar": {
+        "few": "ستُخرج %lld محركات أقراص مفتوحة.",
+        "many": "سيُخرج %lld محرك أقراص مفتوحًا.",
+        "one": "سيُخرج محرك أقراص مفتوح واحد.",
+        "other": "سيُخرج %lld محرك أقراص مفتوح.",
+        "two": "سيُخرج محركا أقراص مفتوحان.",
+        "zero": "لن يُخرج أي محرك أقراص."
+      },
       "en": {
         "one": "The open drive will be ejected.",
         "other": "%lld open drives will be ejected."
-      },
-      "ar": {
-        "zero": "لن يُخرج أي محرك أقراص.",
-        "one": "سيُخرج محرك أقراص مفتوح واحد.",
-        "two": "سيُخرج محركا أقراص مفتوحان.",
-        "few": "ستُخرج %lld محركات أقراص مفتوحة.",
-        "many": "سيُخرج %lld محرك أقراص مفتوحًا.",
-        "other": "سيُخرج %lld محرك أقراص مفتوح."
       }
     },
     "%lld volumes": {
+      "ar": {
+        "few": "%lld وحدات تخزين",
+        "many": "%lld وحدة تخزين",
+        "one": "وحدة تخزين واحدة",
+        "other": "%lld وحدة تخزين",
+        "two": "وحدتا تخزين",
+        "zero": "لا وحدات تخزين"
+      },
       "en": {
         "one": "%lld volume",
         "other": "%lld volumes"
-      },
-      "ar": {
-        "zero": "لا وحدات تخزين",
-        "one": "وحدة تخزين واحدة",
-        "two": "وحدتا تخزين",
-        "few": "%lld وحدات تخزين",
-        "many": "%lld وحدة تخزين",
-        "other": "%lld وحدة تخزين"
       }
     },
     "Also delete %lld saved passphrases (%@)": {
+      "ar": {
+        "few": "حذف %lld عبارات سر محفوظة أيضًا (%@)",
+        "many": "حذف %lld عبارة سر محفوظة أيضًا (%@)",
+        "one": "حذف عبارة السر المحفوظة أيضًا (%@)",
+        "other": "حذف %lld عبارة سر محفوظة أيضًا (%@)",
+        "two": "حذف عبارتَي السر المحفوظتين أيضًا (%@)",
+        "zero": "حذف عبارات السر المحفوظة أيضًا (%@)"
+      },
       "en": {
         "one": "Also delete the saved passphrase for %2$@",
         "other": "Also delete %1$lld saved passphrases (%2$@)"
-      },
-      "ar": {
-        "zero": "حذف عبارات السر المحفوظة أيضًا (%@)",
-        "one": "حذف عبارة السر المحفوظة أيضًا (%@)",
-        "two": "حذف عبارتَي السر المحفوظتين أيضًا (%@)",
-        "few": "حذف %lld عبارات سر محفوظة أيضًا (%@)",
-        "many": "حذف %lld عبارة سر محفوظة أيضًا (%@)",
-        "other": "حذف %lld عبارة سر محفوظة أيضًا (%@)"
       }
     },
     "Deleting %lld saved passphrases": {
+      "ar": {
+        "few": "يجري حذف %lld عبارات سر محفوظة",
+        "many": "يجري حذف %lld عبارة سر محفوظة",
+        "one": "يجري حذف عبارة سر محفوظة واحدة",
+        "other": "يجري حذف %lld عبارة سر محفوظة",
+        "two": "يجري حذف عبارتَي سر محفوظتين",
+        "zero": "يجري حذف عبارات السر المحفوظة"
+      },
       "en": {
         "one": "Deleting the saved passphrase",
         "other": "Deleting %lld saved passphrases"
-      },
-      "ar": {
-        "zero": "يجري حذف عبارات السر المحفوظة",
-        "one": "يجري حذف عبارة سر محفوظة واحدة",
-        "two": "يجري حذف عبارتَي سر محفوظتين",
-        "few": "يجري حذف %lld عبارات سر محفوظة",
-        "many": "يجري حذف %lld عبارة سر محفوظة",
-        "other": "يجري حذف %lld عبارة سر محفوظة"
       }
     },
     "Ejecting %lld open drives": {
+      "ar": {
+        "few": "يجري إخراج %lld محركات أقراص مفتوحة",
+        "many": "يجري إخراج %lld محرك أقراص مفتوحًا",
+        "one": "يجري إخراج محرك أقراص مفتوح واحد",
+        "other": "يجري إخراج %lld محرك أقراص مفتوح",
+        "two": "يجري إخراج محركَي أقراص مفتوحين",
+        "zero": "يجري إخراج محركات الأقراص المفتوحة"
+      },
       "en": {
         "one": "Ejecting the open drive",
         "other": "Ejecting %lld open drives"
-      },
-      "ar": {
-        "zero": "يجري إخراج محركات الأقراص المفتوحة",
-        "one": "يجري إخراج محرك أقراص مفتوح واحد",
-        "two": "يجري إخراج محركَي أقراص مفتوحين",
-        "few": "يجري إخراج %lld محركات أقراص مفتوحة",
-        "many": "يجري إخراج %lld محرك أقراص مفتوحًا",
-        "other": "يجري إخراج %lld محرك أقراص مفتوح"
       }
     },
     "Quit and leave %lld drives open?": {
+      "ar": {
+        "few": "هل تريد الإنهاء وترك %lld محركات أقراص مفتوحة؟",
+        "many": "هل تريد الإنهاء وترك %lld محرك أقراص مفتوحًا؟",
+        "one": "هل تريد الإنهاء وترك محرك أقراص واحد مفتوحًا؟",
+        "other": "هل تريد الإنهاء وترك %lld محرك أقراص مفتوح؟",
+        "two": "هل تريد الإنهاء وترك محركَي أقراص مفتوحين؟",
+        "zero": "هل تريد الإنهاء وترك محركات الأقراص مفتوحة؟"
+      },
       "en": {
         "one": "Quit and leave %lld drive open?",
         "other": "Quit and leave %lld drives open?"
-      },
-      "ar": {
-        "zero": "هل تريد الإنهاء وترك محركات الأقراص مفتوحة؟",
-        "one": "هل تريد الإنهاء وترك محرك أقراص واحد مفتوحًا؟",
-        "two": "هل تريد الإنهاء وترك محركَي أقراص مفتوحين؟",
-        "few": "هل تريد الإنهاء وترك %lld محركات أقراص مفتوحة؟",
-        "many": "هل تريد الإنهاء وترك %lld محرك أقراص مفتوحًا؟",
-        "other": "هل تريد الإنهاء وترك %lld محرك أقراص مفتوح؟"
       }
     },
     "This drive holds %lld volumes and not all of them could be opened.": {
+      "ar": {
+        "few": "يحتوي محرك الأقراص هذا على %lld وحدات تخزين ولم تُفتح كلها.",
+        "many": "يحتوي محرك الأقراص هذا على %lld وحدة تخزين ولم تُفتح كلها.",
+        "one": "يحتوي محرك الأقراص هذا على وحدة تخزين واحدة ولم تُفتح.",
+        "other": "يحتوي محرك الأقراص هذا على %lld وحدة تخزين ولم تُفتح كلها.",
+        "two": "يحتوي محرك الأقراص هذا على وحدتَي تخزين ولم تُفتح كلها.",
+        "zero": "لا يحتوي محرك الأقراص هذا على وحدات تخزين."
+      },
       "en": {
         "one": "This drive holds %lld volume and it could not be opened.",
         "other": "This drive holds %lld volumes and not all of them could be opened."
-      },
-      "ar": {
-        "zero": "لا يحتوي محرك الأقراص هذا على وحدات تخزين.",
-        "one": "يحتوي محرك الأقراص هذا على وحدة تخزين واحدة ولم تُفتح.",
-        "two": "يحتوي محرك الأقراص هذا على وحدتَي تخزين ولم تُفتح كلها.",
-        "few": "يحتوي محرك الأقراص هذا على %lld وحدات تخزين ولم تُفتح كلها.",
-        "many": "يحتوي محرك الأقراص هذا على %lld وحدة تخزين ولم تُفتح كلها.",
-        "other": "يحتوي محرك الأقراص هذا على %lld وحدة تخزين ولم تُفتح كلها."
       }
     }
   },
@@ -121,6 +121,7 @@
     "%@ image can only be opened read-only": "لا يمكن فتح صورة %@ إلا للقراءة فقط",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ برنامج حر بموجب رخصة GPL الإصدار 3 أو ما بعده. يتولى anylinuxfs عملية التركيب. تُنشر الشيفرة المصدرية الكاملة لكل مكوّن مع كل إصدار. الاسم والشعار علامتان تجاريتان ولا تشملهما تلك الرخصة.",
     "%@ is not able to open this file format.": "لا يستطيع %@ فتح صيغة الملف هذه.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "‏%@ لا يزال جديدًا. أدوات ومشغّلات لينكس التي يعتمد عليها موجودة منذ سنوات وجرى اختبارها جيدًا. %@ مبني فوقها، لكنه لا يزال قيد التطوير، لذا لا مفر من وجود مشكلات لم تُكتشف بعد. في الوقت الحالي، أأمن ما يمكن فعله هو استخدامه لفتح محركات الأقراص والصور للقراءة فقط. الكتابة تعمل بالفعل، لكن يرجى التعامل معها على أنها تجريبية، والاحتفاظ بنسخة من أي شيء لا تريد فقدانه.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "يفتح %@ محركات أقراص BitLocker وLinux ومحركات أقراص الأجهزة الافتراضية وصور الأقراص التي لا يستطيع macOS فتحها بنفسه.\n\nقراءة محرك أقراص على مستوى الجهاز الخام تتطلب الوصول الكامل إلى القرص. لا يتيح macOS للتطبيق أي طريقة لطلب هذا مباشرةً، لذا يجب تشغيله يدويًا.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "يُفتح %@ في الخلفية عند تسجيل دخولك ويعيد محركات الأقراص والصور التي كانت مفتوحة كما كانت. لا يعود محرك الأقراص الذي يطلب كلمة سر إلا إذا كانت كلمة السر محفوظة في سلسلة المفاتيح.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "يشغّل %@ جهازًا افتراضيًا صغيرًا بنظام Linux، ويلغي قفل محرك الأقراص داخله، ثم يسلّم محرك الأقراص إلى الباحث. لا يستطيع macOS قراءة أنظمة ملفات BitLocker أو Linux، أما Linux فيستطيع.",
@@ -173,6 +174,7 @@
     "Done": "تم",
     "Download and install them": "تنزيلها وتثبيتها",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "محركات أقراص مختومة بشريحة TPM بدل كلمة سر، بما فيها التشفير العتادي الأحدث في Ubuntu",
+    "Early Development": "مرحلة تطوير مبكرة",
     "Eject": "إخراج",
     "Eject %@": "إخراج %@",
     "Eject It and Open": "إخراجه وفتحه",
@@ -322,6 +324,7 @@
     "Third-Party Notices": "إشعارات الأطراف الثالثة",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "نسختك من %@ غير مكتملة: بيئة Linux مفقودة. أعد تثبيتها.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "نسختك من %@ غير مكتملة: محرّك الأقراص مفقود. أعد تثبيتها.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "يحتوي هذا القرص على صورة قرص تثبيت بدل نظام ملفات. المسح في Disk Utility، أو الأمر `clean` في diskpart بنظام Windows، يزيل الصورة؛ أمّا التهيئة السريعة فتتركها كما هي.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "يحتوي محرك الأقراص هذا على عدة وحدات تخزين بداخله، ولم يستطع %@ تحديد أيها. والإبلاغ عن ذلك سيساعد.",
     "This drive is not encrypted.": "محرك الأقراص هذا غير مشفّر.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "فُتح محرك الأقراص هذا للقراءة فقط: لم يقبل نظام ملفاته الكتابة. قد يحتاج إلى إصلاح على النظام الذي يخصه.",
@@ -414,8 +417,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "يحتاج “%@” إلى “%@”، وهو ليس بجانبه. الصورة من هذا النوع مجموعة ملفات، وكلها مطلوبة.",
     "“%@” opened in macOS": "فُتح “%@” في macOS",
     "“%@” was disconnected.": "فُصل “%@”.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "لم يُغلق “%@” بشكل سليم، ولم يُكتب أحدث محتوى له في الملف. افتحه مرة واحدة في الجهاز الافتراضي الذي يخصّه، ثم حاول مرة أخرى.",
-    "Early Development": "مرحلة تطوير مبكرة",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "‏%@ لا يزال جديدًا. أدوات ومشغّلات لينكس التي يعتمد عليها موجودة منذ سنوات وجرى اختبارها جيدًا. %@ مبني فوقها، لكنه لا يزال قيد التطوير، لذا لا مفر من وجود مشكلات لم تُكتشف بعد. في الوقت الحالي، أأمن ما يمكن فعله هو استخدامه لفتح محركات الأقراص والصور للقراءة فقط. الكتابة تعمل بالفعل، لكن يرجى التعامل معها على أنها تجريبية، والاحتفاظ بنسخة من أي شيء لا تريد فقدانه."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "لم يُغلق “%@” بشكل سليم، ولم يُكتب أحدث محتوى له في الملف. افتحه مرة واحدة في الجهاز الافتراضي الذي يخصّه، ثم حاول مرة أخرى."
   }
 }

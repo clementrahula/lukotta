@@ -81,6 +81,7 @@
     "%@ image can only be opened read-only": "%@ 映像只能以只读方式打开",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ 是遵循 GPL 第 3 版或更新版本的自由软件。挂载由 anylinuxfs 完成。每个组件的完整源代码都随每次发布一同公布。名称与标志为商标，不在该许可证的涵盖范围内。",
     "%@ is not able to open this file format.": "%@ 无法打开这种文件格式。",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ 还很新。它所依赖的 Linux 工具和驱动已经存在多年，经过充分检验。%@ 建立在它们之上，但自身仍在开发中，难免还有尚未发现的问题。目前最稳妥的用法，是以只读方式打开驱动器和磁盘映像。写入确实可用，但请把它当作实验性功能，并为任何你不愿失去的内容保留一份副本。",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "%@ 可以打开 macOS 自身打不开的 BitLocker、Linux 和虚拟机驱动器以及磁盘映像。\n\n在原始设备层读取驱动器需要“完全磁盘访问权限”。macOS 不提供让 App 直接申请该权限的方式，因此必须手动开启。",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "登录时 %@ 会在后台打开，并按原样恢复此前打开的驱动器和映像。需要密码的驱动器只有在密码已存入“钥匙串”时才会恢复。",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ 会启动一台小型 Linux 虚拟机，在其中解锁驱动器，再把驱动器交还给“访达”。macOS 读不了 BitLocker 或 Linux 文件系统，Linux 可以。",
@@ -133,6 +134,7 @@
     "Done": "完成",
     "Download and install them": "下载并安装",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "以 TPM 而非密码封装的驱动器，包括 Ubuntu 较新的硬件加密",
+    "Early Development": "早期开发阶段",
     "Eject": "推出",
     "Eject %@": "推出 %@",
     "Eject It and Open": "推出并打开",
@@ -282,6 +284,7 @@
     "Third-Party Notices": "第三方声明",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "此 %@ 副本不完整：缺少 Linux 环境。请重新安装。",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "此 %@ 副本不完整：缺少驱动引擎。请重新安装。",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "此磁盘上是安装用的磁盘映像，而不是文件系统。在“磁盘工具”中抹掉，或在 Windows diskpart 中执行 `clean`，可以清除该映像；快速格式化会把它留在原处。",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "这个驱动器内部含有多个宗卷，而 %@ 无法判断是哪些。报告此情况会有帮助。",
     "This drive is not encrypted.": "这个驱动器未加密。",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "此驱动器以只读方式打开：其文件系统未接受写入。可能需要在它所属的系统上修复。",
@@ -374,8 +377,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "“%@”需要“%@”，而后者并不在它旁边。这类映像是一组文件，缺一不可。",
     "“%@” opened in macOS": "“%@”已在 macOS 中打开",
     "“%@” was disconnected.": "“%@”已被断开。",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@”未正常关闭，其最新内容尚未写回文件。请在它所属的虚拟机中打开一次，然后重试。",
-    "Early Development": "早期开发阶段",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ 还很新。它所依赖的 Linux 工具和驱动已经存在多年，经过充分检验。%@ 建立在它们之上，但自身仍在开发中，难免还有尚未发现的问题。目前最稳妥的用法，是以只读方式打开驱动器和磁盘映像。写入确实可用，但请把它当作实验性功能，并为任何你不愿失去的内容保留一份副本。"
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@”未正常关闭，其最新内容尚未写回文件。请在它所属的虚拟机中打开一次，然后重试。"
   }
 }

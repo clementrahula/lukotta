@@ -89,6 +89,7 @@
     "%@ image can only be opened read-only": "A(z) %@ lemezkép csak írásvédetten nyitható meg",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "A(z) %@ szabad szoftver a GPL 3-as vagy újabb verziója alatt. A csatolást az anylinuxfs végzi. Minden összetevő teljes forráskódja megjelenik minden kiadással. A név és a logó védjegy, és nem tartozik az említett licenc hatálya alá.",
     "%@ is not able to open this file format.": "A(z) %@ nem tudja megnyitni ezt a fájlformátumot.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "A(z) %@ még új. A Linux-eszközök és -illesztőprogramok, amelyekre épül, évek óta léteznek és jól kipróbáltak. A(z) %@ ezekre épül, de maga még fejlesztés alatt áll, így elkerülhetetlenül vannak még fel nem tárt hibái. Egyelőre a legbiztonságosabb csak olvasásra megnyitni vele a meghajtókat és lemezképeket. Az írás működik, de tekintse kísérletinek, és őrizzen meg másolatot mindenről, aminek elvesztése rosszul érintené.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "A(z) %@ olyan BitLocker-, Linux- és virtuálisgép-lemezeket, valamint lemezképeket nyit meg, amelyeket a macOS önmagában nem tud megnyitni.\n\nEgy lemez nyers eszközszintű olvasásához Teljes hozzáférés a lemezhez szükséges. A macOS nem ad az alkalmazásoknak módot arra, hogy ezt közvetlenül kérjék, ezért kézzel kell bekapcsolni.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "A(z) %@ bejelentkezéskor a háttérben elindul, és visszaállítja a nyitva volt lemezeket és lemezképeket úgy, ahogy voltak. A jelszót kérő lemez csak akkor tér vissza, ha a jelszó a kulcskarikán van mentve.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "A(z) %@ elindít egy kis Linux virtuális gépet, abban feloldja a meghajtót, majd visszaadja a Findernek. A macOS nem tudja olvasni a BitLocker- és Linux-fájlrendszereket. A Linux igen.",
@@ -141,6 +142,7 @@
     "Done": "Kész",
     "Download and install them": "Letöltés és telepítés",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "Meghajtók, amelyeket jelszó helyett TPM-hez kötöttek, beleértve az Ubuntu újabb hardveres titkosítását",
+    "Early Development": "Korai fejlesztési szakasz",
     "Eject": "Kiadás",
     "Eject %@": "%@ kiadása",
     "Eject It and Open": "Kiadás és megnyitás",
@@ -290,6 +292,7 @@
     "Third-Party Notices": "Harmadik felekre vonatkozó tájékoztatók",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "A(z) %@ e példánya hiányos: hiányzik a Linux-környezet. Telepítse újra.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "A(z) %@ e példánya hiányos: hiányzik a meghajtómotor. Telepítse újra.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "Ez a meghajtó telepítőlemez-képfájlt tartalmaz, nem fájlrendszert. A Lemezkezelőben való törlés vagy a `clean` a Windows diskpartban eltávolítja a képfájlt; a gyorsformázás a helyén hagyja.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ez a meghajtó több kötetet tartalmaz, és a(z) %@ nem tudta megállapítani, melyeket. Segítene, ha jelentené.",
     "This drive is not encrypted.": "Ez a meghajtó nincs titkosítva.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Ez a meghajtó csak olvasásra nyílt meg: a fájlrendszere nem fogadott írást. Lehet, hogy javítani kell azon a rendszeren, amelyhez tartozik.",
@@ -382,8 +385,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "A(z) „%1$@” fájlhoz szükséges a(z) „%2$@”, amely nincs mellette. Az ilyen lemezkép fájlok együttese, és mindegyikre szükség van.",
     "“%@” opened in macOS": "A(z) „%@” megnyílt a macOS-ben",
     "“%@” was disconnected.": "A(z) „%@” le lett választva.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "A(z) „%@” nem állt le rendesen, és a legutóbbi tartalma nem került vissza a fájlba. Nyissa meg egyszer abban a virtuális gépben, amelyhez tartozik, majd próbálja újra.",
-    "Early Development": "Korai fejlesztési szakasz",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "A(z) %@ még új. A Linux-eszközök és -illesztőprogramok, amelyekre épül, évek óta léteznek és jól kipróbáltak. A(z) %@ ezekre épül, de maga még fejlesztés alatt áll, így elkerülhetetlenül vannak még fel nem tárt hibái. Egyelőre a legbiztonságosabb csak olvasásra megnyitni vele a meghajtókat és lemezképeket. Az írás működik, de tekintse kísérletinek, és őrizzen meg másolatot mindenről, aminek elvesztése rosszul érintené."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "A(z) „%@” nem állt le rendesen, és a legutóbbi tartalma nem került vissza a fájlba. Nyissa meg egyszer abban a virtuális gépben, amelyhez tartozik, majd próbálja újra."
   }
 }

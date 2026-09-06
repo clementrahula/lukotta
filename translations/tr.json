@@ -89,6 +89,7 @@
     "%@ image can only be opened read-only": "%@ imajı yalnızca salt okunur açılabilir",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@, GPL sürüm 3 veya sonrası kapsamında özgür yazılımdır. Bağlama işini anylinuxfs yapar. Her bileşenin tam kaynak kodu her sürümle birlikte yayımlanır. Ad ve logo ticari markadır ve bu lisans kapsamında değildir.",
     "%@ is not able to open this file format.": "%@ bu dosya biçimini açamıyor.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ henüz yeni. Dayandığı Linux araçları ve sürücüleri yıllardır var ve iyice sınanmış durumda. %@ bunların üzerine kurulu, ancak kendisi hâlâ geliştiriliyor; dolayısıyla henüz ortaya çıkmamış sorunlar kaçınılmaz. Şimdilik en güvenlisi, sürücüleri ve kalıpları salt okunur açmakta kullanmak. Yazma çalışıyor, ancak bunu deneysel sayın ve kaybetmek istemeyeceğiniz her şeyin bir kopyasını saklayın.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "%@, macOS'in kendi başına açamadığı BitLocker, Linux ve sanal makine sürücülerini ve disk imajlarını açar.\n\nBir sürücüyü ham aygıt düzeyinde okumak Tam Disk Erişimi gerektirir. macOS bir uygulamaya bunu doğrudan isteme imkânı vermez, bu yüzden elle açılmalıdır.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "%@ oturum açtığınızda arka planda açılır ve açık olan sürücüleri ve imajları eskisi gibi geri getirir. Parola isteyen bir sürücü, yalnızca parola Anahtar Zinciri'nde kayıtlıysa geri gelir.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ küçük bir Linux sanal makinesi başlatır, sürücünün kilidini onun içinde açar ve sürücüyü Finder'a devreder. macOS, BitLocker ve Linux dosya sistemlerini okuyamaz. Linux okuyabilir.",
@@ -141,6 +142,7 @@
     "Done": "Bitti",
     "Download and install them": "İndir ve kur",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "Parola yerine TPM'ye bağlanmış sürücüler, Ubuntu'nun yeni donanım destekli şifrelemesi dahil",
+    "Early Development": "Erken geliştirme aşaması",
     "Eject": "Çıkar",
     "Eject %@": "%@ sürücüsünü çıkar",
     "Eject It and Open": "Çıkart ve Aç",
@@ -290,6 +292,7 @@
     "Third-Party Notices": "Üçüncü Taraf Bildirimleri",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "%@ uygulamasının bu kopyası eksik: Linux ortamı yok. Yeniden yükleyin.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "%@ uygulamasının bu kopyası eksik: sürücü motoru yok. Yeniden yükleyin.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "Bu sürücüde dosya sistemi değil, bir kurulum disk kalıbı var. Disk İzlencesi'nde silmek ya da Windows diskpart'ta `clean` komutu kalıbı temizler; hızlı biçimlendirme onu yerinde bırakır.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Bu sürücü içinde birkaç birim var ve %@ hangileri olduğunu çözemedi. Bunu bildirmeniz yardımcı olur.",
     "This drive is not encrypted.": "Bu sürücü şifreli değil.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Bu sürücü salt okunur açıldı: dosya sistemi yazmayı kabul etmedi. Ait olduğu sistemde onarılması gerekebilir.",
@@ -382,8 +385,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "“%@” için yanında bulunmayan “%@” gerekli. Bu türden bir imaj bir dosya kümesidir ve hepsi gereklidir.",
     "“%@” opened in macOS": "“%@” macOS'te açıldı",
     "“%@” was disconnected.": "“%@” bağlantısı kesildi.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” düzgün kapatılmamış ve en son içeriği dosyaya geri yazılmamış. Ait olduğu sanal makinede bir kez açın, sonra yeniden deneyin.",
-    "Early Development": "Erken geliştirme aşaması",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ henüz yeni. Dayandığı Linux araçları ve sürücüleri yıllardır var ve iyice sınanmış durumda. %@ bunların üzerine kurulu, ancak kendisi hâlâ geliştiriliyor; dolayısıyla henüz ortaya çıkmamış sorunlar kaçınılmaz. Şimdilik en güvenlisi, sürücüleri ve kalıpları salt okunur açmakta kullanmak. Yazma çalışıyor, ancak bunu deneysel sayın ve kaybetmek istemeyeceğiniz her şeyin bir kopyasını saklayın."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” düzgün kapatılmamış ve en son içeriği dosyaya geri yazılmamış. Ait olduğu sanal makinede bir kez açın, sonra yeniden deneyin."
   }
 }

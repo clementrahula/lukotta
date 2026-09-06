@@ -97,6 +97,7 @@
     "%@ image can only be opened read-only": "%@ attēlu var atvērt tikai lasīšanai",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ ir brīvā programmatūra ar GPL licenci, versiju 3 vai jaunāku. Montēšanu veic anylinuxfs. Katra komponenta pilns pirmkods tiek publicēts ar katru laidienu. Nosaukums un logotips ir preču zīmes, un šī licence uz tiem neattiecas.",
     "%@ is not able to open this file format.": "%@ nespēj atvērt šo faila formātu.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ vēl ir jauna. Linux rīki un draiveri, uz kuriem tā balstās, pastāv jau gadiem un ir labi pārbaudīti. %@ ir veidota uz tiem, taču pati vēl tiek izstrādāta, tāpēc neizbēgami ir vēl neatklātas problēmas. Pagaidām visdrošāk ir izmantot to disku un attēlu atvēršanai tikai lasīšanai. Rakstīšana darbojas, taču uzskatiet to par eksperimentālu un saglabājiet kopiju visam, ko negribētu pazaudēt.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "%@ atver BitLocker un Linux diskus, virtuālo mašīnu diskus un disku attēlus, kurus macOS pats nespēj atvērt.\n\nDiska lasīšanai neapstrādātas ierīces līmenī ir vajadzīga Full Disk Access. macOS nedod lietotnēm iespēju to pieprasīt tieši, tāpēc tā jāieslēdz ar roku.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "%@ pieteikšanās brīdī atveras fonā un atjauno diskus un attēlus, kas bija atvērti, tieši tādus, kādi tie bija. Disks, kam vajadzīga parole, atgriežas tikai tad, ja parole ir saglabāta atslēgu saišķī.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ palaiž nelielu Linux virtuālo mašīnu, atbloķē disku tajā un nodod disku atpakaļ programmai Finder. macOS nespēj lasīt BitLocker vai Linux failu sistēmas. Linux spēj.",
@@ -149,6 +150,7 @@
     "Done": "Gatavs",
     "Download and install them": "Lejupielādēt un instalēt tos",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "Diski, kas piesaistīti TPM, nevis parolei, tostarp Ubuntu jaunākā aparatūras šifrēšana",
+    "Early Development": "Agrīna izstrādes stadija",
     "Eject": "Izstumt",
     "Eject %@": "Izstumt %@",
     "Eject It and Open": "Izstumt un atvērt",
@@ -298,6 +300,7 @@
     "Third-Party Notices": "Trešo pušu paziņojumi",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "Šī %@ kopija ir nepilnīga: trūkst Linux vides. Instalējiet to vēlreiz.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Šī %@ kopija ir nepilnīga: trūkst disku dzinēja. Instalējiet to vēlreiz.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "Šajā diskā ir instalēšanas diska attēls, nevis failu sistēma. Dzēšana programmā Disk Utility vai `clean` Windows diskpart noņem attēlu; ātrā formatēšana to atstāj.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Šis disks satur vairākus sējumus, un %@ nespēja noskaidrot, kurus. Ziņošana par to palīdzētu.",
     "This drive is not encrypted.": "Šis disks nav šifrēts.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Šis disks tika atvērts tikai lasīšanai: tā failu sistēma nepieņēma rakstīšanu. Iespējams, tas jāizlabo sistēmā, kurai tas pieder.",
@@ -390,8 +393,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "“%1$@” ir nepieciešams “%2$@”, kas neatrodas tam blakus. Šāda veida attēls ir failu kopa, un nepieciešami ir visi.",
     "“%@” opened in macOS": "“%@” tika atvērts macOS",
     "“%@” was disconnected.": "“%@” tika atvienots.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” netika korekti izslēgts, un tā jaunākais saturs nav ierakstīts atpakaļ failā. Atveriet to vienreiz virtuālajā mašīnā, kurai tas pieder, un mēģiniet vēlreiz.",
-    "Early Development": "Agrīna izstrādes stadija",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ vēl ir jauna. Linux rīki un draiveri, uz kuriem tā balstās, pastāv jau gadiem un ir labi pārbaudīti. %@ ir veidota uz tiem, taču pati vēl tiek izstrādāta, tāpēc neizbēgami ir vēl neatklātas problēmas. Pagaidām visdrošāk ir izmantot to disku un attēlu atvēršanai tikai lasīšanai. Rakstīšana darbojas, taču uzskatiet to par eksperimentālu un saglabājiet kopiju visam, ko negribētu pazaudēt."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” netika korekti izslēgts, un tā jaunākais saturs nav ierakstīts atpakaļ failā. Atveriet to vienreiz virtuālajā mašīnā, kurai tas pieder, un mēģiniet vēlreiz."
   }
 }

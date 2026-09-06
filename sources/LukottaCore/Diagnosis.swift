@@ -117,6 +117,28 @@ public enum Diagnosis {
                     "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again."
                 )
             }),
+        // A disc image written onto a stick, before the generic one below it.
+        //
+        // A USB stick made from an installer ISO carries the image itself, not
+        // a filesystem anything here can serve, and it keeps carrying it after
+        // Windows or macOS appears to have reformatted it: a quick format
+        // writes inside a partition and leaves the image's own structures at
+        // the front, where both operating systems keep reading them. Measured
+        // on 2026-09-06 on a 123 GB stick that had been formatted NTFS an hour
+        // earlier and still probed as iso9660 "Ubuntu_20.04.1_LTS_amd64" from
+        // inside the guest.
+        //
+        // "The engine did not recognise a filesystem" is true of that and tells
+        // nobody anything. What is on the drive is known -- the probe named it
+        // -- so the sentence says it, and says the one thing that clears it.
+        Rule(
+            name: "holds-a-disc-image", source: .linuxTooling,
+            patterns: ["iso9660", "udf"],
+            message: {
+                appString(
+                    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place."
+                )
+            }),
         Rule(
             name: "unrecognised-filesystem", source: .linuxTooling,
             patterns: ["unknown filesystem type", "no such device"],

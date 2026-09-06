@@ -81,6 +81,7 @@
     "%@ image can only be opened read-only": "Imej %@ hanya boleh dibuka baca-sahaja",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ ialah perisian bebas di bawah GPL versi 3 atau lebih baharu. Pelekapan dilakukan oleh anylinuxfs. Kod sumber lengkap bagi setiap komponen diterbitkan bersama setiap keluaran. Nama dan logo ialah tanda dagangan dan tidak dilindungi lesen itu.",
     "%@ is not able to open this file format.": "%@ tidak dapat membuka format fail ini.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ masih baharu. Perkakas dan pemacu Linux yang menjadi sandarannya telah wujud bertahun-tahun dan teruji dengan baik. %@ dibina di atasnya, tetapi masih dalam pembangunan, jadi tidak dapat dielakkan ada masalah yang belum ditemui. Buat masa ini, paling selamat menggunakannya untuk membuka pemacu dan imej dalam mod baca sahaja. Penulisan memang berfungsi, tetapi anggaplah ia eksperimen dan simpan salinan apa-apa yang anda tidak sanggup kehilangannya.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "%@ membuka pemacu BitLocker, Linux dan mesin maya serta imej cakera yang tidak dapat dibuka macOS sendiri.\n\nMembaca pemacu pada peringkat peranti mentah memerlukan Akses Cakera Penuh. macOS tidak menyediakan cara untuk aplikasi memintanya secara terus, jadi ia perlu dihidupkan sendiri.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "%@ dibuka di latar belakang apabila anda log masuk dan mengembalikan pemacu dan imej yang terbuka, seperti sedia kala. Pemacu yang memerlukan kata laluan hanya kembali jika kata laluannya disimpan dalam Keychain.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ memulakan mesin maya Linux yang kecil, membuka kunci pemacu di dalamnya, lalu menyerahkan pemacu itu kepada Finder. macOS tidak boleh membaca sistem fail BitLocker atau Linux. Linux boleh.",
@@ -133,6 +134,7 @@
     "Done": "Selesai",
     "Download and install them": "Muat turun dan pasang",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "Pemacu yang dimeterai kepada TPM dan bukan kata laluan, termasuk penyulitan berasaskan perkakasan Ubuntu yang lebih baharu",
+    "Early Development": "Peringkat pembangunan awal",
     "Eject": "Keluarkan",
     "Eject %@": "Keluarkan %@",
     "Eject It and Open": "Keluarkan dan Buka",
@@ -282,6 +284,7 @@
     "Third-Party Notices": "Notis Pihak Ketiga",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "Salinan %@ ini tidak lengkap: persekitaran Linux tiada. Pasang semula.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Salinan %@ ini tidak lengkap: enjin pemacu tiada. Pasang semula.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "Pemacu ini mengandungi imej cakera pemasang, bukan sistem fail. Memadamnya dalam Disk Utility, atau `clean` dalam diskpart Windows, membuang imej itu; format pantas membiarkannya.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Pemacu ini mengandungi beberapa volum di dalamnya, dan %@ tidak dapat menentukan yang mana satu. Melaporkannya akan membantu.",
     "This drive is not encrypted.": "Pemacu ini tidak disulitkan.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Pemacu ini dibuka baca sahaja: sistem failnya tidak menerima penulisan. Ia mungkin perlu dibaiki pada sistem asalnya.",
@@ -374,8 +377,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "“%@” memerlukan “%@”, yang tiada di sebelahnya. Imej jenis ini ialah satu set fail, dan kesemuanya diperlukan.",
     "“%@” opened in macOS": "“%@” dibuka dalam macOS",
     "“%@” was disconnected.": "“%@” telah diputuskan.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” tidak ditutup dengan betul, dan kandungan terkininya belum ditulis semula ke dalam fail. Bukanya sekali dalam mesin maya pemiliknya, kemudian cuba lagi.",
-    "Early Development": "Peringkat pembangunan awal",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ masih baharu. Perkakas dan pemacu Linux yang menjadi sandarannya telah wujud bertahun-tahun dan teruji dengan baik. %@ dibina di atasnya, tetapi masih dalam pembangunan, jadi tidak dapat dielakkan ada masalah yang belum ditemui. Buat masa ini, paling selamat menggunakannya untuk membuka pemacu dan imej dalam mod baca sahaja. Penulisan memang berfungsi, tetapi anggaplah ia eksperimen dan simpan salinan apa-apa yang anda tidak sanggup kehilangannya."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” tidak ditutup dengan betul, dan kandungan terkininya belum ditulis semula ke dalam fail. Bukanya sekali dalam mesin maya pemiliknya, kemudian cuba lagi."
   }
 }

@@ -12893,6 +12893,226 @@
         }
       }
     },
+    "Checking this drive for damage": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يجري فحص محرك الأقراص بحثًا عن تلف"
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверка на диска за повреди"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kontrola disku na poškození"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tjekker enheden for skader"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laufwerk wird auf Schäden geprüft"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Έλεγχος του δίσκου για ζημιά"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprobando si el disco tiene daños"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketta kahjustuste kontroll"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tarkistetaan aseman vauriot"
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinusuri ang drive para sa pinsala"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérification du disque"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "בודק את הכונן לאיתור נזק"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ड्राइव में क्षति की जाँच की जा रही है"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Provjera oštećenja diska"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meghajtó ellenőrzése sérülésre"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Memeriksa kerusakan pada drive"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controllo dei danni del disco"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ドライブの損傷を確認中"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "드라이브 손상 확인 중"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tikrinama, ar diskas nepažeistas"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diska bojājumu pārbaude"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Memeriksa kerosakan pemacu"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sjekker enheten for skader"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schijf wordt op schade gecontroleerd"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sprawdzanie dysku pod kątem uszkodzeń"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A verificar danos no disco"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se verifică discul pentru deteriorări"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверка диска на повреждения"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preverjanje poškodb pogona"
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Po kontrollohet disku për dëmtime"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kontrollerar enheten efter skador"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กำลังตรวจสอบความเสียหายของไดรฟ์"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sürücü hasara karşı denetleniyor"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перевірка диска на пошкодження"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang kiểm tra hư hỏng của ổ đĩa"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查驱动器是否损坏"
+          }
+        }
+      }
+    },
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": {
       "localizations": {
         "ar": {
@@ -52185,6 +52405,226 @@
         }
       }
     },
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يحتوي هذا القرص على صورة قرص تثبيت بدل نظام ملفات. المسح في Disk Utility، أو الأمر `clean` في diskpart بنظام Windows، يزيل الصورة؛ أمّا التهيئة السريعة فتتركها كما هي."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Това устройство съдържа инсталационен образ на диск, а не файлова система. Изтриването в Disk Utility или `clean` в Windows diskpart премахва образа; бързото форматиране го оставя на място."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tento disk obsahuje instalační obraz, ne souborový systém. Vymazání v Disk Utility nebo příkaz `clean` ve Windows diskpartu obraz odstraní; rychlé formátování ho ponechá."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette drev indeholder et installations-diskaftryk og ikke et filsystem. At slette det i Diskværktøj eller `clean` i Windows diskpart fjerner aftrykket; en hurtig formatering lader det blive."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Laufwerk enthält ein Installations-Image statt eines Dateisystems. Löschen im Festplattendienstprogramm oder `clean` in Windows-diskpart entfernt das Image; eine Schnellformatierung lässt es bestehen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτός ο δίσκος περιέχει εικόνα δίσκου εγκατάστασης, όχι σύστημα αρχείων. Η διαγραφή στο Disk Utility ή το `clean` στο diskpart των Windows αφαιρεί την εικόνα· η γρήγορη διαμόρφωση την αφήνει."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta unidad contiene una imagen de disco de instalación en vez de un sistema de archivos. Borrarla en Utilidad de Discos, o `clean` en diskpart de Windows, elimina la imagen; un formateo rápido la deja intacta."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sellel kettal on paigaldusketta tõmmis, mitte failisüsteem. Kustutamine Disk Utility's või `clean` Windowsi diskpartis eemaldab tõmmise; kiirvormindus jätab selle alles."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tällä asemalla on asennuslevyn levykuva eikä tiedostojärjestelmää. Poistaminen Levytyökalulla tai `clean` Windowsin diskpartissa poistaa levykuvan; pika-alustus jättää sen paikalleen."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "May installer disc image ang drive na ito, hindi file system. Nabubura ang image kapag nag-erase sa Disk Utility o `clean` sa Windows diskpart; hindi ito naaalis ng quick format."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce disque contient une image d'installation et non un système de fichiers. L'effacer dans Utilitaire de disque, ou `clean` dans diskpart sous Windows, supprime l'image ; un formatage rapide la laisse en place."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "בכונן הזה יש תמונת דיסק התקנה ולא מערכת קבצים. מחיקה ב‑Disk Utility, או `clean` ב‑diskpart של Windows, מסירה את התמונה; פרמוט מהיר משאיר אותה."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इस ड्राइव में फ़ाइल सिस्टम नहीं, बल्कि इंस्टॉलर डिस्क इमेज है। Disk Utility में इसे मिटाना, या Windows diskpart में `clean`, इमेज हटा देता है; क्विक फ़ॉर्मैट उसे वहीं छोड़ देता है।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj pogon sadrži instalacijsku sliku diska, a ne datotečni sustav. Brisanje u Disk Utilityju ili `clean` u Windows diskpartu uklanja sliku; brzo formatiranje je ostavlja."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez a meghajtó telepítőlemez-képfájlt tartalmaz, nem fájlrendszert. A Lemezkezelőben való törlés vagy a `clean` a Windows diskpartban eltávolítja a képfájlt; a gyorsformázás a helyén hagyja."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drive ini berisi image disk installer, bukan sistem berkas. Menghapusnya di Disk Utility, atau `clean` di diskpart Windows, membersihkan image itu; format cepat membiarkannya."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa unità contiene un'immagine disco di installazione anziché un file system. Inizializzarla in Utility Disco, o `clean` in diskpart di Windows, rimuove l'immagine; una formattazione veloce la lascia."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このドライブにはファイルシステムではなくインストーラのディスクイメージが入っています。ディスクユーティリティで消去するか、Windows の diskpart で `clean` するとイメージが消えます。クイックフォーマットでは残ります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 드라이브에는 파일 시스템이 아니라 설치 디스크 이미지가 들어 있습니다. 디스크 유틸리티에서 지우거나 Windows diskpart에서 `clean`을 실행하면 이미지가 제거됩니다. 빠른 포맷은 그대로 둡니다."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šiame diske yra diegimo disko atvaizdis, o ne failų sistema. Ištrynimas per „Disk Utility“ arba `clean` „Windows“ diskpart pašalina atvaizdį; spartusis formatavimas jį palieka."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šajā diskā ir instalēšanas diska attēls, nevis failu sistēma. Dzēšana programmā Disk Utility vai `clean` Windows diskpart noņem attēlu; ātrā formatēšana to atstāj."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pemacu ini mengandungi imej cakera pemasang, bukan sistem fail. Memadamnya dalam Disk Utility, atau `clean` dalam diskpart Windows, membuang imej itu; format pantas membiarkannya."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne stasjonen inneholder et installasjons-diskbilde og ikke et filsystem. Å slette den i Diskverktøy, eller `clean` i Windows diskpart, fjerner diskbildet; en hurtigformatering lar det ligge."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze schijf bevat een installatie-schijfkopie in plaats van een bestandssysteem. Wissen in Schijfhulpprogramma, of `clean` in diskpart van Windows, verwijdert de kopie; een snelle formattering laat hem staan."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten dysk zawiera obraz dysku instalacyjnego, a nie system plików. Wymazanie w Narzędziu dyskowym lub `clean` w diskpart Windows usuwa obraz; szybkie formatowanie go zostawia."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta unidade contém uma imagem de disco de instalação em vez de um sistema de ficheiros. Apagá-la na Utilidade de Discos, ou `clean` no diskpart do Windows, remove a imagem; uma formatação rápida deixa-a ficar."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Această unitate conține o imagine de disc de instalare, nu un sistem de fișiere. Ștergerea în Disk Utility sau `clean` în diskpart din Windows elimină imaginea; o formatare rapidă o lasă pe loc."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На этом диске находится установочный образ, а не файловая система. Стирание в «Дисковой утилите» или `clean` в diskpart Windows удаляет образ; быстрое форматирование оставляет его на месте."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta pogon vsebuje namestitveno sliko diska in ne datotečnega sistema. Brisanje v Disk Utility ali `clean` v Windows diskpart odstrani sliko; hitro formatiranje jo pusti."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ky disk përmban një imazh disku instalimi, jo një sistem skedarësh. Fshirja në Disk Utility, ose `clean` në diskpart të Windows, e heq imazhin; një formatim i shpejtë e lë aty."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den här enheten innehåller en installations-skivavbild i stället för ett filsystem. Att radera den i Skivverktyg, eller `clean` i Windows diskpart, tar bort avbilden; en snabbformatering låter den vara kvar."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไดรฟ์นี้เก็บดิสก์อิมเมจสำหรับติดตั้ง ไม่ใช่ระบบไฟล์ การลบใน Disk Utility หรือคำสั่ง `clean` ใน diskpart ของ Windows จะล้างอิมเมจนี้ ส่วนการฟอร์แมตแบบเร็วจะทิ้งไว้เหมือนเดิม"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu sürücüde dosya sistemi değil, bir kurulum disk kalıbı var. Disk İzlencesi'nde silmek ya da Windows diskpart'ta `clean` komutu kalıbı temizler; hızlı biçimlendirme onu yerinde bırakır."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На цьому диску встановлювальний образ, а не файлова система. Стирання в «Дисковій утиліті» або `clean` у diskpart Windows прибирає образ; швидке форматування залишає його."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ổ đĩa này chứa ảnh đĩa cài đặt chứ không phải hệ thống tệp. Xoá trong Disk Utility, hoặc `clean` trong diskpart của Windows, sẽ xoá ảnh đĩa; định dạng nhanh thì giữ nguyên."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此磁盘上是安装用的磁盘映像，而不是文件系统。在“磁盘工具”中抹掉，或在 Windows diskpart 中执行 `clean`，可以清除该映像；快速格式化会把它留在原处。"
+          }
+        }
+      }
+    },
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": {
       "localizations": {
         "ar": {
@@ -52621,6 +53061,226 @@
           "stringUnit": {
             "state": "translated",
             "value": "这个驱动器未加密。"
+          }
+        }
+      }
+    },
+    "This drive needs repairing, so it will take a few minutes.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يحتاج محرك الأقراص هذا إلى إصلاح، لذا سيستغرق بضع دقائق."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Този диск се нуждае от поправка, затова ще отнеме няколко минути."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tento disk je potřeba opravit, takže to potrvá několik minut."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne enhed skal repareres, så det tager et par minutter."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Laufwerk muss repariert werden, das dauert einige Minuten."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτός ο δίσκος χρειάζεται επιδιόρθωση, οπότε θα χρειαστούν μερικά λεπτά."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este disco necesita reparación, así que tardará unos minutos."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See ketas vajab parandamist, seega võtab see paar minutit."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä asema pitää korjata, joten siihen menee muutama minuutti."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kailangang ayusin ang drive na ito, kaya aabutin ito ng ilang minuto."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce disque doit être réparé, cela prendra quelques minutes."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "הכונן הזה זקוק לתיקון, ולכן זה ייקח כמה דקות."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इस ड्राइव की मरम्मत ज़रूरी है, इसलिए इसमें कुछ मिनट लगेंगे।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj disk treba popraviti, pa će trajati nekoliko minuta."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ezt a meghajtót meg kell javítani, ezért néhány percig tart."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drive ini perlu diperbaiki, jadi akan memakan waktu beberapa menit."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo disco va riparato, quindi richiederà alcuni minuti."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このドライブは修復が必要なので、数分かかります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 드라이브는 복구가 필요해서 몇 분 걸립니다."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šį diską reikia pataisyti, todėl tai užtruks kelias minutes."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šis disks ir jālabo, tāpēc tas aizņems dažas minūtes."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pemacu ini perlu dibaiki, jadi ia mengambil masa beberapa minit."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne enheten må repareres, så det tar noen minutter."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze schijf moet worden gerepareerd, dus dit duurt een paar minuten."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten dysk wymaga naprawy, więc potrwa to kilka minut."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este disco precisa de reparação, por isso vai demorar alguns minutos."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acest disc trebuie reparat, așa că va dura câteva minute."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Этот диск нужно починить, поэтому это займёт несколько минут."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta pogon je treba popraviti, zato bo trajalo nekaj minut."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ky disk ka nevojë për riparim, prandaj do të zgjasë disa minuta."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den här enheten behöver repareras, så det tar några minuter."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไดรฟ์นี้ต้องได้รับการซ่อมแซม จึงใช้เวลาสองสามนาที"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu sürücünün onarılması gerekiyor, bu yüzden birkaç dakika sürecek."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цей диск потребує відновлення, тож це триватиме кілька хвилин."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ổ đĩa này cần được sửa, nên sẽ mất vài phút."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个驱动器需要修复，所以要花几分钟。"
           }
         }
       }
@@ -72641,446 +73301,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "“%@”未正常关闭，其最新内容尚未写回文件。请在它所属的虚拟机中打开一次，然后重试。"
-          }
-        }
-      }
-    },
-    "Checking this drive for damage": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "يجري فحص محرك الأقراص بحثًا عن تلف"
-          }
-        },
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Проверка на диска за повреди"
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kontrola disku na poškození"
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tjekker enheden for skader"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Laufwerk wird auf Schäden geprüft"
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Έλεγχος του δίσκου για ζημιά"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comprobando si el disco tiene daños"
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ketta kahjustuste kontroll"
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tarkistetaan aseman vauriot"
-          }
-        },
-        "fil": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sinusuri ang drive para sa pinsala"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vérification du disque"
-          }
-        },
-        "he": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "בודק את הכונן לאיתור נזק"
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ड्राइव में क्षति की जाँच की जा रही है"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Provjera oštećenja diska"
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A meghajtó ellenőrzése sérülésre"
-          }
-        },
-        "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Memeriksa kerusakan pada drive"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Controllo dei danni del disco"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ドライブの損傷を確認中"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "드라이브 손상 확인 중"
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tikrinama, ar diskas nepažeistas"
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diska bojājumu pārbaude"
-          }
-        },
-        "ms": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Memeriksa kerosakan pemacu"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sjekker enheten for skader"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Schijf wordt op schade gecontroleerd"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sprawdzanie dysku pod kątem uszkodzeń"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A verificar danos no disco"
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se verifică discul pentru deteriorări"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Проверка диска на повреждения"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Preverjanje poškodb pogona"
-          }
-        },
-        "sq": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Po kontrollohet disku për dëmtime"
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kontrollerar enheten efter skador"
-          }
-        },
-        "th": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "กำลังตรวจสอบความเสียหายของไดรฟ์"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sürücü hasara karşı denetleniyor"
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Перевірка диска на пошкодження"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đang kiểm tra hư hỏng của ổ đĩa"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "正在检查驱动器是否损坏"
-          }
-        }
-      }
-    },
-    "This drive needs repairing, so it will take a few minutes.": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "يحتاج محرك الأقراص هذا إلى إصلاح، لذا سيستغرق بضع دقائق."
-          }
-        },
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Този диск се нуждае от поправка, затова ще отнеме няколко минути."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tento disk je potřeba opravit, takže to potrvá několik minut."
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Denne enhed skal repareres, så det tager et par minutter."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dieses Laufwerk muss repariert werden, das dauert einige Minuten."
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Αυτός ο δίσκος χρειάζεται επιδιόρθωση, οπότε θα χρειαστούν μερικά λεπτά."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Este disco necesita reparación, así que tardará unos minutos."
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "See ketas vajab parandamist, seega võtab see paar minutit."
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tämä asema pitää korjata, joten siihen menee muutama minuutti."
-          }
-        },
-        "fil": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kailangang ayusin ang drive na ito, kaya aabutin ito ng ilang minuto."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ce disque doit être réparé, cela prendra quelques minutes."
-          }
-        },
-        "he": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "הכונן הזה זקוק לתיקון, ולכן זה ייקח כמה דקות."
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "इस ड्राइव की मरम्मत ज़रूरी है, इसलिए इसमें कुछ मिनट लगेंगे।"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ovaj disk treba popraviti, pa će trajati nekoliko minuta."
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ezt a meghajtót meg kell javítani, ezért néhány percig tart."
-          }
-        },
-        "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drive ini perlu diperbaiki, jadi akan memakan waktu beberapa menit."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Questo disco va riparato, quindi richiederà alcuni minuti."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "このドライブは修復が必要なので、数分かかります。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "이 드라이브는 복구가 필요해서 몇 분 걸립니다."
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Šį diską reikia pataisyti, todėl tai užtruks kelias minutes."
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Šis disks ir jālabo, tāpēc tas aizņems dažas minūtes."
-          }
-        },
-        "ms": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pemacu ini perlu dibaiki, jadi ia mengambil masa beberapa minit."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Denne enheten må repareres, så det tar noen minutter."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Deze schijf moet worden gerepareerd, dus dit duurt een paar minuten."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ten dysk wymaga naprawy, więc potrwa to kilka minut."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Este disco precisa de reparação, por isso vai demorar alguns minutos."
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Acest disc trebuie reparat, așa că va dura câteva minute."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Этот диск нужно починить, поэтому это займёт несколько минут."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ta pogon je treba popraviti, zato bo trajalo nekaj minut."
-          }
-        },
-        "sq": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ky disk ka nevojë për riparim, prandaj do të zgjasë disa minuta."
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Den här enheten behöver repareras, så det tar några minuter."
-          }
-        },
-        "th": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ไดรฟ์นี้ต้องได้รับการซ่อมแซม จึงใช้เวลาสองสามนาที"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bu sürücünün onarılması gerekiyor, bu yüzden birkaç dakika sürecek."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Цей диск потребує відновлення, тож це триватиме кілька хвилин."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ổ đĩa này cần được sửa, nên sẽ mất vài phút."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "这个驱动器需要修复，所以要花几分钟。"
           }
         }
       }

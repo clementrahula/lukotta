@@ -105,6 +105,7 @@
     "%@ image can only be opened read-only": "Obraz %@ lze otevřít pouze pro čtení",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ je svobodný software pod licencí GPL verze 3 nebo novější. Připojování zajišťuje anylinuxfs. Úplný zdrojový kód každé součásti je zveřejňován s každým vydáním. Název a logo jsou ochranné známky a tato licence se na ně nevztahuje.",
     "%@ is not able to open this file format.": "%@ neumí otevřít tento formát souboru.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ je stále nový. Linuxové nástroje a ovladače, na kterých staví, existují už léta a jsou dobře prověřené. %@ je postaven na nich, ale sám je stále ve vývoji, takže nevyhnutelně obsahuje dosud neodhalené problémy. Zatím je nejbezpečnější používat jej k otevírání disků a obrazů jen pro čtení. Zápis funguje, ale berte jej jako experimentální a uchovejte si kopii všeho, o co byste neradi přišli.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "%@ otevírá disky s BitLockerem a Linuxem, disky virtuálních strojů a diskové obrazy, které macOS sám otevřít neumí.\n\nČtení disku na úrovni surového zařízení vyžaduje Plný přístup k disku. macOS aplikacím nedává možnost si o to říct přímo, takže se zapíná ručně.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "%@ se při přihlášení spustí na pozadí a vrátí disky a obrazy, které byly otevřené, přesně jak byly. Disk vyžadující heslo se vrátí, jen pokud je heslo uložené v Klíčence.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "%@ spustí malý virtuální stroj s Linuxem, odemkne v něm disk a předá jej zpět Finderu. macOS neumí číst souborové systémy BitLocker ani Linuxu. Linux ano.",
@@ -157,6 +158,7 @@
     "Done": "Hotovo",
     "Download and install them": "Stahovat a instalovat je",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "Disky vázané na TPM místo na heslo, včetně novějšího hardwarového šifrování v Ubuntu",
+    "Early Development": "Rané stádium vývoje",
     "Eject": "Vysunout",
     "Eject %@": "Vysunout %@",
     "Eject It and Open": "Odpojit a otevřít",
@@ -306,6 +308,7 @@
     "Third-Party Notices": "Upozornění třetích stran",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "Tato kopie aplikace %@ je neúplná: chybí prostředí Linux. Nainstalujte ji znovu.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Tato kopie aplikace %@ je neúplná: chybí jádro pro disky. Nainstalujte ji znovu.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "Tento disk obsahuje instalační obraz, ne souborový systém. Vymazání v Disk Utility nebo příkaz `clean` ve Windows diskpartu obraz odstraní; rychlé formátování ho ponechá.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Tento disk obsahuje několik svazků a %@ nedokázal určit které. Nahlášení by pomohlo.",
     "This drive is not encrypted.": "Tento disk není šifrovaný.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Tento disk se otevřel jen pro čtení: jeho souborový systém nepřijal zápis. Možná potřebuje opravu v systému, kterému patří.",
@@ -398,8 +401,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "„%1$@“ potřebuje „%2$@“, který vedle něj není. Obraz tohoto druhu je sada souborů a vyžadovány jsou všechny.",
     "“%@” opened in macOS": "„%@“ byl otevřen v macOS",
     "“%@” was disconnected.": "„%@“ byl odpojen.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ nebyl řádně vypnut a jeho poslední obsah nebyl zapsán zpět do souboru. Otevřete jej jednou ve virtuálním počítači, kterému patří, a zkuste to znovu.",
-    "Early Development": "Rané stádium vývoje",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ je stále nový. Linuxové nástroje a ovladače, na kterých staví, existují už léta a jsou dobře prověřené. %@ je postaven na nich, ale sám je stále ve vývoji, takže nevyhnutelně obsahuje dosud neodhalené problémy. Zatím je nejbezpečnější používat jej k otevírání disků a obrazů jen pro čtení. Zápis funguje, ale berte jej jako experimentální a uchovejte si kopii všeho, o co byste neradi přišli."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ nebyl řádně vypnut a jeho poslední obsah nebyl zapsán zpět do souboru. Otevřete jej jednou ve virtuálním počítači, kterému patří, a zkuste to znovu."
   }
 }

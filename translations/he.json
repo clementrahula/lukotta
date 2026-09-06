@@ -7,8 +7,8 @@
       },
       "he": {
         "one": "כונן אחד הפסיק להגיב ונותק. אפשר לפתוח אותו שוב.",
-        "two": "שני כוננים הפסיקו להגיב ונותקו. אפשר לפתוח אותם שוב.",
-        "other": "‏%lld כוננים הפסיקו להגיב ונותקו. אפשר לפתוח אותם שוב."
+        "other": "‏%lld כוננים הפסיקו להגיב ונותקו. אפשר לפתוח אותם שוב.",
+        "two": "שני כוננים הפסיקו להגיב ונותקו. אפשר לפתוח אותם שוב."
       }
     },
     "%lld open drives will be ejected.": {
@@ -18,8 +18,8 @@
       },
       "he": {
         "one": "כונן פתוח אחד ייפלט.",
-        "two": "שני כוננים פתוחים ייפלטו.",
-        "other": "‏%lld כוננים פתוחים ייפלטו."
+        "other": "‏%lld כוננים פתוחים ייפלטו.",
+        "two": "שני כוננים פתוחים ייפלטו."
       }
     },
     "%lld volumes": {
@@ -29,8 +29,8 @@
       },
       "he": {
         "one": "אמצעי אחסון אחד",
-        "two": "שני אמצעי אחסון",
-        "other": "‏%lld אמצעי אחסון"
+        "other": "‏%lld אמצעי אחסון",
+        "two": "שני אמצעי אחסון"
       }
     },
     "Also delete %lld saved passphrases (%@)": {
@@ -40,8 +40,8 @@
       },
       "he": {
         "one": "מחק גם מחרוזת סיסמה שמורה אחת (%@)",
-        "two": "מחק גם שתי מחרוזות סיסמה שמורות (%@)",
-        "other": "מחק גם %lld מחרוזות סיסמה שמורות (%@)"
+        "other": "מחק גם %lld מחרוזות סיסמה שמורות (%@)",
+        "two": "מחק גם שתי מחרוזות סיסמה שמורות (%@)"
       }
     },
     "Deleting %lld saved passphrases": {
@@ -51,8 +51,8 @@
       },
       "he": {
         "one": "מוחק מחרוזת סיסמה שמורה אחת",
-        "two": "מוחק שתי מחרוזות סיסמה שמורות",
-        "other": "מוחק %lld מחרוזות סיסמה שמורות"
+        "other": "מוחק %lld מחרוזות סיסמה שמורות",
+        "two": "מוחק שתי מחרוזות סיסמה שמורות"
       }
     },
     "Ejecting %lld open drives": {
@@ -62,8 +62,8 @@
       },
       "he": {
         "one": "מוציא כונן פתוח אחד",
-        "two": "מוציא שני כוננים פתוחים",
-        "other": "מוציא %lld כוננים פתוחים"
+        "other": "מוציא %lld כוננים פתוחים",
+        "two": "מוציא שני כוננים פתוחים"
       }
     },
     "Quit and leave %lld drives open?": {
@@ -73,8 +73,8 @@
       },
       "he": {
         "one": "לצאת ולהשאיר כונן אחד פתוח?",
-        "two": "לצאת ולהשאיר שני כוננים פתוחים?",
-        "other": "לצאת ולהשאיר %lld כוננים פתוחים?"
+        "other": "לצאת ולהשאיר %lld כוננים פתוחים?",
+        "two": "לצאת ולהשאיר שני כוננים פתוחים?"
       }
     },
     "This drive holds %lld volumes and not all of them could be opened.": {
@@ -84,8 +84,8 @@
       },
       "he": {
         "one": "הכונן הזה מכיל אמצעי אחסון אחד ולא כולם נפתחו.",
-        "two": "הכונן הזה מכיל שני אמצעי אחסון ולא כולם נפתחו.",
-        "other": "הכונן הזה מכיל %lld אמצעי אחסון ולא כולם נפתחו."
+        "other": "הכונן הזה מכיל %lld אמצעי אחסון ולא כולם נפתחו.",
+        "two": "הכונן הזה מכיל שני אמצעי אחסון ולא כולם נפתחו."
       }
     }
   },
@@ -97,6 +97,7 @@
     "%@ image can only be opened read-only": "אפשר לפתוח תמונת %@ לקריאה בלבד",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "‏%@ הוא תוכנה חופשית תחת רישיון GPL גרסה 3 או מאוחרת יותר. העגינה מתבצעת על ידי anylinuxfs. קוד המקור המלא של כל רכיב מתפרסם עם כל גרסה. השם והלוגו הם סימני מסחר ואינם מכוסים ברישיון זה.",
     "%@ is not able to open this file format.": "‏%@ אינו יכול לפתוח פורמט קובץ זה.",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "‏%@ עדיין חדש. כלי לינוקס והמנהלים שעליהם הוא נשען קיימים כבר שנים ונבדקו היטב. %@ בנוי מעליהם, אך הוא עדיין בפיתוח, ולכן בהכרח יש בו תקלות שטרם התגלו. לעת עתה, הבטוח ביותר הוא להשתמש בו לפתיחת כוננים ותמונות במצב קריאה בלבד. הכתיבה עובדת, אך התייחסו אליה כאל ניסיונית ושמרו עותק של כל דבר שלא תרצו לאבד.",
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": "‏%@ פותח כונני BitLocker, Linux ומכונות וירטואליות וכן תמונות דיסק ש‑macOS אינו יכול לפתוח בעצמו.\n\nקריאת כונן ברמת ההתקן הגולמי מחייבת גישה מלאה לדיסק. ל‑macOS אין דרך שבה יישום יבקש זאת ישירות, ולכן צריך להפעיל זאת ידנית.",
     "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": "‏%@ נפתח ברקע כשנכנסים למערכת ומחזיר את הכוננים והתמונות שהיו פתוחים, כפי שהיו. כונן שדורש סיסמה חוזר רק אם הסיסמה שמורה בצרור המפתחות שלך.",
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": "‏%@ מפעיל מכונה וירטואלית קטנה של Linux, מבטל בתוכה את נעילת הכונן ומוסר את הכונן ל‑Finder. ‏macOS אינו יכול לקרוא מערכות קבצים של BitLocker או Linux. ‏Linux יכול.",
@@ -149,6 +150,7 @@
     "Done": "סיום",
     "Download and install them": "הורדה והתקנה שלהם",
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": "כוננים החתומים ל‑TPM במקום לסיסמה, כולל ההצפנה החדשה מבוססת החומרה של Ubuntu",
+    "Early Development": "שלב פיתוח מוקדם",
     "Eject": "הוצאה",
     "Eject %@": "הוצאת %@",
     "Eject It and Open": "הוצאה ופתיחה",
@@ -298,6 +300,7 @@
     "Third-Party Notices": "הודעות צד שלישי",
     "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": "העותק הזה של %@ אינו שלם: סביבת Linux חסרה. התקינו אותו מחדש.",
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "העותק הזה של %@ אינו שלם: מנוע הכוננים חסר. התקינו אותו מחדש.",
+    "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place.": "בכונן הזה יש תמונת דיסק התקנה ולא מערכת קבצים. מחיקה ב‑Disk Utility, או `clean` ב‑diskpart של Windows, מסירה את התמונה; פרמוט מהיר משאיר אותה.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "הכונן הזה מכיל כמה אמצעי אחסון בתוכו, ו‑%@ לא הצליח לקבוע אילו. דיווח על כך יעזור.",
     "This drive is not encrypted.": "הכונן הזה אינו מוצפן.",
     "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "הכונן הזה נפתח לקריאה בלבד: מערכת הקבצים שלו לא קיבלה כתיבה. ייתכן שנדרש תיקון במערכת שאליה הוא שייך.",
@@ -390,8 +393,6 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "‏“%@” זקוק ל‑“%@”, שאינו לצידו. תמונה מסוג זה היא אוסף קבצים, וכולם נדרשים.",
     "“%@” opened in macOS": "‏“%@” נפתח ב‑macOS",
     "“%@” was disconnected.": "‏“%@” נותק.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "‏“%@” לא נסגר כראוי, והתוכן האחרון שלו לא נכתב בחזרה לקובץ. פתחו אותו פעם אחת במכונה הווירטואלית שהוא שייך לה, ואז נסו שוב.",
-    "Early Development": "שלב פיתוח מוקדם",
-    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "‏%@ עדיין חדש. כלי לינוקס והמנהלים שעליהם הוא נשען קיימים כבר שנים ונבדקו היטב. %@ בנוי מעליהם, אך הוא עדיין בפיתוח, ולכן בהכרח יש בו תקלות שטרם התגלו. לעת עתה, הבטוח ביותר הוא להשתמש בו לפתיחת כוננים ותמונות במצב קריאה בלבד. הכתיבה עובדת, אך התייחסו אליה כאל ניסיונית ושמרו עותק של כל דבר שלא תרצו לאבד."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "‏“%@” לא נסגר כראוי, והתוכן האחרון שלו לא נכתב בחזרה לקובץ. פתחו אותו פעם אחת במכונה הווירטואלית שהוא שייך לה, ואז נסו שוב."
   }
 }
