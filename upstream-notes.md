@@ -3,6 +3,8 @@
 
 # What the engine's own documentation says
 
+<!-- covers: patches/** -->
+
 Lukotta mounts through [anylinuxfs](https://github.com/nohajc/anylinuxfs). Its
 README, `docs/`, and `.planning/codebase/CONCERNS.md` describe traps and limits
 that this app inherits whether or not it knows about them. Read as a set, they

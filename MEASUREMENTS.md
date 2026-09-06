@@ -1,5 +1,7 @@
 # Measurements
 
+<!-- covers: sources/** -->
+
 MET: items 1 through 10, proven on this Mac by the full gate of 2026-09-06 --
 started 08:38, finished 11:44, driving the installed bundle with no source newer
 than it. **33 rows hold, none fail, none unchecked, none unrun**, and for the
