@@ -24,6 +24,33 @@ if command -v gitleaks >/dev/null 2>&1; then
     || { echo "gitleaks found something staged. See above."; status=1; }
 fi
 
+# The formatter, on what is staged, before CI sees it.
+#
+# CI ran swift-format and went red twice on 2026-09-06 -- both times over a line
+# break, both times fixed by the very next commit. Neither needed a person and
+# both sent the owner a failure notification, which is the whole cost of it.
+#
+# The same binary lint.sh picks, for the same reason: Homebrew's swift-format is
+# 603.0.0 and the toolchain's is 6.3.0, and they disagree about this file.
+if [ -n "$(git diff --cached --name-only --diff-filter=ACM -- '*.swift')" ]; then
+  formatter=""
+  if command -v swift-format >/dev/null 2>&1; then
+    formatter="swift-format"
+  elif [ -x /opt/homebrew/bin/swift-format ]; then
+    formatter=/opt/homebrew/bin/swift-format
+  fi
+  if [ -n "$formatter" ]; then
+    complaints="$("$formatter" lint --strict \
+      $(git diff --cached --name-only --diff-filter=ACM -- '*.swift') 2>&1)"
+    if [ -n "$complaints" ]; then
+      printf '%s\n' "$complaints" | head -10
+      echo "swift-format is not happy with what is staged. Run:"
+      echo "  swift-format format --in-place \$(git diff --cached --name-only -- '*.swift')"
+      status=1
+    fi
+  fi
+fi
+
 if [ "$status" != "0" ]; then
   echo ""
   echo "Nothing was committed. Fix the lines above, or --no-verify if you are"
