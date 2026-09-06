@@ -1,0 +1,3 @@
+- Prepara un'unità nell'app: inizializzala e crea NTFS, exFAT, ext4, XFS o Btrfs.
+- Un'unità mostra ciò che contiene, anche quando la tabella delle partizioni dice altro.
+- Il messaggio su quante unità sono aperte ora corrisponde all'elenco.

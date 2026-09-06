@@ -1,0 +1,3 @@
+- Përgatitni një disk në aplikacion: fshijeni dhe krijoni NTFS, exFAT, ext4, XFS ose Btrfs.
+- Një disk tregon çfarë ka në të, edhe kur tabela e ndarjeve thotë ndryshe.
+- Mesazhi për sa disqe janë të hapur tani përputhet me listën.

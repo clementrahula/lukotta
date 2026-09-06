@@ -1,0 +1,3 @@
+- Préparez un disque dans l'app : effacez-le puis formatez-le en NTFS, exFAT, ext4, XFS ou Btrfs.
+- Un disque affiche ce qu'il contient, même si sa table de partition dit autre chose.
+- Le message sur le nombre de disques ouverts correspond maintenant à la liste.

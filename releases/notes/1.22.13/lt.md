@@ -1,0 +1,3 @@
+- Paruoškite diską programoje: ištrinkite jį ir sukurkite NTFS, exFAT, ext4, XFS ar Btrfs.
+- Diskas rodo, kas jame yra, net jei skaidinių lentelė teigia kitaip.
+- Pranešimas, kiek diskų atidaryta, dabar sutampa su sąrašu.

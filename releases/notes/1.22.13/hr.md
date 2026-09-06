@@ -1,0 +1,3 @@
+- Pripremite pogon u aplikaciji: obrišite ga i stvorite NTFS, exFAT, ext4, XFS ili Btrfs.
+- Pogon prikazuje što je na njemu, čak i kad particijska tablica tvrdi drugo.
+- Poruka o broju otvorenih pogona sada odgovara popisu.

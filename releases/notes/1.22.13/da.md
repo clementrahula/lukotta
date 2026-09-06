@@ -1,0 +1,3 @@
+- Klargør et drev i appen: slet det og opret NTFS, exFAT, ext4, XFS eller Btrfs.
+- Et drev viser, hvad der er på det, også når partitionstabellen siger noget andet.
+- Beskeden om, hvor mange drev der er åbne, passer nu med listen.

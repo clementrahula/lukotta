@@ -1,0 +1,3 @@
+- Pregătiți o unitate în aplicație: ștergeți-o și creați NTFS, exFAT, ext4, XFS sau Btrfs.
+- O unitate arată ce are pe ea, chiar dacă tabela de partiții spune altceva.
+- Mesajul despre câte unități sunt deschise corespunde acum listei.

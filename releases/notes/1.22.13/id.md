@@ -1,0 +1,3 @@
+- Siapkan drive di dalam aplikasi: hapus lalu buat NTFS, exFAT, ext4, XFS atau Btrfs.
+- Drive menampilkan isinya, bahkan ketika tabel partisi mengatakan lain.
+- Pesan tentang jumlah drive yang terbuka kini cocok dengan daftar.

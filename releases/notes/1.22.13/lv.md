@@ -1,0 +1,3 @@
+- Sagatavojiet disku lietotnē: izdzēsiet to un izveidojiet NTFS, exFAT, ext4, XFS vai Btrfs.
+- Disks rāda, kas uz tā ir, pat ja nodalījumu tabula apgalvo citu.
+- Ziņojums par atvērto disku skaitu tagad sakrīt ar sarakstu.

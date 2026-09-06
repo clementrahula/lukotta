@@ -1,0 +1,3 @@
+- Bir sürücüyü uygulamada hazırlayın: silin ve NTFS, exFAT, ext4, XFS ya da Btrfs oluşturun.
+- Sürücü, bölüm tablosu başka bir şey söylese de içinde ne olduğunu gösterir.
+- Kaç sürücünün açık olduğunu söyleyen mesaj artık listeyle uyuşuyor.

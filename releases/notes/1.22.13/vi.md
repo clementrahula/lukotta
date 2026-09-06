@@ -1,0 +1,3 @@
+- Chuẩn bị ổ đĩa ngay trong ứng dụng: xoá rồi tạo NTFS, exFAT, ext4, XFS hoặc Btrfs.
+- Ổ đĩa hiển thị đúng thứ có trên đó, kể cả khi bảng phân vùng nói khác.
+- Thông báo về số ổ đĩa đang mở giờ khớp với danh sách.

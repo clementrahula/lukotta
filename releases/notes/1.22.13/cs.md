@@ -1,0 +1,3 @@
+- Připravte disk přímo v aplikaci: vymažte jej a vytvořte NTFS, exFAT, ext4, XFS nebo Btrfs.
+- Disk ukazuje, co na něm je, i když tabulka oddílů tvrdí něco jiného.
+- Zpráva o počtu otevřených disků teď odpovídá seznamu.

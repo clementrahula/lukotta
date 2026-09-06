@@ -1,0 +1,3 @@
+- Przygotuj dysk w aplikacji: wymaż go i utwórz NTFS, exFAT, ext4, XFS lub Btrfs.
+- Dysk pokazuje, co na nim jest, nawet gdy tablica partycji twierdzi inaczej.
+- Komunikat o liczbie otwartych dysków zgadza się teraz z listą.

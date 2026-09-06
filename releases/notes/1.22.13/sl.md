@@ -1,0 +1,3 @@
+- Pripravite pogon v aplikaciji: izbrišite ga in ustvarite NTFS, exFAT, ext4, XFS ali Btrfs.
+- Pogon pokaže, kaj je na njem, tudi kadar razdelitvena tabela trdi drugače.
+- Sporočilo o številu odprtih pogonov se zdaj ujema s seznamom.

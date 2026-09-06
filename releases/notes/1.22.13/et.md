@@ -1,0 +1,3 @@
+- Valmista ketas ette rakenduses: kustuta see ja loo NTFS, exFAT, ext4, XFS või Btrfs.
+- Ketas näitab, mis sellel on, ka siis, kui partitsioonitabel väidab muud.
+- Teade avatud ketaste arvu kohta klapib nüüd loendiga.

@@ -1,0 +1,3 @@
+- Ein Laufwerk in der App vorbereiten: löschen und NTFS, exFAT, ext4, XFS oder Btrfs anlegen.
+- Ein Laufwerk zeigt, was darauf ist, auch wenn die Partitionstabelle etwas anderes sagt.
+- Die Meldung über geöffnete Laufwerke stimmt jetzt mit der Liste überein.

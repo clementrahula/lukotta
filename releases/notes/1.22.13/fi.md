@@ -1,0 +1,3 @@
+- Valmistele asema sovelluksessa: tyhjennä se ja luo NTFS, exFAT, ext4, XFS tai Btrfs.
+- Asema näyttää, mitä sillä on, vaikka osiotaulu väittäisi muuta.
+- Ilmoitus avoinna olevien asemien määrästä vastaa nyt luetteloa.

@@ -1,0 +1,3 @@
+- Klargjør en stasjon i appen: slett den og opprett NTFS, exFAT, ext4, XFS eller Btrfs.
+- En stasjon viser hva som er på den, også når partisjonstabellen sier noe annet.
+- Meldingen om hvor mange stasjoner som er åpne, stemmer nå med listen.

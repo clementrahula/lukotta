@@ -1,0 +1,3 @@
+- Ihanda ang drive sa app: burahin ito at lagyan ng NTFS, exFAT, ext4, XFS o Btrfs.
+- Ipinapakita ng drive ang laman nito, kahit iba ang sabi ng partition table.
+- Tugma na sa listahan ang mensahe tungkol sa bilang ng bukas na drive.

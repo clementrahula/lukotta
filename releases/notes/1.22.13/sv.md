@@ -1,0 +1,3 @@
+- Förbered en enhet i appen: radera den och skapa NTFS, exFAT, ext4, XFS eller Btrfs.
+- En enhet visar vad som finns på den, även när partitionstabellen säger annat.
+- Meddelandet om hur många enheter som är öppna stämmer nu med listan.

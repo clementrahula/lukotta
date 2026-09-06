@@ -1,0 +1,3 @@
+- Bereid een schijf voor in de app: wis hem en maak NTFS, exFAT, ext4, XFS of Btrfs.
+- Een schijf toont wat erop staat, ook als de partitietabel iets anders beweert.
+- De melding over het aantal geopende schijven komt nu overeen met de lijst.

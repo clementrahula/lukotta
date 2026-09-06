@@ -1,0 +1,3 @@
+- Készítsen elő egy meghajtót az appban: törölje, és hozzon rajta létre NTFS, exFAT, ext4, XFS vagy Btrfs fájlrendszert.
+- A meghajtó azt mutatja, ami rajta van, akkor is, ha a partíciós tábla mást állít.
+- A nyitott meghajtók számáról szóló üzenet már egyezik a listával.

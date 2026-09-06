@@ -1,0 +1,3 @@
+- Prepare uma unidade na app: apague-a e crie NTFS, exFAT, ext4, XFS ou Btrfs.
+- Uma unidade mostra o que tem, mesmo quando a tabela de partições diz outra coisa.
+- A mensagem sobre quantas unidades estão abertas passa a corresponder à lista.

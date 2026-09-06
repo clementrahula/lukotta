@@ -1,0 +1,3 @@
+- Sediakan pemacu dalam apl: padamkannya dan buat NTFS, exFAT, ext4, XFS atau Btrfs.
+- Pemacu menunjukkan isinya, walaupun jadual partition berkata lain.
+- Mesej tentang bilangan pemacu yang dibuka kini sepadan dengan senarai.
