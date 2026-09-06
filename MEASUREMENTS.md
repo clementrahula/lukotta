@@ -39,7 +39,30 @@ same harness either side:
     committed writes kept                                 3 of 3
 
 Two and eight tenths times faster on the large files, twice on the small ones,
-with the durability unchanged. The client's option does not need to know what is
+with the durability unchanged.
+
+**And the fourth drive joined the set, formatted by the app itself.** The
+123 GB SanDisk had been fully formatted as NTFS in Windows and still read as
+`iso9660` labelled "Ubuntu_20.04.1_LTS_amd64" -- to macOS, which showed the
+install image's Apple partition map, and to the guest's own probe of the raw
+device. A format writes inside a partition; the image's structures live at the
+front of the disk and outlive it.
+
+`mkntfs` had been inside the guest image the whole time, beside the checker that
+repairs NTFS volumes, and nothing could reach it -- so preparing a stick meant
+another computer. The daemon can now be asked to erase a volume and put a
+filesystem on it (`--drive format=/dev/diskNsM as=ntfs label=NAME`), zeroing the
+first eight megabytes first, which is the part a format does not do. Parameters
+and never a command: the kind is matched against a fixed list, the label is
+stripped to letters, digits, dashes and underscores.
+
+    the stick after it              reads as NTFS to macOS and to the daemon
+    opened through the app          served at /Volumes/SANDISK
+    committed writes kept           3 of 3
+
+The result is judged by reading the drive back rather than by the exit code:
+`mkntfs` ends by calling fsync on the device, a macOS raw device answers that
+with an I/O error, and the tool exits 1 having written a perfectly good volume. The client's option does not need to know what is
 inside the container, and `MountScript.perVolumeOptions` already carried the
 same intent down to the volumes the guest mounts itself.
 
