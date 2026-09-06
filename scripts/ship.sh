@@ -117,6 +117,28 @@ NOTES="releases/$FULL.md"
 [ -f "$NOTES" ] || die "no notes at $NOTES; write them first"
 /usr/bin/python3 scripts/check-changelog.py "$NOTES" >/dev/null \
   || die "the notes are refused; run scripts/check-changelog.py $NOTES"
+
+# Every language, before the release channel and not after it.
+#
+# release.sh says "this release goes out in English" and carries on, which is
+# right for a beta and was wrong for a release: it made translating the notes a
+# thing somebody had to remember at the end of a long ship, and it was skipped
+# for 1.22.10 and would have been for 1.22.11. Sparkle picks the reader's
+# language out of the item and falls back to English, so a missing language is
+# invisible from here and visible only to the person reading it.
+#
+# So the release channel refuses to ship until the notes exist in the languages
+# the interface already speaks. Betas stay in English by decision, as before.
+if [ "$CHANNEL" = "release" ]; then
+  SPOKEN="$(/bin/ls translations/*.json 2>/dev/null | wc -l | tr -d ' ')"
+  WRITTEN="$(/bin/ls "releases/notes/$FULL"/*.md 2>/dev/null | wc -l | tr -d ' ')"
+  [ "${WRITTEN:-0}" -ge "${SPOKEN:-0}" ] || die \
+    "the notes are in $WRITTEN of $SPOKEN languages. Write releases/notes/$FULL/<lang>.md
+       for each language in translations/, then ./scripts/notes-audit.py $FULL"
+  /usr/bin/python3 scripts/notes-audit.py "$FULL" >/dev/null \
+    || die "the translated notes are refused; run scripts/notes-audit.py $FULL"
+  echo "    notes in $WRITTEN languages"
+fi
 echo "    notes are there and read like release notes"
 
 # The owner approves in conversation. This records it.
