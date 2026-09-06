@@ -29,6 +29,7 @@
 # is an argument.
 set -u
 
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEVICE="${1:-}"
 MB="${2:-8}"
 # The bundle the caller resolved, before any default of this script's own.
@@ -178,6 +179,11 @@ say "opening…"
 open_device || { say "it did not mount"; sed 's/^/    /' "$WORK/engine.log"; exit 1; }
 MOUNT="$(where)"
 say "mounted at $MOUNT"
+
+# What earlier runs of this left on the drive. A run killed before its trap
+# fires leaves its witness directory behind, and they were found on two of the
+# drives -- 105 MB of them -- because nothing owned them.
+bash "$HERE/scripts/sweep-drive.sh" "$MOUNT" 2>/dev/null | sed 's/^/  /' || true
 
 # Write, and do not return until the write is committed.
 # Written, and checked to have been written.

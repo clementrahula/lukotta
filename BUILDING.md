@@ -1,5 +1,7 @@
 # Building Lukotta from Source
 
+<!-- covers: scripts/** -->
+
 Lukotta is GPL-3.0-or-later. Anyone who receives the app is entitled to its
 source and to the scripts that build it. This covers the whole path, from a
 clean machine to a signed application.

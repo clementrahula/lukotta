@@ -105,6 +105,16 @@ trap stop_run INT TERM
 fingerprint() { find scripts -type f -newermt "@0" -exec ls -l {} + 2>/dev/null | cksum; }
 BEFORE="$(fingerprint)"
 
+# What killed runs left behind, before this one adds to it.
+#
+# Every harness makes a workspace and removes it from a trap, and a trap does
+# not run when a run is killed -- which these are, by timeouts and by gates
+# being stopped. Counted on 2026-09-06: 208 of them under $TMPDIR, 7.6 GB, none
+# belonging to anything running. Each harness cleans its own and none cleans
+# another's, so nobody owned them.
+bash "$HERE/scripts/sweep-workspaces.sh" 2>/dev/null | sed 's/^/  /'
+
+
 # The app the checks drive, chosen because it can be driven.
 #
 # Several rows pass "$LUKOTTA_ENGINE" and nothing ever set it, so it expanded to

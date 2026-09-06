@@ -1,5 +1,7 @@
 # Patches
 
+<!-- covers: patches/**, sources/LukottaCore/** -->
+
 Modifications to the engine that Lukotta carries. `scripts/build-engine.sh`
 fetches every source pinned in `vendor/engine.lock`, verifies it against the
 checksums the release verifies, applies every patch in this directory, and

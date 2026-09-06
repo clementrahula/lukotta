@@ -4898,6 +4898,39 @@ and lld that no user installs; this is the same arrangement.
 coming back clean says the tool runs, not that it repairs. The next measurement
 is a deliberately poisoned fixture, before and after.
 
+## The drives this Mac has, and what each is for — 2026-09-06
+
+Written down because a later session will otherwise work it out again from
+scratch, and one of these is not a test drive at all.
+
+    /dev/disk4    SanDisk Ultra Fit 123 GB    plain NTFS, whole disk, no table
+                                              formatted by the app itself
+    /dev/disk5s1  Patriot Memory 247 GB       BitLocker over NTFS. THE OWNER'S
+                                              OWN BACKUP DRIVE: years of
+                                              archives, a password vault
+                                              backup, 214 GB of it. Test
+                                              against it, never erase it, and
+                                              take nothing off it but the names
+                                              in scripts/sweep-drive.sh
+    /dev/disk7s2  Kingston DataTraveler 62 GB LUKS2 holding ext4, passphrase
+                                              `lukotta-test`
+    /dev/disk8s1  Kingston DataTraveler 62 GB exFAT, the spare for anything
+
+Device numbers move when drives are replugged; the sizes and the labels do not.
+`Lukotta Beta --drive identify` (devtools) prints what each node holds.
+
+**The harnesses' own leftovers.** Every harness writes dummy payloads -- eight
+megabytes of urandom for a durability run, four hundred for a copy timing, two
+thousand small files for a Finder cycle -- and removes them from a trap that
+does not run when the run is killed. Two scripts own that now, and the gate
+calls the first before it starts:
+
+    scripts/sweep-workspaces.sh   the mktemp workspaces under $TMPDIR
+    scripts/sweep-drive.sh        this project's names on a mounted drive
+
+Found and taken back on the day they were written: 208 workspaces, 7.6 GB, and
+105 MB of payloads spread across two of the drives.
+
 ## A committed write on a real drive — 2026-09-05, overnight
 
 Every durability figure in this file before tonight was taken on a disk image.
