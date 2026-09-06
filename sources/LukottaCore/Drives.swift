@@ -202,6 +202,19 @@ public struct Drive: Identifiable, Hashable, Sendable {
     /// read the first sector.
     public let kindIsKnown: Bool
 
+    /// The same volume under another name.
+    ///
+    /// For a container file whose volume carries no label of its own: the
+    /// medium's name is "Disk Image", so the row was titled "Disk Image" over a
+    /// second line reading "Disk Image" -- twice the same word and the file's
+    /// own name nowhere. The app knows which file it opened, and that is what a
+    /// person recognises.
+    public func called(_ newName: String) -> Drive {
+        Drive(
+            id: id, devicePath: devicePath, name: newName, sizeBytes: sizeBytes,
+            connection: connection, kind: kind, uuid: uuid, kindIsKnown: kindIsKnown)
+    }
+
     /// The same volume, once its first sector has been read.
     ///
     /// The kind follows the sector where the two disagree, by the rule in

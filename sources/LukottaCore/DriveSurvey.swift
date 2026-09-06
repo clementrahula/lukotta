@@ -38,6 +38,18 @@ public enum DriveSurvey {
         public let name: String
         public let sizeBytes: Int64
         public let content: String
+
+        /// The same row, saying what a later reading found.
+        ///
+        /// The sheet is built before anything has read a disk, and a disk with
+        /// no partition table has no type to describe -- so the row went up
+        /// saying nothing about itself and had to be corrected once the daemon
+        /// answered.
+        public func saying(_ what: String) -> Entry {
+            Entry(
+                id: id, disk: disk, name: name, sizeBytes: sizeBytes, content: what,
+                verdict: verdict, drive: drive)
+        }
         public let verdict: Verdict
         /// The drive to open, when there is one.
         public let drive: Drive?

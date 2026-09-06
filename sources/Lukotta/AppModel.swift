@@ -310,7 +310,55 @@ final class AppModel: ObservableObject {
                 // What the daemon read of each volume, so a disk with no
                 // partition table can still say what it holds.
                 formats: read)
-            await MainActor.run { self.survey = entries }
+            // The rows that would say nothing about themselves, before the
+            // sheet is shown rather than after.
+            //
+            // A disk formatted across the whole device has no partition type,
+            // so its row carried a size and a bus and no more. The sheet is
+            // often the first thing opened, before any scan has read anything,
+            // so there is nothing remembered to fall back on: it has to ask.
+            //
+            // Asked here, not after publishing. Filling the row in a moment
+            // later means the sheet opens saying nothing and corrects itself
+            // while somebody is reading it -- and the end-to-end check that
+            // every row says what it is caught exactly that. Only the silent
+            // rows are asked about, the answers are kept so a second opening
+            // asks nothing, and a daemon that does not answer within three
+            // seconds does not hold the sheet shut.
+            var filled = entries
+            let silent = entries.filter { $0.content.isEmpty }.map(\.id)
+            if !silent.isEmpty {
+                var found: [String: VolumeFormat] = [:]
+                let by = Date().addingTimeInterval(3)
+                for identifier in silent {
+                    if Date() >= by { break }
+                    let path = "/dev/" + identifier
+                    let already = await MainActor.run { self.sectorFormats[path] }
+                    let format: VolumeFormat
+                    if let already {
+                        format = already
+                    } else {
+                        format = await self.helper.identify(devicePath: path)
+                    }
+                    guard format != .unknown else { continue }
+                    found[identifier] = format
+                }
+                if !found.isEmpty {
+                    filled = entries.map { entry in
+                        guard let format = found[entry.id], entry.content.isEmpty else {
+                            return entry
+                        }
+                        return entry.saying(format.name)
+                    }
+                    await MainActor.run {
+                        for (identifier, format) in found {
+                            self.sectorFormats["/dev/" + identifier] = format
+                            self.knownFormats[identifier] = format
+                        }
+                    }
+                }
+            }
+            await MainActor.run { self.survey = filled }
         }
     }
 
@@ -1167,7 +1215,7 @@ final class AppModel: ObservableObject {
         let attached: (String) -> Bool = { FileManager.default.fileExists(atPath: $0) }
         adoptedVolumes = adoptedVolumes.filter { attached($0.key) }
         sectorFormats = sectorFormats.filter { attached($0.key) }
-        listed = withAdopted(listed)
+        listed = withAdopted(listed).map(namedAfterItsFile)
 
         drives = listed
         scanGeneration += 1
@@ -1203,6 +1251,23 @@ final class AppModel: ObservableObject {
         refreshSpace()
         readWhatTheTypesCouldNotSay(unclaimed: sighting.unclaimed)
         return listed
+    }
+
+    /// A container file's row, named after the file when its volume is not
+    /// named after anything.
+    ///
+    /// A volume with no label falls back to the medium's own name, and for an
+    /// attached image macOS calls that "Disk Image" -- so the row read "Disk
+    /// Image" over a second line reading "Disk Image", with the name of the
+    /// file nowhere on it. This app knows which file it opened.
+    private func namedAfterItsFile(_ row: Drive) -> Drive {
+        guard let file = openedImages[DriveScanner.wholeDisk(of: row.id)] else { return row }
+        let unnamed =
+            row.name == row.id || row.name == appString("Disk Image")
+            || row.name.isEmpty
+        guard unnamed else { return row }
+        let called = file.deletingPathExtension().lastPathComponent
+        return called.isEmpty ? row : row.called(called)
     }
 
     /// The rows a scan found, plus the volumes admitted by their own first
@@ -1276,14 +1341,26 @@ final class AppModel: ObservableObject {
                 // External", before and after it was opened, because nothing
                 // had read it. One 512-byte read per disk, kept, is the price
                 // of the row saying what it is.
-                let format = await self.helper.identify(devicePath: candidate.devicePath)
+                // Read once per device, then remembered.
+                //
+                // A whole disk is reconsidered on every scan -- what admits it
+                // is what is around it, and that changes -- but what it holds
+                // does not, and asking the daemon again each time cost the
+                // opening scan its thirty seconds with a dozen images
+                // attached. The judgement is redone; the reading is not.
+                let format: VolumeFormat
+                if let remembered = self.sectorFormats[candidate.devicePath] {
+                    format = remembered
+                } else {
+                    format = await self.helper.identify(devicePath: candidate.devicePath)
+                }
                 // Remembered only where the judgement is about the volume
                 // itself. A whole disk is judged by what is around it, and that
                 // changes -- eject its volume in Finder and the disk becomes
                 // offerable -- so recording an answer for it would freeze that
                 // judgement at whatever was true the first time. Its format is
                 // still kept, under the row, because that does not change.
-                if !isWholeDisk { self.sectorFormats[candidate.devicePath] = format }
+                self.sectorFormats[candidate.devicePath] = format
                 if format != .unknown { self.knownFormats[candidate.id] = format }
                 if isWholeDisk {
                     // A whole disk whose partitions said nothing this app opens.
