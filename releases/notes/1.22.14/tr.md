@@ -1,0 +1,3 @@
+- Listedeki her sürücü içinde ne olduğunu söyler; bölüm tablosu olmayan da.
+- Disk imajı, iki kez “Disk İmajı” yerine kendi dosyasının adını taşır.
+- Kaç sürücü takılı olursa olsun liste hemen görünür.

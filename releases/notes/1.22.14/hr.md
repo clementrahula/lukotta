@@ -1,0 +1,3 @@
+- Svaki pogon na popisu kaže što je na njemu, pa i onaj bez particijske tablice.
+- Slika diska nosi ime svoje datoteke umjesto da se dvaput zove „Slika diska”.
+- Popis se pojavljuje brzo, koliko god pogona bilo priključeno.

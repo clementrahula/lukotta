@@ -1,0 +1,3 @@
+- Każdy dysk na liście mówi, co na nim jest – także ten bez tablicy partycji.
+- Obraz dysku nosi nazwę swojego pliku, a nie dwa razy „Obraz dysku”.
+- Lista pojawia się szybko, niezależnie od liczby podłączonych dysków.

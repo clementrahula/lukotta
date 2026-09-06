@@ -1,0 +1,3 @@
+- Setiap drive dalam daftar menyebutkan isinya, termasuk yang tanpa tabel partisi.
+- Image disk dinamai sesuai berkasnya, bukan “Image Disk” dua kali.
+- Daftar muncul dengan cepat, berapa pun drive yang tercolok.

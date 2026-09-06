@@ -1,0 +1,3 @@
+- Jedes Laufwerk in der Liste sagt, was darauf ist – auch eines ohne Partitionstabelle.
+- Ein Image trägt den Namen seiner Datei, statt zweimal „Image“ zu heißen.
+- Die Liste erscheint zügig, egal wie viele Laufwerke angeschlossen sind.

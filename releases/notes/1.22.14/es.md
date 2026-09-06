@@ -1,0 +1,3 @@
+- Cada unidad de la lista dice lo que contiene, incluso una sin tabla de particiones.
+- Una imagen de disco lleva el nombre de su archivo, en vez de llamarse «Imagen de disco» dos veces.
+- La lista aparece enseguida, por muchas unidades que estén conectadas.

@@ -1,0 +1,3 @@
+- Iga ketas loendis ütleb, mis sellel on – ka see, millel pole partitsioonitabelit.
+- Kettatõmmis kannab oma faili nime, mitte kaks korda „Kettatõmmis“.
+- Loend ilmub kiiresti, ükskõik mitu ketast on ühendatud.

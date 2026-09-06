@@ -1,0 +1,3 @@
+- Fiecare unitate din listă spune ce are pe ea, inclusiv una fără tabelă de partiții.
+- O imagine de disc poartă numele fișierului ei, nu „Imagine de disc” de două ori.
+- Lista apare prompt, oricâte unități ar fi conectate.

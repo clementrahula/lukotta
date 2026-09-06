@@ -1,0 +1,3 @@
+- Chaque disque de la liste indique ce qu'il contient, y compris celui sans table de partition.
+- Une image disque porte le nom de son fichier, au lieu de s'appeler deux fois « Image disque ».
+- La liste s'affiche sans attendre, quel que soit le nombre de disques branchés.

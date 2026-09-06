@@ -1,0 +1,3 @@
+- Çdo disk në listë tregon çfarë ka në të, edhe ai pa tabelë ndarjesh.
+- Imazhi i diskut merr emrin e skedarit të vet, në vend që të quhet dy herë «Imazh disku».
+- Lista shfaqet menjëherë, sado disqe të jenë të lidhur.

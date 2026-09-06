@@ -1,0 +1,3 @@
+- Kiekvienas sąrašo diskas nurodo, kas jame yra, net ir tas, kuris neturi skaidinių lentelės.
+- Disko atvaizdis vadinamas savo failo vardu, o ne du kartus „Disko atvaizdis“.
+- Sąrašas pasirodo greitai, kad ir kiek diskų būtų prijungta.

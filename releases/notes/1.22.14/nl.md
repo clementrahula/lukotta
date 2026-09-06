@@ -1,0 +1,3 @@
+- Elke schijf in de lijst zegt wat erop staat, ook een zonder partitietabel.
+- Een schijfkopie krijgt de naam van zijn bestand in plaats van twee keer ‘Schijfkopie’.
+- De lijst verschijnt meteen, hoeveel schijven er ook aangesloten zijn.

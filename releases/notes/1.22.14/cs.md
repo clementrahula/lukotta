@@ -1,0 +1,3 @@
+- Každý disk v seznamu říká, co na něm je, i ten bez tabulky oddílů.
+- Obraz disku se jmenuje podle svého souboru, ne dvakrát „Obraz disku“.
+- Seznam se objeví rychle, ať je připojeno kolik disků chce.

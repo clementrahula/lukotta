@@ -1,0 +1,3 @@
+- Jokainen luettelon asema kertoo, mitä sillä on – myös se, jolla ei ole osiotaulua.
+- Levytiedosto nimetään tiedostonsa mukaan eikä kahdesti nimellä ”Levytiedosto”.
+- Luettelo tulee näkyviin heti, oli asemia kiinni kuinka monta tahansa.

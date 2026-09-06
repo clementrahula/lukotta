@@ -1,0 +1,3 @@
+- Vsak pogon na seznamu pove, kaj je na njem, tudi tisti brez razdelitvene tabele.
+- Slika diska nosi ime svoje datoteke, ne pa dvakrat »Slika diska«.
+- Seznam se prikaže hitro, ne glede na to, koliko pogonov je priključenih.

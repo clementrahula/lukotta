@@ -1,0 +1,3 @@
+- Sinasabi ng bawat drive sa listahan kung ano ang laman nito, pati na ang walang partition table.
+- Pinangangalanan ang disk image ayon sa file nito, hindi “Disk Image” nang dalawang beses.
+- Agad lumalabas ang listahan, ilan man ang nakasaksak na drive.

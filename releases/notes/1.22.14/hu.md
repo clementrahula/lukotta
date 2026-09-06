@@ -1,0 +1,3 @@
+- A lista minden meghajtója megmondja, mi van rajta – az is, amelyiknek nincs partíciós táblája.
+- A lemezkép a fájljáról kapja a nevét, nem kétszer szerepel „Lemezkép”-ként.
+- A lista gyorsan megjelenik, akárhány meghajtó van csatlakoztatva.

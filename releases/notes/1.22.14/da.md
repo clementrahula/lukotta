@@ -1,0 +1,3 @@
+- Hvert drev på listen viser, hvad der er på det – også et uden partitionstabel.
+- Et diskbillede får navn efter sin fil i stedet for at hedde “Diskbillede” to gange.
+- Listen kommer frem med det samme, uanset hvor mange drev der er tilsluttet.

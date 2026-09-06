@@ -1,0 +1,3 @@
+- Katrs saraksta disks pasaka, kas uz tā ir, arī tāds, kam nav nodalījumu tabulas.
+- Diska attēls tiek nosaukts savas datnes vārdā, nevis divreiz „Diska attēls”.
+- Saraksts parādās ātri neatkarīgi no tā, cik disku ir pievienoti.

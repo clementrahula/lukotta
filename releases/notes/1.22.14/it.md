@@ -1,0 +1,3 @@
+- Ogni unità nell'elenco dice cosa contiene, anche quella senza tabella delle partizioni.
+- Un'immagine disco prende il nome dal suo file, invece di chiamarsi due volte «Immagine disco».
+- L'elenco compare subito, per quante unità siano collegate.

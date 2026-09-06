@@ -1,0 +1,3 @@
+- Mỗi ổ đĩa trong danh sách đều cho biết thứ có trên đó, kể cả ổ không có bảng phân vùng.
+- Ảnh đĩa mang tên tệp của nó, thay vì gọi là “Ảnh đĩa” hai lần.
+- Danh sách hiện ra ngay, dù có bao nhiêu ổ đĩa được cắm.

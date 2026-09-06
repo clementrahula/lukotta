@@ -1,0 +1,3 @@
+- Hver stasjon i listen sier hva som er på den – også en uten partisjonstabell.
+- Et diskbilde får navn etter filen sin, i stedet for å hete «Diskbilde» to ganger.
+- Listen kommer raskt fram, uansett hvor mange stasjoner som er koblet til.

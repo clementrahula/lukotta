@@ -1,0 +1,3 @@
+- Setiap pemacu dalam senarai menyatakan isinya, termasuk yang tiada jadual partition.
+- Imej cakera dinamakan mengikut failnya, bukan “Imej Cakera” dua kali.
+- Senarai muncul dengan cepat, berapa banyak pemacu sekalipun yang dipasang.
