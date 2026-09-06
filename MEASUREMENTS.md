@@ -13,6 +13,18 @@ mount going before macOS can tell anybody.
 What it took is below: every durability figure this file held before that day was
 taken on a disk image, and an image cannot answer the question.
 
+**1.22.11 went out on the release channel at 12:14 that day**, after three betas
+(07:21, 08:34, 12:01). The published artifact was downloaded back and checked --
+notarized, Developer ID, accepted by Gatekeeper -- and the code it carries was
+put on the drives once more afterwards:
+
+    all three drives          opened and ejected cleanly
+    BitLocker/NTFS            3 of 3 committed writes kept
+    exFAT                     3 of 3
+    LUKS holding ext4         3 of 3
+
+Nine of nine byte-identical, on the code people are being offered.
+
 1.22.11-beta.1 shipped 2026-09-06 07:21, with the durability fault below fixed
 and measured on the drives: 3 of 3 committed writes kept on BitLocker/NTFS, on
 exFAT and on LUKS holding ext4, where it had been 0 of 6. All four sticks open
