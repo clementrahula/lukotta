@@ -694,7 +694,19 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             // broken while hiding what was actually wrong underneath.
             var status = task.terminationStatus
             if status == 0 {
-                if servedCount() <= mountsBefore {
+                // And it waits for the table rather than reading it once. The
+                // script exiting and the mount appearing are not the same
+                // instant, and when the table was late this answered 74 and the
+                // drive was torn down behind it -- two first opens in three on
+                // a 247 GB BitLocker volume being repaired, with twelve
+                // consecutive successes on the same drive once it had settled.
+                var served = servedCount()
+                let by = Date().addingTimeInterval(15)
+                while served <= mountsBefore, Date() < by {
+                    Thread.sleep(forTimeInterval: 0.25)
+                    served = servedCount()
+                }
+                if served <= mountsBefore {
                     Log.helper.error("the script ended well and served nothing")
                     output += "\nthe mount script reported success and no volume is served"
                     status = 74
