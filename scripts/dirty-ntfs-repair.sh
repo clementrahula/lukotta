@@ -99,8 +99,16 @@ can_be_driven() {
   [ "$(strings -a "$APP" 2>/dev/null | /usr/bin/grep -c -- "--drive")" -gt 0 ]
 }
 
+# Registered, by either route.
+#
+# This looked only for /Library/LaunchDaemons/<id>.helper.plist, which is the
+# admin-password installation and not the only one: an app that registers its
+# daemon through SMAppService leaves no file there, and launchd holds the job
+# all the same. So a dev build with a perfectly good daemon reported "no daemon
+# for com.lukotta.dev" and the row failed with nothing wrong.
 daemon_is_there() {
-  [ -f "/Library/LaunchDaemons/$APP_ID.helper.plist" ]
+  [ -f "/Library/LaunchDaemons/$APP_ID.helper.plist" ] && return 0
+  launchctl print "system/$APP_ID.helper" >/dev/null 2>&1
 }
 
 prepare_actions() {
