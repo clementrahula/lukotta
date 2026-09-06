@@ -1,6 +1,6 @@
 # Building Lukotta from Source
 
-<!-- covers: scripts/** -->
+<!-- covers: scripts/** checked: 2026-09-06 -->
 
 Lukotta is GPL-3.0-or-later. Anyone who receives the app is entitled to its
 source and to the scripts that build it. This covers the whole path, from a
@@ -104,6 +104,21 @@ The image supports far more than Lukotta reaches and is trimmed to the packages
 it uses. Source for every GPL package shipped must be published with the
 release, so trimming cuts both the download and the work of complying. Set
 `LUKOTTA_NO_TRIM=1` to keep the whole image.
+
+### The NTFS checker
+
+`ntfsfix` is not a chkdsk: it clears the dirty flag and repairs the boot sector,
+and nothing in Alpine repairs the fault an interrupted copy actually leaves - an
+index entry pointing at an MFT record that will not resolve, which then refuses
+every operation on that name. `scripts/build-ntfsck.sh` builds a checker from
+ntfsprogs-plus for the guest's architecture and libc:
+
+    ./scripts/build-ntfsck.sh
+
+**This step is optional**, in the same way the patched engine is. Run it before
+`vendor-engine.sh`, which copies the result into the image and says which it
+did: `ntfsck added to the guest`, or `no ntfsck vendored`. Without it the app
+behaves as it did before and cannot repair that damage.
 
 ### Adding a package to the guest
 
@@ -284,7 +299,20 @@ giving a fork its own name and artwork.
 
 ## Releasing
 
-A beta first, then the same version as the release once the beta holds up:
+One command, which does every step between a finished build and somebody being
+able to install it:
+
+```bash
+./scripts/ship.sh              # a beta
+./scripts/ship.sh release      # the release channel
+```
+
+It moves the tag, marks the notes read, refuses on an uncommitted file while
+saying which, and leaves nothing as a draft. Each of those was once a manual
+step that stopped a release which was otherwise ready.
+
+`ship.sh` calls `release.sh`, which is still the way to build and prepare
+without publishing anything:
 
 ```bash
 LUKOTTA_CHANNEL=beta LUKOTTA_PUBLISH=1 ./scripts/release.sh
