@@ -82,18 +82,26 @@ own record, and the bundle is Developer ID, notarized, stapled and accepted by
 Gatekeeper as 1.22.15. Launched, it lists four drives and this Mac's own disk is
 not among them.
 
-One thing could not be measured on the released build and is written down rather
-than glossed: the format on the row for the whole-disk NTFS stick. It reads
-correctly on a build of this same code -- "Ultra Fit ... USB · External · NTFS"
--- and is blank when the released bundle is run out of a download directory,
-because the privileged helper registered on this Mac for the release channel
-belongs to `/Applications/Lukotta.app`, which is 1.22.10, and the helper is what
-reads a first sector. Identifying a disk with no partition table is work that
-landed in 1.22.14; a 1.22.10 helper does not do it. Writing the new bundle into
-/Applications, which is what pairs an app with its own helper, was refused in
-this session, so the released build was exercised beside a two-version-old
-daemon. Installing 1.22.15 the ordinary way -- which replaces the helper --
-is what closes this, and it has not been done here.
+One row read blank at first and the reason was the rig, not the app. Run out of
+a download directory, the released bundle talks to whatever helper is registered
+for its channel -- here `/Applications/Lukotta.app`, still 1.22.10 -- and the
+helper is what reads a first sector. Identifying a disk with no partition table
+landed in 1.22.14, so a 1.22.10 helper cannot do it, and the whole-disk NTFS
+stick showed no format while the three partitions beside it showed theirs.
+
+Settled by taking the ordinary route rather than a shortcut: the installed
+release app was left to update itself through its own Sparkle updater, which
+replaced the bundle and the helper together. 1.22.10 -> 1.22.15 at 02:48, no
+hand installation. Relaunched, paired with its own daemon, the released build
+lists:
+
+    Ultra Fit        123,01 GB  ·  USB · External  ·  NTFS
+    Patriot Memory   247,63 GB  ·  USB · External  ·  BitLocker
+    KINGSTON_64       61,85 GB  ·  USB · External  ·  LUKS
+    KINGSTON_64       34,36 GB  ·  USB · External  ·  exFAT
+
+Four drives, each saying what it holds, and this Mac's own disk in none of them.
+That is the shipped artifact, installed the way anybody installs it.
 
 What is below is the earlier record.
 
