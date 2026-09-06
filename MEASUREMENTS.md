@@ -60,6 +60,15 @@ stripped to letters, digits, dashes and underscores.
     opened through the app          served at /Volumes/SANDISK
     committed writes kept           3 of 3
 
+Finder-shaped copies onto it afterwards, three cycles at both extremes, with
+every file compared byte for byte:
+
+    1.2 GB in three files    121s, 158s, 144s   3 identical, 0 differing
+    2000 small files          89s,  90s,  97s   2000 identical, 0 differing
+
+Three cycles, no failures. That is plain NTFS on real hardware, which until this
+day had only ever been an image.
+
 The result is judged by reading the drive back rather than by the exit code:
 `mkntfs` ends by calling fsync on the device, a macOS raw device answers that
 with an I/O error, and the tool exits 1 having written a perfectly good volume. The client's option does not need to know what is
