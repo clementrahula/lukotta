@@ -4933,6 +4933,21 @@ calls the first before it starts:
 Found and taken back on the day they were written: 208 workspaces, 7.6 GB, and
 105 MB of payloads spread across two of the drives.
 
+## 215 GB deleted through the app, and nothing was said — 2026-09-06
+
+Not a harness. The owner emptied the BitLocker drive by hand, through the mount
+Lukotta was serving, to turn it into a test drive: a single `find … -exec rm -rf`
+over 215 GB of archives, some minutes long. Sampled while it ran:
+
+    macOS complaints                  0 in twenty minutes
+    a directory listing, eight times  19 to 28 ms, every time
+    used, before and after            215 GB, then 110 MB
+    stalls, errors, dialogs           none
+
+The largest single operation this app has served on this Mac, on the format that
+started all of it, with a person watching. Items 2 and 3 ask for exactly that,
+and nothing in the harnesses reaches this size.
+
 ## A committed write on a real drive — 2026-09-05, overnight
 
 Every durability figure in this file before tonight was taken on a disk image.
