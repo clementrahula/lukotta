@@ -1654,6 +1654,57 @@ group("aSynthesisedContainerIsNotAContainerFile") {
     expect(rows.allSatisfy { $0.drive == nil }, "so neither is offered as a drive to open")
 }
 
+group("aPartitionTypeIsNeverADriveName") {
+    // A volume nobody named fell through to `IORegistryEntryName`, which for a
+    // partition is the type, so a nameless NTFS stick was listed in the app as
+    // "Windows_NTFS" -- a category in diskutil's spelling, not a name.
+    let nameless: [String: Any] = [
+        "AllDisksAndPartitions": [
+            [
+                "DeviceIdentifier": "disk6",
+                "Partitions": [
+                    [
+                        "DeviceIdentifier": "disk6s1", "Content": "Windows_NTFS",
+                        "Size": NSNumber(value: 123_000_000_000),
+                    ]
+                ],
+            ]
+        ]
+    ]
+    let rows = DriveScanner.drives(
+        inList: nameless,
+        info: { identifier in
+            identifier == "disk6"
+                ? [
+                    "BusProtocol": "USB", "Internal": false,
+                    "MediaName": "Ultra Fit",
+                ]
+                : [
+                    "BusProtocol": "USB", "Internal": false,
+                    "IORegistryEntryName": "Windows_NTFS",
+                ]
+        })
+    expect(rows.count == 1, "the volume is listed")
+    expect(
+        rows.first?.name == "Ultra Fit",
+        "and it is called after the drive, not after its partition type")
+    expect(
+        DriveScanner.isAPartitionType("Windows_NTFS"),
+        "the type diskutil reports for NTFS is a type")
+    expect(
+        DriveScanner.isAPartitionType("Linux_Filesystem"),
+        "and so is the one it reports for Linux")
+    expect(
+        !DriveScanner.isAPartitionType("BACKUP2_TS"),
+        "a volume a person named is not")
+    expect(
+        DriveScanner.named("Apple_HFS") == nil,
+        "so a type is refused as a name")
+    expect(
+        DriveScanner.named("KINGSTON_64") == "KINGSTON_64",
+        "and a name is kept")
+}
+
 group("aStalePartitionTypeDoesNotHideADrive") {
     // A stick formatted exFAT on Windows, years after somebody partitioned it
     // on a Mac, still declares an Apple partition map holding Apple_HFS. Every

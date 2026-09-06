@@ -509,12 +509,16 @@ public enum DriveScanner {
                     (part["Size"] as? NSNumber)?.int64Value
                     ?? (partInfo["TotalSize"] as? NSNumber)?.int64Value ?? 0
 
+                // Never the partition type. `IORegistryEntryName` for a
+                // partition is the type -- "Windows_NTFS" -- and a nameless
+                // NTFS stick was listed under it, which is a category in
+                // diskutil's spelling and not a name anybody gave the drive.
                 let label =
                     firstNonEmpty(
-                        part["VolumeName"] as? String,
-                        partInfo["VolumeName"] as? String,
-                        product,
-                        partInfo["IORegistryEntryName"] as? String) ?? ident
+                        named(part["VolumeName"] as? String),
+                        named(partInfo["VolumeName"] as? String),
+                        named(product),
+                        named(partInfo["IORegistryEntryName"] as? String)) ?? ident
 
                 // Where the thing lives, in the words Disk Utility uses for
                 // it: Internal, External, or Disk Image. A container file that
@@ -573,6 +577,30 @@ public enum DriveScanner {
             }
         }
         return drives
+    }
+
+    /// The name, unless it is a partition type wearing one.
+    ///
+    /// diskutil reports a partition's type as its registry name, so a volume
+    /// nobody named came back called "Windows_NTFS" or "Linux_Filesystem".
+    /// Those are the strings `VolumeKind.holding` reads, plus the Apple and EFI
+    /// ones that reach the same place, and none of them is a name.
+    public static func named(_ value: String?) -> String? {
+        guard let value else { return nil }
+        return isAPartitionType(value) ? nil : value
+    }
+
+    /// Whether this string is a partition type rather than a name.
+    public static func isAPartitionType(_ value: String) -> Bool {
+        [
+            "Microsoft Basic Data", "Windows_NTFS", "Windows_FAT_32",
+            "Windows_FAT_16", "Windows_Recovery", "Linux Filesystem",
+            "Linux_Filesystem", "Linux", "Linux LVM", "Linux_LVM", "Linux RAID",
+            "Linux_RAID", "Linux_Swap", "Apple_HFS", "Apple_APFS", "Apple_Boot",
+            "Apple_partition_map", "Apple_partition_scheme", "EFI",
+            "EFI System Partition", "FDisk_partition_scheme",
+            "GUID_partition_scheme",
+        ].contains(value)
     }
 
     private static func firstNonEmpty(_ values: String?...) -> String? {
