@@ -1,5 +1,7 @@
 # Specifications
 
+<!-- covers: sources/** -->
+
 What Lukotta opens, how it opens it, and what it does not.
 
 Lukotta hands a drive or a file to a Linux virtual machine, mounts it there, and

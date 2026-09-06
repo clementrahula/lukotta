@@ -1,5 +1,7 @@
 # Measurements
 
+<!-- covers: sources/** -->
+
 Every number here was produced by running it on this Mac.
 
 ## Where the ten stand, 2026-09-05

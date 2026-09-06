@@ -1,5 +1,7 @@
 # Coverage: what Lukotta opens, what it does not, and how to close every gap
 
+<!-- covers: tests/**, scripts/** -->
+
 The plan for the v2 line, and the reason this branch exists. v1 stays on the
 formats it already opens; the work below is what v2 adds. Every route here was
 read out of this repository on 2026-09-04 — the guest's own `modules.builtin`,
