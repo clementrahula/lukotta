@@ -47,8 +47,36 @@ harness said there was none. That is the fourth instrument in this project to
 report a fault the app did not have. The check now asks launchd as well, and the
 row holds.
 
-**1.22.14 goes out on the release channel today.** What is below is the earlier
-record.
+**1.22.14 went out on the release channel at 01:45, and the artifact people
+download was checked back:** the archive's digest matched what the build
+recorded, and the bundle inside is Developer ID, notarized, stapled and accepted
+by Gatekeeper as 1.22.14 (build 1438). Launched, it came up and drew its list.
+
+**And the list was wrong, on the released build.** Five rows where there are four
+drives: `/dev/disk0` -- this Mac's own internal disk -- was offered as a drive to
+unlock, described as "External", with no bus. `--drive identify` said the same
+thing in one word: `offered whole`.
+
+The cause is one line, and it is a cost saved in the wrong place. Every guard
+that keeps an internal disk out reads `Internal` out of `diskutil info`, and on
+2026-09-06 the leftovers pass was given an `info` that answered nothing at all --
+one process per unclaimable volume was making a scan on a Mac with sixteen disks
+miss its thirty seconds. With nothing answering, `Internal` read `false` on every
+disk on the machine, including the one it boots from.
+
+The fix asks about whole disks only, and those answers are already in the cache
+the first pass filled, so it costs no process at all. The list is four rows
+again, each saying what it holds:
+
+    Ultra Fit        123,01 GB  ·  USB · External  ·  NTFS
+    Patriot Memory   247,63 GB  ·  USB · External  ·  BitLocker
+    KINGSTON_64       61,85 GB  ·  USB · External  ·  LUKS
+    KINGSTON_64       34,36 GB  ·  USB · External  ·  exFAT
+
+Two checks hold it: the Mac's own disk yields no candidates, and the same shape
+on an external disk still yields three. 1268 of 1268 pass.
+
+**1.22.15 goes out with that fix.** What is below is the earlier record.
 
 The full gate of 2026-09-06 proved the same ten items on 1.22.11 --
 started 08:38, finished 11:44, driving the installed bundle with no source newer
