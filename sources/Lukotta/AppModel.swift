@@ -1231,7 +1231,8 @@ final class AppModel: ObservableObject {
         // been. A whole disk is reconsidered on every scan -- it costs nothing
         // now that it is not read -- because what decides it is what is around
         // it.
-        let candidates = unclaimed
+        let candidates =
+            unclaimed
             .filter {
                 DriveScanner.wholeDisk(of: $0.id) == $0.id
                     || sectorFormats[$0.devicePath] == nil
