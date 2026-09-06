@@ -298,7 +298,15 @@
             if !said.isEmpty {
                 say(said.split(separator: "\n").suffix(6).joined(separator: "\n"))
             }
-            say(status == 0 ? "formatted \(device) as \(kind)" : "it was not formatted")
+            // Written out rather than chosen with a ternary: two literals
+            // either side of a colon in an app file is how the string
+            // extractor recognises interface text, and these are diagnostics
+            // on stderr that no window ever shows.
+            if status == 0 {
+                say("formatted \(device) as \(kind)")
+            } else {
+                say("it was not formatted")
+            }
             exit(status == 0 ? 0 : 1)
         }
 

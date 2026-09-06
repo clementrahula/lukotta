@@ -849,7 +849,8 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         // tool's last words; one that did not is a failure even if the tool
         // exited 0.
         let wanted = kind.lowercased()
-        let got = BootSector.readWaiting(devicePath: devicePath, attempts: 20, gap: 0.5)
+        let got =
+            BootSector.readWaiting(devicePath: devicePath, attempts: 20, gap: 0.5)
             .map(BootSector.identify) ?? .unknown
         let matches =
             got.rawValue == wanted
