@@ -3,7 +3,7 @@
 
 # What the engine's own documentation says
 
-<!-- covers: patches/** checked: 2026-09-02 -->
+<!-- covers: vendor/engine.lock checked: 2026-09-06 -->
 
 Lukotta mounts through [anylinuxfs](https://github.com/nohajc/anylinuxfs). Its
 README, `docs/`, and `.planning/codebase/CONCERNS.md` describe traps and limits
