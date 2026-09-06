@@ -42,7 +42,9 @@ shopt -s nullglob
 removed=0
 freed=0
 for item in "$POINT"/lukotta-* "$POINT"/vec-* "$POINT"/copyvis* \
-            "$POINT"/crowd-write "$POINT"/.lukotta-unreadable-*; do
+            "$POINT"/crowd-write "$POINT"/.lukotta-unreadable-* \
+            "$POINT"/flush-latency-test "$POINT"/xattr-forks-test \
+            "$POINT"/first-write "$POINT"/stall-probe; do
   size="$(du -sk "$item" 2>/dev/null | awk '{print $1}')"
   rm -rf "$item" 2>/dev/null || continue
   removed=$((removed + 1))

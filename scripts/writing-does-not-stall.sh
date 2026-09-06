@@ -161,6 +161,16 @@ POINT="$(mount | /usr/bin/grep -F "$SHARE" | awk '{print $3}' | head -1)"
 [ -n "${POINT:-}" ] || { echo "error: opened and nothing is served" >&2; exit 2; }
 echo "opened $POINT through the app"
 
+# What earlier runs left on the fixture, before this one needs the room.
+#
+# The volume is shared by every harness here and each leaves its work behind. On
+# 2026-09-06 this row failed with "No space left on device" -- twice, from dd --
+# on a fixture with nothing wrong with it and the app answering in 33
+# milliseconds throughout. A row that fails because the last run did not tidy up
+# reports a fault in the app that is not there.
+bash "$HERE/scripts/sweep-drive.sh" "$POINT" 2>/dev/null | sed 's/^/  /' || true
+df -m "$POINT" | tail -1 | awk '{print "  " $4 " MB free to write into"}'
+
 # Optionally with the memory squeezed, which is the only way this fixture can
 # be made to behave like the drive the stall was found on.
 #
@@ -243,6 +253,13 @@ if [ -z "${over:-}" ]; then
 fi
 echo "  worst request ${worst:-unknown}, ${over:-?} past five seconds"
 echo "  operations that failed: $errored"
+# And what they were. The count came from a log in a workspace this script
+# removes on its way out, so a row reporting two failures said nothing about
+# which two -- and a failure nobody can name is a failure nobody can fix.
+if [ "${errored:-0}" -gt 0 ]; then
+  /usr/bin/grep -iE "^dd: |timed out|input/output error|stale|not configured|no space left" \
+    "$WORK/latency.log" | head -6 | sed 's/^/      /'
+fi
 echo "  times macOS called the server unresponsive: $said"
 if [ "${errored:-0}" -eq 0 ] && [ "${said:-0}" -eq 0 ]; then
   echo "RESULT: the copy finished with nothing failing and nothing said"
