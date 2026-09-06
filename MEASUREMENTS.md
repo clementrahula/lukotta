@@ -4977,6 +4977,14 @@ owner's app is theirs.
 
     215 of 215 steps, on the dev build, after all three bounds were put back.
 
+1.22.14-beta.3 carries all of it, and is what the owner's Mac runs. Measured on
+that code, on the drives, after it shipped:
+
+    durable    a committed write survives the machine dying   holds
+    nowindow   a dead mount goes before macOS tells anybody   holds
+
+Production stays at 1.22.13 until the beta has been used.
+
 ## The drives this Mac has, and what each is for — 2026-09-06
 
 Written down because a later session will otherwise work it out again from
