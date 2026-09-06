@@ -1,0 +1,5 @@
+- Filerna finns på enheten när appen säger det, även om Macen förlorar strömmen.
+- Kopiering till en enhet går ungefär dubbelt så fort.
+- En enhet som macOS redan monterat öppnas nu direkt.
+- Enheter namnges efter vad som finns på dem, inte efter vad partitionstabellen påstår.
+- En enhet med föråldrad partitionstabell visas nu i listan, och öppnas.

@@ -1,0 +1,5 @@
+- Datoteke so na pogonu, ko aplikacija to pove, tudi če Mac ostane brez napajanja.
+- Kopiranje na pogon je približno dvakrat hitrejše.
+- Pogon, ki ga je macOS že priklopil, se zdaj odpre takoj.
+- Pogoni se imenujejo po tem, kar je na njih, ne po tem, kar trdi razdelitvena tabela.
+- Pogon z zastarelo razdelitveno tabelo se zdaj pojavi na seznamu in se odpre.

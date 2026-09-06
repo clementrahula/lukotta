@@ -1,0 +1,5 @@
+- Nakakarating na sa drive ang mga file kapag sinabi ng app na nakarating na, kahit mawalan ng kuryente ang Mac.
+- Halos doble na kabilis ang pagkopya papunta sa drive.
+- Ang drive na naka-mount na ng macOS ay bumubukas na agad.
+- Ipinapangalan ang mga drive ayon sa nilalaman ng mga ito, hindi ayon sa sinasabi ng partition table.
+- Ang drive na luma na ang partition table ay lumalabas na sa listahan, at nabubuksan.

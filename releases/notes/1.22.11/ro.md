@@ -1,0 +1,5 @@
+- Fișierele ajung pe unitate atunci când aplicația spune că au ajuns, chiar dacă Mac-ul rămâne fără curent.
+- Copierea pe o unitate este de aproximativ două ori mai rapidă.
+- O unitate montată deja de macOS se deschide acum direct.
+- Unitățile sunt denumite după ce au pe ele, nu după ce pretinde tabela de partiții.
+- O unitate cu tabela de partiții învechită apare acum în listă și se deschide.

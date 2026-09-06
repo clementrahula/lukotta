@@ -1,0 +1,5 @@
+- Bestanden staan op de schijf wanneer de app dat zegt, ook als de Mac de stroom verliest.
+- Kopiëren naar een schijf is ongeveer twee keer zo snel.
+- Een schijf die macOS al had gekoppeld, gaat nu meteen open.
+- Schijven worden genoemd naar wat erop staat, niet naar wat de partitietabel beweert.
+- Een schijf met een verouderde partitietabel verschijnt nu in de lijst, en gaat open.

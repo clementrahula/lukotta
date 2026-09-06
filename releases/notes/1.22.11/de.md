@@ -1,0 +1,5 @@
+- Dateien sind auf dem Laufwerk, sobald die App das sagt – auch wenn der Mac den Strom verliert.
+- Das Kopieren auf ein Laufwerk ist etwa doppelt so schnell.
+- Ein Laufwerk, das macOS bereits eingebunden hat, öffnet sich jetzt sofort.
+- Laufwerke werden nach ihrem Inhalt benannt, nicht nach den Angaben der Partitionstabelle.
+- Ein Laufwerk mit veralteter Partitionstabelle erscheint jetzt in der Liste und lässt sich öffnen.

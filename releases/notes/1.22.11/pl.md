@@ -1,0 +1,5 @@
+- Pliki są na dysku, kiedy aplikacja tak mówi – nawet jeśli Mac straci zasilanie.
+- Kopiowanie na dysk jest około dwa razy szybsze.
+- Dysk już zamontowany przez macOS otwiera się teraz od razu.
+- Dyski nazywane są tym, co na nich jest, a nie tym, co twierdzi tablica partycji.
+- Dysk z nieaktualną tablicą partycji pojawia się teraz na liście i otwiera się.

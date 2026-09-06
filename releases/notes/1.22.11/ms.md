@@ -1,0 +1,5 @@
+- Fail sampai ke pemacu apabila apl berkata demikian, walaupun Mac hilang kuasa.
+- Menyalin ke pemacu kira-kira dua kali lebih pantas.
+- Pemacu yang sudah dilekapkan macOS kini terus dibuka.
+- Pemacu dinamakan mengikut isinya, bukan mengikut dakwaan jadual partition.
+- Pemacu dengan jadual partition lapuk kini muncul dalam senarai, dan boleh dibuka.

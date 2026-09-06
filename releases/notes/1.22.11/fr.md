@@ -1,0 +1,5 @@
+- Les fichiers sont bien sur le disque quand l'app le dit, même si le Mac perd le courant.
+- La copie vers un disque est environ deux fois plus rapide.
+- Un disque déjà monté par macOS s'ouvre maintenant directement.
+- Les disques portent le nom de ce qu'ils contiennent, pas celui qu'annonce la table de partition.
+- Un disque dont la table de partition est périmée apparaît maintenant dans la liste, et s'ouvre.

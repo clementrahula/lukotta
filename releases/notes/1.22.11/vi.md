@@ -1,0 +1,5 @@
+- Tệp thực sự nằm trên ổ đĩa khi ứng dụng nói vậy, kể cả khi Mac mất điện.
+- Sao chép sang ổ đĩa nhanh gấp khoảng hai lần.
+- Ổ đĩa mà macOS đã gắn kết nay mở được ngay.
+- Ổ đĩa được đặt tên theo thứ có trên đó, không theo lời bảng phân vùng.
+- Ổ đĩa có bảng phân vùng lỗi thời nay xuất hiện trong danh sách và mở được.

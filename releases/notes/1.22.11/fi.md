@@ -1,0 +1,5 @@
+- Tiedostot ovat asemalla, kun sovellus sanoo niiden olevan – vaikka Macista katkeaisi virta.
+- Asemalle kopiointi on noin kaksi kertaa nopeampaa.
+- Asema, jonka macOS on jo liittänyt, avautuu nyt suoraan.
+- Asemat nimetään sen mukaan, mitä niillä on, ei sen mukaan, mitä osiotaulu väittää.
+- Asema, jonka osiotaulu on vanhentunut, näkyy nyt luettelossa ja avautuu.

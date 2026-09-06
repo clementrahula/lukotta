@@ -1,0 +1,5 @@
+- Os ficheiros chegam à unidade quando a app diz que chegaram, mesmo que o Mac fique sem energia.
+- Copiar para uma unidade é cerca de duas vezes mais rápido.
+- Uma unidade já montada pelo macOS abre agora de imediato.
+- As unidades têm o nome do que está nelas, não do que a tabela de partições afirma.
+- Uma unidade com a tabela de partições desatualizada aparece agora na lista, e abre.

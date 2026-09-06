@@ -1,0 +1,5 @@
+- A fájlok akkor vannak a meghajtón, amikor az app ezt mondja – akkor is, ha a Mac áramtalanná válik.
+- A meghajtóra másolás nagyjából kétszer gyorsabb.
+- A macOS által már csatolt meghajtó most rögtön megnyílik.
+- A meghajtók arról kapják a nevüket, ami rajtuk van, nem arról, amit a partíciós tábla állít.
+- Az elavult partíciós táblájú meghajtó most megjelenik a listában, és megnyílik.

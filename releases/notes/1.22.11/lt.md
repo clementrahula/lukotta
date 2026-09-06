@@ -1,0 +1,5 @@
+- Failai pasiekia diską tada, kai programa taip sako, net jei „Mac“ dingsta maitinimas.
+- Kopijuoti į diską maždaug dvigubai greičiau.
+- Diskas, kurį „macOS“ jau prijungė, dabar atsidaro iš karto.
+- Diskai vadinami pagal tai, kas juose yra, o ne pagal tai, ką teigia skaidinių lentelė.
+- Diskas su pasenusia skaidinių lentele dabar matomas sąraše ir atsidaro.

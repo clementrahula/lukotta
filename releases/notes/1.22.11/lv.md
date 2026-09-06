@@ -1,0 +1,5 @@
+- Faili nonāk diskā tad, kad lietotne to saka, arī tad, ja Mac pazūd strāva.
+- Kopēšana uz disku ir apmēram divreiz ātrāka.
+- Disks, ko macOS jau ir pievienojis, tagad atveras uzreiz.
+- Diskus nosauc pēc tā, kas tajos ir, nevis pēc tā, ko apgalvo nodalījumu tabula.
+- Disks ar novecojušu nodalījumu tabulu tagad parādās sarakstā un atveras.

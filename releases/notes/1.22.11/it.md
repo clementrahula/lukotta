@@ -1,0 +1,5 @@
+- I file arrivano sull'unità quando l'app lo dice, anche se il Mac perde corrente.
+- Copiare su un'unità è circa due volte più veloce.
+- Un'unità già montata da macOS ora si apre subito.
+- Le unità prendono il nome da ciò che contengono, non da ciò che dichiara la tabella delle partizioni.
+- Un'unità con tabella delle partizioni superata ora compare nell'elenco, e si apre.

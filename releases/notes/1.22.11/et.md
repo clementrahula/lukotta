@@ -1,0 +1,5 @@
+- Failid jõuavad kettale siis, kui rakendus seda ütleb – ka siis, kui Mac jääb elektrita.
+- Kettale kopeerimine on umbes kaks korda kiirem.
+- Ketas, mille macOS on juba haakinud, avaneb nüüd kohe.
+- Kettaid nimetatakse selle järgi, mis neil on, mitte selle järgi, mida partitsioonitabel väidab.
+- Aegunud partitsioonitabeliga ketas ilmub nüüd loendisse ja avaneb.

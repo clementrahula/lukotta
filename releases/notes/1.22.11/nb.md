@@ -1,0 +1,5 @@
+- Filene er på stasjonen når appen sier at de er det, også om Mac-en mister strømmen.
+- Kopiering til en stasjon er omtrent dobbelt så rask.
+- En stasjon macOS allerede har montert, åpnes nå med én gang.
+- Stasjoner får navn etter det som er på dem, ikke etter det partisjonstabellen påstår.
+- En stasjon med utdatert partisjonstabell vises nå i listen, og åpnes.

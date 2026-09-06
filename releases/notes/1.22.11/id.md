@@ -1,0 +1,5 @@
+- Berkas benar-benar sampai ke drive saat aplikasi mengatakan demikian, bahkan jika Mac kehilangan daya.
+- Menyalin ke drive kira-kira dua kali lebih cepat.
+- Drive yang sudah dipasang macOS kini langsung terbuka.
+- Drive dinamai menurut isinya, bukan menurut klaim tabel partisi.
+- Drive dengan tabel partisi usang kini muncul di daftar, dan bisa dibuka.

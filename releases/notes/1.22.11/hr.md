@@ -1,0 +1,5 @@
+- Datoteke stižu na pogon kad aplikacija kaže da jesu, čak i ako Mac ostane bez struje.
+- Kopiranje na pogon oko je dvostruko brže.
+- Pogon koji je macOS već montirao sada se otvara odmah.
+- Pogoni se imenuju prema onome što je na njima, a ne prema tvrdnji particijske tablice.
+- Pogon sa zastarjelom particijskom tablicom sada se pojavljuje na popisu i otvara.

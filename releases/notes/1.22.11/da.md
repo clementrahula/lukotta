@@ -1,0 +1,5 @@
+- Filer når frem til drevet, når appen siger, de er der, også hvis Mac'en mister strømmen.
+- Kopiering til et drev er omkring dobbelt så hurtig.
+- Et drev, som macOS allerede har åbnet, åbnes nu med det samme.
+- Drev navngives efter det, der er på dem, ikke efter det, partitionstabellen påstår.
+- Et drev med en forældet partitionstabel vises nu på listen og kan åbnes.

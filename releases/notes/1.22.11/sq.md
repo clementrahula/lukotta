@@ -1,0 +1,5 @@
+- Skedarët arrijnë në disk kur aplikacioni thotë se kanë arritur, edhe nëse Mac-ut i ndërpritet rryma.
+- Kopjimi në disk është rreth dy herë më i shpejtë.
+- Një disk që macOS e ka montuar tashmë tani hapet menjëherë.
+- Disqet emërtohen sipas asaj që kanë, jo sipas asaj që pretendon tabela e ndarjeve.
+- Një disk me tabelë ndarjesh të vjetruar tani shfaqet në listë dhe hapet.

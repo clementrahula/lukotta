@@ -1,0 +1,5 @@
+- Soubory jsou na disku, když aplikace řekne, že jsou, i když Mac ztratí napájení.
+- Kopírování na disk je zhruba dvakrát rychlejší.
+- Disk, který už macOS připojil, se nyní otevře rovnou.
+- Disky se pojmenovávají podle toho, co na nich je, ne podle toho, co tvrdí tabulka oddílů.
+- Disk se zastaralou tabulkou oddílů se nyní objeví v seznamu a otevře se.

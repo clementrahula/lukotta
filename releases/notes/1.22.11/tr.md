@@ -1,0 +1,5 @@
+- Uygulama dosyaların sürücüye ulaştığını söylediğinde gerçekten oradadırlar; Mac elektriğini kaybetse bile.
+- Bir sürücüye kopyalama yaklaşık iki kat daha hızlı.
+- macOS'in zaten bağladığı bir sürücü artık doğrudan açılıyor.
+- Sürücüler bölüm tablosunun iddiasına göre değil, içindekine göre adlandırılır.
+- Bölüm tablosu güncelliğini yitirmiş bir sürücü artık listede görünür ve açılır.
