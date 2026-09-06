@@ -4900,6 +4900,32 @@ and lld that no user installs; this is the same arrangement.
 coming back clean says the tool runs, not that it repairs. The next measurement
 is a deliberately poisoned fixture, before and after.
 
+## 1.22.13, and what was measured for it — 2026-09-06
+
+Shipped 19:01 to the beta channel and 19:06 to the release channel, notes in 36
+languages audited twice, the changelog carried in the release notice itself.
+
+What it carries, and what each rests on:
+
+    a drive is prepared in the app     the SanDisk was erased and made NTFS by
+                                       the daemon on this Mac; it then opened,
+                                       served /Volumes/SANDISK, kept 3 of 3
+                                       committed writes, and took three Finder
+                                       cycles at both extremes with 0 failures
+    a row says what it holds           one 512-byte read per disk, so a stick
+                                       holding NTFS across the whole device is
+                                       named rather than left blank
+    the capacity message               counted from this copy's own mounts, so
+                                       it can no longer say "12 are open, eject
+                                       one" over a list of four locked drives
+
+The gate on this code was stopped at goal9 by decision rather than by failure --
+goal1 through goal9 and the 83-image corpus had all held, 1260 unit checks and
+lint were clean, and the three drives opened and ejected on the built bundle.
+What was not re-run: goal10, cost, durable, and the release and housekeeping
+rows, all of which held on the commit an hour earlier and none of which this
+change touches.
+
 ## The drives this Mac has, and what each is for — 2026-09-06
 
 Written down because a later session will otherwise work it out again from
