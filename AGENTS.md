@@ -1407,3 +1407,7 @@ different programs with two different versions. 6.3.0 passed a line that
 603.0.0 refused, so `scripts/lint.sh` said everything was fine and the push
 went red on the same file seconds later. `lint.sh` now prefers the Homebrew
 one; if it is missing, `brew install swift-format` before trusting a local run.
+
+<!-- workflow (managed): the shared doctrine. Do not edit between these markers. -->
+@AGENTS.workflow.md
+<!-- end workflow (managed) -->
