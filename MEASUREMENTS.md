@@ -4922,9 +4922,20 @@ What it carries, and what each rests on:
 The gate on this code was stopped at goal9 by decision rather than by failure --
 goal1 through goal9 and the 83-image corpus had all held, 1260 unit checks and
 lint were clean, and the three drives opened and ejected on the built bundle.
-What was not re-run: goal10, cost, durable, and the release and housekeeping
-rows, all of which held on the commit an hour earlier and none of which this
-change touches.
+
+The three rows that had been left unrun were then run on the shipped code, and
+took two minutes between them:
+
+    goal10   no UX cost anywhere in the above                     holds
+    cost     a durability option does not cost a copy its speed   holds
+    durable  a committed write survives the machine dying         holds
+
+`durable` on the real stick, as it has been since the day it first could be.
+Left unrun: the release and housekeeping rows -- casks, changelog, private,
+firstrun, heals, homes, torture, forks, firstwrite, imageformats, fullvolume,
+crowdafter, lvmlock, nowindow -- which held earlier the same day and which this
+change does not touch. The distinction is written down rather than glossed: what
+was measured on this code, and what is being carried over.
 
 ## The drives this Mac has, and what each is for — 2026-09-06
 
