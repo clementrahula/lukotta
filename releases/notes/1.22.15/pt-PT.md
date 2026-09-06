@@ -1,0 +1,1 @@
+- A lista deixa de propor o disco do próprio Mac.

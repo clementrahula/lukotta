@@ -1,0 +1,1 @@
+- Lista nie proponuje już własnego dysku tego Maca.

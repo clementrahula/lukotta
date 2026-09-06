@@ -1,0 +1,1 @@
+- Liste artık bu Mac'in kendi diskini sunmuyor.

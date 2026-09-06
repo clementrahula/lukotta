@@ -1,0 +1,1 @@
+- Senarai tidak lagi menawarkan cakera Mac ini sendiri.

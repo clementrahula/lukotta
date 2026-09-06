@@ -1,0 +1,1 @@
+- Seznam ne ponuja več lastnega diska tega Maca.

@@ -1,0 +1,1 @@
+- De lijst biedt de eigen schijf van deze Mac niet meer aan.

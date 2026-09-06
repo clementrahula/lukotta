@@ -1,0 +1,1 @@
+- Sąraše nebesiūlomas paties šio „Mac“ diskas.

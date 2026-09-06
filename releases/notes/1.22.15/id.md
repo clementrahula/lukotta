@@ -1,0 +1,1 @@
+- Daftar tidak lagi menawarkan disk milik Mac ini sendiri.

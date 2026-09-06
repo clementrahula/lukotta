@@ -1,0 +1,1 @@
+- A lista már nem kínálja fel a Mac saját lemezét.

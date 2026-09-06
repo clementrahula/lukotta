@@ -1,0 +1,1 @@
+- Lista nuk e ofron më diskun e vetë këtij Mac-u.

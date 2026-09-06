@@ -1,0 +1,1 @@
+- Listan erbjuder inte längre den här Macens egen disk.

@@ -1,0 +1,1 @@
+- Popis više ne nudi vlastiti disk ovog Maca.

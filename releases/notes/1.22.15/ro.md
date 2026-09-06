@@ -1,0 +1,1 @@
+- Lista nu mai propune discul propriu al acestui Mac.

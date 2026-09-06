@@ -1,0 +1,1 @@
+- Sarakstā vairs netiek piedāvāts paša šī Mac disks.

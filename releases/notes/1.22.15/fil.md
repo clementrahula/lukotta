@@ -1,0 +1,1 @@
+- Hindi na inaalok ng listahan ang sariling disk ng Mac na ito.

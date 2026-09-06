@@ -1,0 +1,1 @@
+- Danh sách không còn đưa ra đĩa của chính máy Mac này.

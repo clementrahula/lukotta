@@ -1,0 +1,1 @@
+- Seznam už nenabízí vlastní disk tohoto Macu.

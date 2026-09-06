@@ -1,0 +1,1 @@
+- L'elenco non propone più il disco del Mac stesso.

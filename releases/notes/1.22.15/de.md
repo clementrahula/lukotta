@@ -1,0 +1,1 @@
+- Die Liste bietet die eigene Festplatte dieses Mac nicht mehr an.

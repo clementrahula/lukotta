@@ -1,0 +1,1 @@
+- Luettelo ei enää tarjoa tämän Macin omaa levyä.
