@@ -105,7 +105,10 @@ public enum HelperInfo {
     ///    read-only with no repair attempted. The check lives in the mount
     ///    script, which the daemon generates, so the daemon is what has to
     ///    change.
-    public static let contract = 53
+    /// 53: the daemon can format a volume. Preparing a drive was the one job
+    ///    that sent somebody to another computer -- `mkntfs` ships inside this
+    ///    app's own guest image and nothing could reach it.
+    public static let contract = 54
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"
@@ -233,6 +236,29 @@ public enum HelperInfo {
     /// Disk Access does not help: that is a POSIX permission, not a privacy
     /// one. Replies with a `VolumeFormat` raw value.
     func identify(devicePath: String, reply: @escaping (String) -> Void)
+
+    /// Erase a volume and put a filesystem on it.
+    ///
+    /// Here for the same reason `identify` is: /dev/diskNsM belongs to root,
+    /// and formatting is the one thing an ordinary account cannot do to it.
+    /// Without this the answer to "make me an NTFS stick" was another computer
+    /// -- a Windows machine, or a paid third-party utility -- for a job the
+    /// tools inside this app's own guest already do. `mkntfs` ships in the
+    /// image beside the checker that repairs NTFS volumes.
+    ///
+    /// Parameters, never a command. `kind` is matched against a fixed list in
+    /// the daemon and anything else is refused, and the label is stripped to
+    /// letters, digits, dash and underscore -- a daemon running as root does
+    /// not take a string somebody can put a semicolon in.
+    ///
+    /// The first megabytes are zeroed before the filesystem is written. A
+    /// quick format writes inside a partition and leaves whatever was at the
+    /// front of the disk in place, which is how a 123 GB stick formatted as
+    /// NTFS in Windows still read as a Ubuntu install image to macOS and to
+    /// Linux alike.
+    func format(
+        devicePath: String, kind: String, label: String,
+        reply: @escaping (Int32, String) -> Void)
 
     func helperVersion(reply: @escaping (String) -> Void)
 

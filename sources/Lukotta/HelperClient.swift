@@ -715,6 +715,21 @@ final class HelperClient: ObservableObject {
         return answer.flatMap(VolumeFormat.init(rawValue:)) ?? .unknown
     }
 
+    /// Erase a volume and put a filesystem on it.
+    ///
+    /// The daemon holds the recipes and the device; this only carries the
+    /// asking. See `LukottaHelperProtocol.format`.
+    func format(devicePath: String, kind: String, label: String) async -> (Int32, String) {
+        guard isReady, proxy() != nil, let connection else {
+            return (69, "The background daemon is not ready.")
+        }
+        let answer: (Int32, String)? = await Self.roundTrip(ConnectionBox(connection)) {
+            proxy, done in
+            proxy.format(devicePath: devicePath, kind: kind, label: label) { done(($0, $1)) }
+        }
+        return answer ?? (69, "The background daemon did not answer.")
+    }
+
     /// Force the error handler to run, for `--check-helper`.
     ///
     /// An invalidated connection replies to nothing and calls its error handler

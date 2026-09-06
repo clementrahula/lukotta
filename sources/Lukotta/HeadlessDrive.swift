@@ -57,6 +57,9 @@
             var toOpen: String?
             var toEject: String?
             var toIdentify: String?
+            var toFormat: String?
+            var formatKind: String?
+            var formatLabel: String?
             var passphrase: String?
             var readOnly = false
 
@@ -69,6 +72,9 @@
                 case "open": toOpen = value
                 case "eject": toEject = value
                 case "identify": toIdentify = value
+                case "format": toFormat = value
+                case "as": formatKind = value
+                case "label": formatLabel = value
                 case "passphrase": passphrase = value
                 default: break
                 }
@@ -129,6 +135,21 @@
             // exactly how the window asks.
             if toIdentify != nil || CommandLine.arguments.contains("identify") {
                 identifyEverything(only: toIdentify)
+            }
+
+            // Erase a drive and put a filesystem on it, without another
+            // computer.
+            //
+            //     --drive format=/dev/diskNsM as=ntfs label=NAME
+            //
+            // The tools were always here -- mkntfs ships in the guest beside
+            // the checker that repairs NTFS volumes -- and nothing could reach
+            // them, so preparing an NTFS stick meant a Windows machine. It also
+            // zeroes the front of the disk, which a quick format does not: a
+            // 123 GB stick formatted NTFS in Windows still read as a Ubuntu
+            // install image to macOS and to Linux both.
+            if let device = toFormat {
+                formatDrive(device, as: formatKind ?? "ntfs", label: formatLabel ?? "LUKOTTA")
             }
 
             if let device = toEject { eject(device) }
@@ -248,6 +269,37 @@
             // Without this the one route a harness has could not open a stick
             // the window can.
             return survey.unclaimed.first { $0.devicePath == device }
+        }
+
+        /// Erase a drive and put a filesystem on it, through the daemon.
+        @MainActor
+        private static func formatDrive(_ device: String, as kind: String, label: String)
+            -> Never
+        {
+            let helper = HelperClient()
+            if case .notInstalled = helper.state { helper.install() }
+            let ready = Date().addingTimeInterval(30)
+            while !helper.isReady, Date() < ready {
+                RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.2))
+            }
+            guard helper.isReady else {
+                say("the background daemon is not ready; a drive cannot be formatted")
+                exit(3)
+            }
+            say("erasing \(device) and making a \(kind) volume called \(label)")
+            var answer: (Int32, String)?
+            Task { @MainActor in
+                answer = await helper.format(devicePath: device, kind: kind, label: label)
+            }
+            while answer == nil {
+                RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.2))
+            }
+            let (status, said) = answer ?? (70, "")
+            if !said.isEmpty {
+                say(said.split(separator: "\n").suffix(6).joined(separator: "\n"))
+            }
+            say(status == 0 ? "formatted \(device) as \(kind)" : "it was not formatted")
+            exit(status == 0 ? 0 : 1)
         }
 
         /// Every device node, what the daemon reads in its first sector, and

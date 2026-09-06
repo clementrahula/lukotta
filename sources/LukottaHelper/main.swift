@@ -745,6 +745,123 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         reply(format.rawValue)
     }
 
+    /// Erase a volume and put a filesystem on it, inside the guest.
+    ///
+    /// The tools are already here: `mkntfs` ships in the image beside the
+    /// checker that repairs NTFS volumes, and mke2fs, mkfs.xfs and mkfs.btrfs
+    /// beside it. Nothing could reach them, so preparing an NTFS stick meant
+    /// another computer or a paid utility, for a job this app already carries
+    /// the machinery to do.
+    ///
+    /// Parameters, never a command, exactly as the mount route is. The kind is
+    /// matched against a fixed list and anything else is refused; the label is
+    /// stripped to letters, digits, dash and underscore, because a daemon
+    /// running as root does not take a string somebody can put a semicolon in.
+    func format(
+        devicePath: String, kind: String, label: String,
+        reply: @escaping (Int32, String) -> Void
+    ) {
+        // The whole command, chosen here rather than composed from what came
+        // in. `-f`/`-F` are "do not ask"; a daemon has nobody to ask.
+        let recipes: [String: String] = [
+            "ntfs": "mkntfs -f -F -L %L /dev/vda",
+            "exfat": "mkfs.exfat -n %L /dev/vda",
+            "ext4": "mke2fs -F -t ext4 -L %L /dev/vda",
+            "xfs": "mkfs.xfs -f -L %L /dev/vda",
+            "btrfs": "mkfs.btrfs -f -L %L /dev/vda",
+        ]
+        guard let recipe = recipes[kind.lowercased()] else {
+            Log.helper.error("refused a format of an unknown kind")
+            reply(64, "This app does not create \(kind) volumes.")
+            return
+        }
+        let safeLabel = String(
+            label.unicodeScalars.filter {
+                CharacterSet.alphanumerics.contains($0) || $0 == "-" || $0 == "_"
+            }.map(Character.init).prefix(32))
+        guard !safeLabel.isEmpty else {
+            reply(64, "A volume needs a name of letters, digits, dashes or underscores.")
+            return
+        }
+        guard let engine = EnginePaths.anylinuxfs,
+            FileManager.default.fileExists(atPath: engine.path)
+        else {
+            reply(70, "The mounting engine is missing.")
+            return
+        }
+        guard hasAnInvokingUser(), let userHome = invokingHome() else {
+            reply(71, "Could not tell which user this is for.")
+            return
+        }
+
+        // Nothing of this disk stays mounted while it is erased, and macOS is
+        // asked to let go the same way it is before a mount.
+        letGoOfTheDisk(behind: devicePath)
+
+        // The front of the disk goes first. A quick format writes inside a
+        // partition and leaves what was there before at the front, which is how
+        // a stick formatted as NTFS in Windows still read as a Ubuntu install
+        // image to macOS and to Linux both. Eight megabytes covers a hybrid
+        // ISO's own structures, an Apple partition map and an MBR alike.
+        let command =
+            "dd if=/dev/zero of=/dev/vda bs=1M count=8 conv=fsync 2>/dev/null; "
+            + recipe.replacingOccurrences(of: "%L", with: safeLabel)
+        Log.helper.notice("formatting as \(kind, privacy: .public)")
+
+        let task = Process()
+        task.executableURL = engine
+        task.arguments = ["shell", devicePath, "-c", command]
+        var environment = ProcessInfo.processInfo.environment
+        environment["ANYLINUXFS_HOME"] = engineHome(of: userHome)
+        // The engine refuses to run directly as root -- "this program must not
+        // be run directly by root; use sudo instead" -- and decides that by
+        // whether SUDO_UID is set. This daemon is root without having gone
+        // through sudo, so it names the invoking user the same way the mount
+        // script does.
+        environment["SUDO_UID"] = String(invokingUID())
+        environment["SUDO_GID"] = String(invokingGID())
+        task.environment = environment
+        let pipe = Pipe()
+        task.standardOutput = pipe
+        task.standardError = pipe
+        do {
+            try task.run()
+        } catch {
+            reply(71, "\(error)")
+            return
+        }
+        let said = String(
+            decoding: pipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        task.waitUntilExit()
+        Log.helper.notice("format exited \(task.terminationStatus, privacy: .public)")
+
+        // Judged by the drive, not by the exit code.
+        //
+        // `mkntfs` writes the volume and then calls fsync on the device, and on
+        // a macOS raw device that answers with an I/O error: "Failed to sync
+        // device /dev/vda: I/O error", exit 1, with a complete NTFS volume on
+        // the disk. Measured on 2026-09-06 -- the drive read as NTFS to this
+        // daemon and to macOS immediately afterwards, and the app had just said
+        // it was not formatted.
+        //
+        // So the first sector decides, as it does everywhere else here. A
+        // format that produced the filesystem asked for succeeded, whatever the
+        // tool's last words; one that did not is a failure even if the tool
+        // exited 0.
+        let wanted = kind.lowercased()
+        let got = BootSector.readWaiting(devicePath: devicePath, attempts: 20, gap: 0.5)
+            .map(BootSector.identify) ?? .unknown
+        let matches =
+            got.rawValue == wanted
+            || (wanted == "ext4" && got == .ext)
+        if matches {
+            Log.helper.notice("the drive now holds \(got.rawValue, privacy: .public)")
+            reply(0, said)
+            return
+        }
+        reply(task.terminationStatus == 0 ? 74 : task.terminationStatus, said)
+    }
+
     func removeYourself(reply: @escaping (Bool) -> Void) {
         // Nothing is removed while a drive is open: the mounts are served by
         // machines this daemon started, and taking it away underneath them
