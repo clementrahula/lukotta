@@ -25,6 +25,24 @@ put on the drives once more afterwards:
 
 Nine of nine byte-identical, on the code people are being offered.
 
+**And then the encrypted case was measured the same way, and was three times
+slower than it needed to be.** A LUKS container still took the guest's `-o sync`
+-- it had that because the superblock inside cannot be read from outside to
+choose anything cheaper, and when that was decided it was the only durable
+option there was. Finder-shaped copies onto a real LUKS stick holding ext4, the
+same harness either side:
+
+                              guest -o sync    client stable writes
+    1.2 GB in three files          1186s                     421s
+    2000 small files                582s                     275s
+    integrity                    perfect                  perfect
+    committed writes kept                                 3 of 3
+
+Two and eight tenths times faster on the large files, twice on the small ones,
+with the durability unchanged. The client's option does not need to know what is
+inside the container, and `MountScript.perVolumeOptions` already carried the
+same intent down to the volumes the guest mounts itself.
+
 1.22.11-beta.1 shipped 2026-09-06 07:21, with the durability fault below fixed
 and measured on the drives: 3 of 3 committed writes kept on BitLocker/NTFS, on
 exFAT and on LUKS holding ext4, where it had been 0 of 6. All four sticks open

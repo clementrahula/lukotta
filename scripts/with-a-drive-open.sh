@@ -35,10 +35,29 @@ shift || true
 [ -n "$IMAGE" ] && [ "$#" -gt 0 ] || {
   echo "usage: $0 <image> <command...>   # the mount point is appended" >&2; exit 2; }
 
-IMG="$IMAGE"
-[ -f "$IMG" ] || IMG="$OUT/$IMAGE"
-[ -f "$IMG" ] || IMG="$OUT/crowd/$IMAGE"
-[ -f "$IMG" ] || { echo "error: no image $IMAGE" >&2; exit 2; }
+# A real drive, or an image.
+#
+# Everything here was written for images, and on 2026-09-06 that turned out to
+# be the difference between measuring and not measuring: an image is backed by a
+# file, so the host's own buffer cache covers for anything the guest failed to
+# write, and a fault that lost every fsynced write on three physical drives did
+# not show on any image. So the same claims can now be pointed at a device --
+# `/dev/diskNsM` -- and nothing about it is attached or detached here, because
+# somebody's drive is not this script's to take away.
+REAL=0
+case "$IMAGE" in
+  /dev/*)
+    REAL=1
+    IMG="$IMAGE"
+    [ -e "$IMG" ] || { echo "error: no device at $IMAGE" >&2; exit 2; }
+    ;;
+  *)
+    IMG="$IMAGE"
+    [ -f "$IMG" ] || IMG="$OUT/$IMAGE"
+    [ -f "$IMG" ] || IMG="$OUT/crowd/$IMAGE"
+    [ -f "$IMG" ] || { echo "error: no image $IMAGE" >&2; exit 2; }
+    ;;
+esac
 [ -x "$APP" ] || { echo "error: no app at $APP" >&2; exit 2; }
 [ "$(strings -a "$APP" 2>/dev/null | /usr/bin/grep -c -- "--drive")" -gt 0 ] || {
   echo "error: $APP_BUNDLE has no --drive; build with LUKOTTA_DEVTOOLS=1" >&2; exit 2; }
@@ -49,18 +68,30 @@ release() {
   for p in $(mount | /usr/bin/grep ':/mnt/' | awk '{print $3}'); do
     umount -f "$p" >/dev/null 2>&1
   done
-  for d in $(hdiutil info 2>/dev/null | /usr/bin/grep '^/dev/disk' | awk '{print $1}'); do
-    hdiutil detach "$d" -force -quiet >/dev/null 2>&1
-  done
+  # Images only. A physical drive is somebody's, and detaching it here would
+  # take it away from whoever plugged it in.
+  if [ "${REAL:-0}" = 0 ]; then
+    for d in $(hdiutil info 2>/dev/null | /usr/bin/grep '^/dev/disk' | awk '{print $1}'); do
+      hdiutil detach "$d" -force -quiet >/dev/null 2>&1
+    done
+  fi
   DEV=""
 }
 trap 'release; rm -rf "$WORK"' EXIT
 release
 
-DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
-  2>/dev/null | head -1 | awk '{print $1}')"
-[ -n "${DEV:-}" ] || { echo "error: $IMAGE would not attach" >&2; exit 2; }
-timeout 300 "$APP" --drive open="$DEV" > "$WORK/open.log" 2>&1 \
+if [ "$REAL" = 1 ]; then
+  DEV="$IMG"
+else
+  DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
+    2>/dev/null | head -1 | awk '{print $1}')"
+  [ -n "${DEV:-}" ] || { echo "error: $IMAGE would not attach" >&2; exit 2; }
+fi
+# An encrypted drive needs its key. LUKOTTA_TEST_PASSPHRASE carries it, and an
+# unencrypted volume is opened with nothing, as before.
+KEY=()
+[ -n "${LUKOTTA_TEST_PASSPHRASE:-}" ] && KEY=("passphrase=$LUKOTTA_TEST_PASSPHRASE")
+timeout 300 "$APP" --drive open="$DEV" "${KEY[@]}" > "$WORK/open.log" 2>&1 \
   || { echo "error: did not open: $(tail -1 "$WORK/open.log")" >&2; exit 2; }
 # The mount this opened, found by the device it was given -- the engine names
 # the share after it, so "diskN.local:" is what appears in the table.

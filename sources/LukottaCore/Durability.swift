@@ -75,9 +75,20 @@ public enum Durability {
         if let journalled = ExtJournal.durabilityOption(forDevice: path) {
             return Choice(guestOption: journalled, stableWrites: false)
         }
-        if LUKSHeader.isContainer(forDevice: path) {
-            return Choice(guestOption: "sync", stableWrites: false)
-        }
+        // A LUKS container takes the client's option too, since 2026-09-06.
+        //
+        // It had the guest's `-o sync` because the superblock inside cannot be
+        // read from outside to choose anything cheaper, and that was the only
+        // durable option there was. It is not the cheapest one: measured with
+        // Finder-shaped copies onto a real LUKS stick holding ext4, the guest
+        // option moves 1.2 GB in three large files at 1.0 MB/s. The client's
+        // option is durable on the same hardware and does not touch how the
+        // filesystem itself writes.
+        //
+        // The volumes inside a container are mounted by the guest and never see
+        // a client option, so `MountScript.perVolumeOptions` carries the same
+        // intent down to them when stable writes were asked for. That path
+        // exists for exactly this.
         // The client's option, not the guest's, for everything else.
         //
         // Both keep a committed write on real hardware. They are not the same
