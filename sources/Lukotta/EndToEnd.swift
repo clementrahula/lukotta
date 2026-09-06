@@ -586,9 +586,18 @@
                 check(
                     model.drives.filter { arrived.contains($0.uuid) }.map(\.uuid) == arrived,
                     "and joins the list at the bottom, with the ones before it where they were")
-                check(
-                    before.allSatisfy { uuid in model.drives.contains { $0.uuid == uuid } },
-                    "and nothing that was already there has gone")
+                // Named, not merely counted: this failed for two runs saying
+                // only that something had gone, and the answer was one row --
+                // a stick admitted by its own first sector, dropped whenever
+                // the list was rebuilt from a scan.
+                let missing = before.filter { uuid in
+                    !model.drives.contains { $0.uuid == uuid }
+                }
+                if !missing.isEmpty {
+                    print("      gone: \(missing)")
+                    print("      list: \(model.drives.map { $0.id + "=" + $0.uuid })")
+                }
+                check(missing.isEmpty, "and nothing that was already there has gone")
                 // Back to the list, as somebody who opened a file and then thought
                 // better of it would.
                 model.backToDrives()

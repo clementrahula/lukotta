@@ -70,6 +70,13 @@ status=$?
 ok="$(grep -c '^  ok' "$out" || true)"
 broke="$(grep -c '^  FAIL' "$out" || true)"
 echo "--- what the app said ---"
+# The failures themselves, not the last eight lines of a run that has hundreds.
+# This printed a tail, the tail was five passing steps, and a row reporting six
+# failures said nothing at all about which six -- with the output in a mktemp
+# file nothing keeps.
+if [ "$broke" -gt 0 ]; then
+  /usr/bin/grep -E '^  FAIL' "$out" | head -20
+fi
 tail -8 "$out"
 echo "--- $ok ok, $broke failed, exit $status ---"
 

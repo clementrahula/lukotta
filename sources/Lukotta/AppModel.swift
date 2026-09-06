@@ -655,7 +655,7 @@ final class AppModel: ObservableObject {
                     self.imageDrives[attached.identifier] = synthesised
                 }
                 self.drives = self.inArrivalOrder(
-                    self.reconcileImages(all, attachments: nil))
+                    self.withAdopted(self.reconcileImages(all, attachments: nil)))
                 // Opening a file is already the choice, there being nothing to
                 // pick from, so it either opens or asks for its passphrase.
                 // An image carrying a partition table has a row per volume and
@@ -1151,14 +1151,19 @@ final class AppModel: ObservableObject {
         // Volumes admitted by their first sector rather than by their partition
         // type. They belong in the list exactly as long as the machine still
         // has them, and the scan is what says so.
-        let present = Set(sighting.found.map(\.devicePath))
-            .union(sighting.unclaimed.map(\.devicePath))
-        adoptedVolumes = adoptedVolumes.filter { present.contains($0.key) }
-        sectorFormats = sectorFormats.filter { present.contains($0.key) }
-        let adopted = adoptedVolumes.values.filter { row in
-            !listed.contains { $0.devicePath == row.devicePath }
-        }
-        if !adopted.isEmpty { listed = inArrivalOrder(listed + adopted) }
+        // Kept while the device node is there, not while a scan happens to
+        // mention it.
+        //
+        // These were dropped whenever a sighting's leftovers came back without
+        // them, and a scan can come back short for reasons that have nothing to
+        // do with the drive -- a busy disk, a `diskutil` that answered slowly.
+        // The row then disappeared and returned a scan later, once the daemon
+        // had read the sector again: the end-to-end harness caught it as a row
+        // that was there before an image was opened and gone afterwards.
+        let attached: (String) -> Bool = { FileManager.default.fileExists(atPath: $0) }
+        adoptedVolumes = adoptedVolumes.filter { attached($0.key) }
+        sectorFormats = sectorFormats.filter { attached($0.key) }
+        listed = withAdopted(listed)
 
         drives = listed
         scanGeneration += 1
@@ -1187,6 +1192,19 @@ final class AppModel: ObservableObject {
         return listed
     }
 
+    /// The rows a scan found, plus the volumes admitted by their own first
+    /// sector.
+    ///
+    /// Every path that rebuilds the list from a scan goes through this. Opening
+    /// an image rebuilt it from the scan alone, and the row for a stick whose
+    /// partition types say nothing -- the one this whole mechanism exists for --
+    /// disappeared the moment somebody opened a file.
+    private func withAdopted(_ rows: [Drive]) -> [Drive] {
+        let known = Set(rows.map(\.devicePath))
+        let extra = adoptedVolumes.values.filter { !known.contains($0.devicePath) }
+        return extra.isEmpty ? rows : rows + extra
+    }
+
     /// The 512 bytes that decide what a row says, and whether there is a row.
     ///
     /// A partition type is all `diskutil` offers and it is not enough for
@@ -1208,7 +1226,21 @@ final class AppModel: ObservableObject {
         let unnamed = drives.filter {
             knownFormats[$0.id] == nil && sectorFormats[$0.devicePath] == nil
         }
-        let candidates = unclaimed.filter { sectorFormats[$0.devicePath] == nil }
+        // Volumes before whole disks: a disk is offered whole only when none of
+        // its volumes was offered, and that cannot be judged until they have
+        // been. A whole disk is reconsidered on every scan -- it costs nothing
+        // now that it is not read -- because what decides it is what is around
+        // it.
+        let candidates = unclaimed
+            .filter {
+                DriveScanner.wholeDisk(of: $0.id) == $0.id
+                    || sectorFormats[$0.devicePath] == nil
+            }
+            .sorted { left, right in
+                let leftIsWhole = DriveScanner.wholeDisk(of: left.id) == left.id
+                let rightIsWhole = DriveScanner.wholeDisk(of: right.id) == right.id
+                return !leftIsWhole && rightIsWhole
+            }
         guard !unnamed.isEmpty || !candidates.isEmpty else { return }
         Task { @MainActor [weak self] in
             guard let self else { return }
@@ -1219,9 +1251,22 @@ final class AppModel: ObservableObject {
             }
             var admitted: [Drive] = []
             for candidate in candidates {
-                let format = await self.helper.identify(devicePath: candidate.devicePath)
-                self.sectorFormats[candidate.devicePath] = format
                 let isWholeDisk = DriveScanner.wholeDisk(of: candidate.id) == candidate.id
+                // A whole disk is admitted by what is around it, never by its
+                // own first sector -- the sector of a disk is a partition
+                // table, not a filesystem -- so it is not read at all. Reading
+                // it was a daemon round trip per disk per scan, for an answer
+                // nothing used.
+                let format =
+                    isWholeDisk
+                    ? VolumeFormat.unknown
+                    : await self.helper.identify(devicePath: candidate.devicePath)
+                // Remembered only where it was read. A whole disk is judged by
+                // what is around it, and that changes: eject its volume in
+                // Finder and the disk becomes offerable, so recording an answer
+                // for it would freeze the judgement at whatever was true the
+                // first time.
+                if !isWholeDisk { self.sectorFormats[candidate.devicePath] = format }
                 if isWholeDisk {
                     // A whole disk whose partitions said nothing this app opens.
                     //
@@ -1235,9 +1280,17 @@ final class AppModel: ObservableObject {
                     // worth doing. An HFS+ or FAT stick macOS has mounted keeps
                     // out of the list, because macOS is already serving it.
                     let disk = candidate.id
-                    let somethingElse = self.drives.contains {
-                        DriveScanner.wholeDisk(of: $0.id) == disk && $0.id != disk
-                    }
+                    // What is already listed, and what this pass has just
+                    // admitted: the volumes are decided first, and a disk whose
+                    // volume was taken is not offered whole as well. Reading
+                    // only `drives` put two rows in the list for one stick.
+                    let somethingElse =
+                        self.drives.contains {
+                            DriveScanner.wholeDisk(of: $0.id) == disk && $0.id != disk
+                        }
+                        || admitted.contains {
+                            DriveScanner.wholeDisk(of: $0.id) == disk && $0.id != disk
+                        }
                     let macOSUsesIt = MountTableEntry.all(in: mountTable()).contains {
                         $0.source.hasPrefix("/dev/")
                             && DriveScanner.wholeDisk(
@@ -2462,7 +2515,7 @@ final class AppModel: ObservableObject {
             }) {
                 imageDrives[attached.identifier] = synthesised
             }
-            drives = inArrivalOrder(reconcileImages(all, attachments: nil))
+            drives = inArrivalOrder(withAdopted(reconcileImages(all, attachments: nil)))
             return drives.first { $0.uuid == url.path }
         }
     }

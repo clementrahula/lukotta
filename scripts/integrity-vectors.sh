@@ -673,7 +673,16 @@ fi
 # unreadable, concurrent writers all differing, every fsynced file lost. None of
 # that happened. The volume was full, because this filled it.
 rm -rf "$VOL/vec-full"
-for _ in $(seq 1 15); do
+# Three minutes, not thirty seconds, and it leaves the moment the room is back.
+#
+# The wait was calibrated when a fill was a few hundred megabytes. A durable
+# mount fills faster, so the file being deleted is larger, and unlinking a
+# multi-gigabyte file is not instant: luks-lvm-big reported 48 KB free after
+# thirty seconds in the full run of 2026-09-06 and passed the same vector in
+# another run minutes later. A bound that a passing case trips is a bound that
+# says nothing. Waiting longer costs nothing when the room comes back at once,
+# which is every other fixture.
+for _ in $(seq 1 90); do
   free_kb="$(df -k "$VOL" 2>/dev/null | tail -1 | awk '{print $4}')"
   [ "${free_kb:-0}" -gt 20480 ] && break
   sleep 2

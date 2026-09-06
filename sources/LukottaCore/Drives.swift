@@ -275,6 +275,20 @@ public struct Drive: Identifiable, Hashable, Sendable {
 /// Without root we cannot read the FVE header, so classification is by GPT
 /// partition type: BitLocker volumes are "Microsoft Basic Data", the same type
 /// plain NTFS uses. The UI is honest about that rather than claiming certainty.
+/// One answer per volume for the length of a scan.
+///
+/// `diskutil info` is a process, and the scan asks about every volume twice --
+/// once for the list and once for the leftovers the partition types dropped.
+private final class InfoCache {
+    private var held: [String: [String: Any]] = [:]
+    func value(for key: String, _ make: () -> [String: Any]) -> [String: Any] {
+        if let hit = held[key] { return hit }
+        let made = make()
+        held[key] = made
+        return made
+    }
+}
+
 public enum DriveScanner {
     /// Every drive worth showing, plus the container files we were asked to
     /// open.
@@ -309,7 +323,17 @@ public enum DriveScanner {
         var argv = ["/usr/sbin/diskutil", "list", "-plist"]
         if !all && images.isEmpty { argv.append("physical") }
         guard let plist = runPlist(argv) else { return ([], []) }
-        let ask: (String) -> [String: Any] = { info(for: $0) ?? [:] }
+        // One `diskutil info` per volume, not one per pass.
+        //
+        // The two passes ask about overlapping sets, and each question is a
+        // process. On a Mac with several images attached that doubled the
+        // slowest part of a scan: the opening scan stopped finishing inside the
+        // thirty seconds the end-to-end harness allows, and the list churned
+        // while it caught up.
+        let answers = InfoCache()
+        let ask: (String) -> [String: Any] = { identifier in
+            answers.value(for: identifier) { info(for: identifier) ?? [:] }
+        }
         let found = drives(inList: plist, info: ask)
         let leftovers = unclaimedVolumes(inList: plist, info: ask)
         guard !all, !images.isEmpty else { return (found, leftovers) }
@@ -440,8 +464,12 @@ public enum DriveScanner {
                     "Size": disk["Size"] ?? 0,
                 ]
             ]
+            // A disk with no table at all belongs to the list, and only to the
+            // list: it is already offered there, and offering it a second time
+            // as a leftover put two rows with one identity into the same list,
+            // where one hid the other.
             var unpartitioned: [[String: Any]] = []
-            if partitions == nil && apfs == nil && !internalDisk {
+            if claimed, partitions == nil, apfs == nil, !internalDisk {
                 unpartitioned = wholeDiskRow
             } else if !claimed, apfs == nil, !internalDisk, noneClaimable,
                 partitions?.isEmpty == false

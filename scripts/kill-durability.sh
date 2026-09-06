@@ -31,7 +31,17 @@ set -u
 
 DEVICE="${1:-}"
 MB="${2:-8}"
-APP="${LUKOTTA_APP:-/Applications/Lukotta Dev.app}"
+# The bundle the caller resolved, before any default of this script's own.
+#
+# The gate picks one app -- the one whose binary answers --drive -- and exports
+# it as LUKOTTA_ENGINE. This defaulted to "Lukotta Dev.app" regardless, which is
+# a different build on this Mac, and the row failed with "it did not mount" and
+# an empty engine log while every other row was driving the beta.
+if [ -n "${LUKOTTA_ENGINE:-}" ]; then
+  APP="${LUKOTTA_APP:-${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}}"
+else
+  APP="${LUKOTTA_APP:-/Applications/Lukotta Dev.app}"
+fi
 ENGINE="${LUKOTTA_ENGINE:-$APP/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 [ -x "$ENGINE" ] || { echo "no engine at $ENGINE"; exit 1; }
 
@@ -42,6 +52,15 @@ ENGINE="${LUKOTTA_ENGINE:-$APP/Contents/Resources/engine/anylinuxfs/bin/anylinux
 # prepared, init has nothing to do and never asks. Without this the run fails
 # with "another instance is already running", which reads like a stale process
 # and is a rootfs that was never initialised.
+# And the guest that app carries, for the same reason: each brand keeps its own
+# unpacked environment, and pointing one app's engine at another's home is how
+# "another instance is already running" appears out of nowhere.
+if [ -z "${ANYLINUXFS_HOME:-}" ]; then
+  _bundle_id="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' \
+    "$APP/Contents/Info.plist" 2>/dev/null)"
+  [ -n "${_bundle_id:-}" ] \
+    && ANYLINUXFS_HOME="$HOME/Library/Application Support/$_bundle_id/engine"
+fi
 export ANYLINUXFS_HOME="${ANYLINUXFS_HOME:-$HOME/Library/Application Support/com.lukotta.dev/engine}"
 [ -d "$ANYLINUXFS_HOME/.anylinuxfs/alpine" ] || {
   echo "no prepared guest in $ANYLINUXFS_HOME"; exit 1; }
