@@ -22,7 +22,27 @@ set -uo pipefail
 # reported "this build has no harness" -- which reads as a broken build rather
 # than as a missing app, and was recorded as a failing claim twice on a machine
 # where nothing was wrong.
-LUKOTTA_ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
+# Whichever installed bundle answers --drive, newest first.
+#
+# This named the Beta bundle, and the Beta bundle is the app the owner runs:
+# the published build has no harness in it, so the moment their app was updated
+# this reported "this build has no harness" -- which reads as a broken build and
+# is a harness looking at the wrong app. Resolved by the only property that
+# matters, the way scripts/verify.sh does it.
+if [ -z "${LUKOTTA_ENGINE:-}" ]; then
+  __newest=""; __engine=""
+  for __bundle in /Applications/*.app; do
+    __binary="$__bundle/Contents/MacOS/$(basename "$__bundle" .app)"
+    __candidate="$__bundle/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs"
+    [ -x "$__binary" ] && [ -x "$__candidate" ] || continue
+    [ "$(strings -a "$__binary" 2>/dev/null | /usr/bin/grep -c -- "--drive")" -gt 0 ] || continue
+    if [ -z "$__newest" ] || [ "$__binary" -nt "$__newest" ]; then
+      __newest="$__binary"; __engine="$__candidate"
+    fi
+  done
+  LUKOTTA_ENGINE="$__engine"
+fi
+LUKOTTA_ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Dev.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 APP_BUNDLE="${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 APP="$APP_BUNDLE/Contents/MacOS/$(basename "$APP_BUNDLE" .app)"
 GUEST="$HOME/Library/Application Support/com.lukotta.dev/engine/.anylinuxfs/alpine"

@@ -31,6 +31,22 @@
 # and the program that unpacks the image keeps to the directory it is given:
 # 196 checks, none failed, and the shared directory still not created.
 set -uo pipefail
+# Whichever installed bundle answers --drive, newest first, and the dev one by
+# name if nothing does. Naming a bundle means testing whatever happens to be
+# installed under that name -- including the app the owner runs, whose published
+# build has no harness in it.
+if [ -z "${LUKOTTA_APP:-}" ]; then
+  __newest=""
+  for __bundle in /Applications/*.app; do
+    __binary="$__bundle/Contents/MacOS/$(basename "$__bundle" .app)"
+    [ -x "$__binary" ] || continue
+    [ -x "$__bundle/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs" ] || continue
+    [ "$(strings -a "$__binary" 2>/dev/null | /usr/bin/grep -c -- "--drive")" -gt 0 ] || continue
+    if [ -z "$__newest" ] || [ "$__binary" -nt "$__newest" ]; then
+      __newest="$__binary"; LUKOTTA_APP="$__bundle"
+    fi
+  done
+fi
 APP="${LUKOTTA_APP:-/Applications/Lukotta Dev.app}"
 NAME="$(basename "$APP" .app)"
 BIN="$APP/Contents/MacOS/$NAME"
