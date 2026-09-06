@@ -59,8 +59,22 @@ can_be_driven || {
   echo "       build one with LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
   exit 2
 }
-[ -f "/Library/LaunchDaemons/$APP_ID.helper.plist" ] || {
+# A daemon registered the other way is still a daemon.
+#
+# /Library/LaunchDaemons only holds the ones put there by an installer asking
+# for an admin password. A bundle that registers its helper through
+# SMAppService leaves no file there and launchd runs the job all the same, so
+# a dev build with a working daemon was reported as having none and this row
+# failed with nothing wrong with the app.
+daemon_is_there() {
+  [ -f "/Library/LaunchDaemons/$APP_ID.helper.plist" ] && return 0
+  launchctl print "system/$APP_ID.helper" >/dev/null 2>&1
+}
+
+daemon_is_there || {
   echo "error: no daemon for $APP_ID; this channel cannot mount on this Mac" >&2
+  echo "       installed: $(find /Library/LaunchDaemons -name 'com.lukotta*.helper.plist' \
+    -exec basename {} .helper.plist \; | tr '\n' ' ')" >&2
   exit 2
 }
 [ -d "$OUT/crowd" ] || {
