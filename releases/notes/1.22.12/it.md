@@ -1,0 +1,1 @@
+- Copiare su un'unità cifrata è circa tre volte più veloce.

@@ -1,0 +1,1 @@
+- Kopijuoti į šifruotą diską maždaug tris kartus greičiau.

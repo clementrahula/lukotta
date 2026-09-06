@@ -1,0 +1,1 @@
+- Menyalin ke pemacu tersulit kira-kira tiga kali lebih pantas.

@@ -1,0 +1,1 @@
+- Salatulle asemalle kopiointi on noin kolme kertaa nopeampaa.

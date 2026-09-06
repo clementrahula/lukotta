@@ -1,0 +1,1 @@
+- Das Kopieren auf ein verschlüsseltes Laufwerk ist etwa dreimal so schnell.

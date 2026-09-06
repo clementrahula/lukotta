@@ -1,0 +1,1 @@
+- La copie vers un disque chiffré est environ trois fois plus rapide.

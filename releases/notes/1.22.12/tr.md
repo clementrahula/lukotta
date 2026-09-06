@@ -1,0 +1,1 @@
+- Şifreli bir sürücüye kopyalama yaklaşık üç kat daha hızlı.

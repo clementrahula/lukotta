@@ -1,0 +1,1 @@
+- Kopiowanie na zaszyfrowany dysk jest około trzy razy szybsze.

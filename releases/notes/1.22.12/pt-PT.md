@@ -1,0 +1,1 @@
+- Copiar para uma unidade encriptada é cerca de três vezes mais rápido.

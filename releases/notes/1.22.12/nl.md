@@ -1,0 +1,1 @@
+- Kopiëren naar een versleutelde schijf is ongeveer drie keer zo snel.

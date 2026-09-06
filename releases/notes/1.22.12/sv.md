@@ -1,0 +1,1 @@
+- Kopiering till en krypterad enhet går ungefär tre gånger så fort.

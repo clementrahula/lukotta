@@ -1,0 +1,1 @@
+- Kopiranje na šifriran pogon je približno trikrat hitrejše.

@@ -1,0 +1,1 @@
+- Kopírování na šifrovaný disk je zhruba třikrát rychlejší.

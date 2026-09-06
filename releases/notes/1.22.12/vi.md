@@ -1,0 +1,1 @@
+- Sao chép sang ổ đĩa được mã hoá nhanh gấp khoảng ba lần.

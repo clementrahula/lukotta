@@ -1,0 +1,1 @@
+- Kopiranje na šifrirani pogon oko je tri puta brže.

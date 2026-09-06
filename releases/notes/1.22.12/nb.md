@@ -1,0 +1,1 @@
+- Kopiering til en kryptert stasjon er omtrent tre ganger så rask.

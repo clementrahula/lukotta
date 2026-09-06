@@ -1,0 +1,1 @@
+- Copierea pe o unitate criptată este de aproximativ trei ori mai rapidă.

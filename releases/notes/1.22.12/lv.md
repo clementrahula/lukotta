@@ -1,0 +1,1 @@
+- Kopēšana uz šifrētu disku ir apmēram trīs reizes ātrāka.

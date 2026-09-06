@@ -1,0 +1,1 @@
+- Kopjimi në një disk të enkriptuar është rreth tri herë më i shpejtë.

@@ -1,0 +1,1 @@
+- Menyalin ke drive terenkripsi kira-kira tiga kali lebih cepat.

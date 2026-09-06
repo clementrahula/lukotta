@@ -1,0 +1,1 @@
+- A titkosított meghajtóra másolás nagyjából háromszor gyorsabb.

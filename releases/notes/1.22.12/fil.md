@@ -1,0 +1,1 @@
+- Halos tatlong beses na mas mabilis ang pagkopya sa naka-encrypt na drive.

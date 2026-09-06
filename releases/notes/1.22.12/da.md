@@ -1,0 +1,1 @@
+- Kopiering til et krypteret drev er omkring tre gange hurtigere.

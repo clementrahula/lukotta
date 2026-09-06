@@ -1,0 +1,1 @@
+- Krüpteeritud kettale kopeerimine on umbes kolm korda kiirem.
