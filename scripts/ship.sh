@@ -361,10 +361,30 @@ if command -v gh >/dev/null 2>&1; then
   else
     __feed=https://updates.lukotta.com/appcast.xml
   fi
+  # What the release says, and what was done about other languages, carried
+  # into the note itself.
+  #
+  # The note said a version was live and left the reader to open the release
+  # page to find out what was in it. The notes are three or four lines.
+  __notes="$(cat "$NOTES" 2>/dev/null)"
+  __langs=""
+  if [ "$CHANNEL" = "release" ]; then
+    # A second pass over the translations, after publishing, so what the note
+    # claims about them is checked at the moment it is claimed rather than
+    # remembered from before the build. The first pass gates the ship; this one
+    # is the evidence for the sentence.
+    __written="$(/bin/ls "releases/notes/$FULL"/*.md 2>/dev/null | wc -l | tr -d ' ')"
+    if /usr/bin/python3 scripts/notes-audit.py "$FULL" >/dev/null 2>&1; then
+      __langs="written in $__written languages and audited twice"
+    else
+      __langs="written in $__written languages; the second audit pass refused them"
+    fi
+  fi
   if gh workflow run notice.yml \
       --repo clementrahula/lukotta-release-notices \
       -f tag="v$FULL" -f channel="$CHANNEL" -f feed="$__feed" \
       -f url="https://github.com/clementrahula/lukotta/releases/tag/v$FULL" \
+      -f notes="$__notes" -f translations="$__langs" \
       >/dev/null 2>&1; then
     printf '    a note is on its way to the private notices repository\n'
   else

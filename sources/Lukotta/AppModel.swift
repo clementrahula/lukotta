@@ -1253,21 +1253,25 @@ final class AppModel: ObservableObject {
             var admitted: [Drive] = []
             for candidate in candidates {
                 let isWholeDisk = DriveScanner.wholeDisk(of: candidate.id) == candidate.id
-                // A whole disk is admitted by what is around it, never by its
-                // own first sector -- the sector of a disk is a partition
-                // table, not a filesystem -- so it is not read at all. Reading
-                // it was a daemon round trip per disk per scan, for an answer
-                // nothing used.
-                let format =
-                    isWholeDisk
-                    ? VolumeFormat.unknown
-                    : await self.helper.identify(devicePath: candidate.devicePath)
-                // Remembered only where it was read. A whole disk is judged by
-                // what is around it, and that changes: eject its volume in
-                // Finder and the disk becomes offerable, so recording an answer
-                // for it would freeze the judgement at whatever was true the
-                // first time.
+                // Read, whole disk or not.
+                //
+                // A whole disk is *admitted* by what is around it rather than
+                // by its sector -- the sector of a partitioned disk is a table,
+                // not a filesystem -- and skipping the read to save a round
+                // trip cost the row its name: a stick holding NTFS across the
+                // whole device sat in the list saying only "123,01 GB · USB ·
+                // External", before and after it was opened, because nothing
+                // had read it. One 512-byte read per disk, kept, is the price
+                // of the row saying what it is.
+                let format = await self.helper.identify(devicePath: candidate.devicePath)
+                // Remembered only where the judgement is about the volume
+                // itself. A whole disk is judged by what is around it, and that
+                // changes -- eject its volume in Finder and the disk becomes
+                // offerable -- so recording an answer for it would freeze that
+                // judgement at whatever was true the first time. Its format is
+                // still kept, under the row, because that does not change.
                 if !isWholeDisk { self.sectorFormats[candidate.devicePath] = format }
+                if format != .unknown { self.knownFormats[candidate.id] = format }
                 if isWholeDisk {
                     // A whole disk whose partitions said nothing this app opens.
                     //
@@ -1302,7 +1306,7 @@ final class AppModel: ObservableObject {
                             otherRowsOnTheSameDisk: somethingElse,
                             macOSIsUsingTheDisk: macOSUsesIt)
                     else { continue }
-                    let row = candidate
+                    let row = candidate.knowing(format)
                     self.adoptedVolumes[row.devicePath] = row
                     admitted.append(row)
                     Log.drives.notice(

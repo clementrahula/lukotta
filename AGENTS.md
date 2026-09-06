@@ -1342,5 +1342,6 @@ went red on the same file seconds later. `lint.sh` now prefers the Homebrew
 one; if it is missing, `brew install swift-format` before trusting a local run.
 
 <!-- workflow (managed): the shared doctrine. Do not edit between these markers. -->
+
 @AGENTS.workflow.md
 <!-- end workflow (managed) -->
