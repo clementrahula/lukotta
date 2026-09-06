@@ -1,3 +1,3 @@
-- Varje enhet i listan säger vad som finns på den – även en utan partitionstabell.
+- Varje enhet i listan visar vad som finns på den – även en utan partitionstabell.
 - En skivavbild får namn efter sin fil i stället för att heta ”Skivavbild” två gånger.
 - Listan visas direkt, hur många enheter som än är anslutna.
