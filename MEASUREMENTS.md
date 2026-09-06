@@ -4931,11 +4931,22 @@ took two minutes between them:
     durable  a committed write survives the machine dying         holds
 
 `durable` on the real stick, as it has been since the day it first could be.
-Left unrun: the release and housekeeping rows -- casks, changelog, private,
-firstrun, heals, homes, torture, forks, firstwrite, imageformats, fullvolume,
-crowdafter, lvmlock, nowindow -- which held earlier the same day and which this
-change does not touch. The distinction is written down rather than glossed: what
-was measured on this code, and what is being carried over.
+Then eight of the release and housekeeping rows, on the same shipped code:
+
+    private     no release carries anything of the owner's        holds
+    casks       the published casks point at files that exist     holds
+    changelog   the notes read the way the approved ones do       holds
+    homes       two apps using the engine do not share a home     holds
+    forks       extended attributes and resource forks survive    holds
+    firstwrite  the first write after a volume opens, over again  holds
+    nowindow    a dead mount goes before macOS tells anybody      holds
+    lvmlock     the second volume of a Linux laptop disk opens    holds
+
+Twenty-one rows measured on what is live, none failing. Still carried over from
+earlier the same day rather than re-run here: firstrun, heals, torture,
+imageformats, fullvolume, crowdafter -- the six that each rebuild a fixture or
+take a drive through a long cycle. The distinction is written down rather than
+glossed: what was measured on this code, and what is being carried over.
 
 ## The drives this Mac has, and what each is for — 2026-09-06
 
