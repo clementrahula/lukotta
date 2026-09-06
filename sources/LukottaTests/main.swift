@@ -1654,6 +1654,39 @@ group("aSynthesisedContainerIsNotAContainerFile") {
     expect(rows.allSatisfy { $0.drive == nil }, "so neither is offered as a drive to open")
 }
 
+group("theSweepsRefuseWhatIsNotTheirs") {
+    // Two scripts take back what killed runs leave behind, and the danger in
+    // both is obvious: one removes directories under $TMPDIR, the other removes
+    // names from a mounted drive. Their guards are what makes them safe to call
+    // from a gate, so the guards are read here rather than trusted.
+    let workspaces = String(
+        data: FileManager.default.contents(
+            atPath: "scripts/sweep-workspaces.sh") ?? Data(), encoding: .utf8) ?? ""
+    expect(!workspaces.isEmpty, "the workspace sweep is there to read")
+    expect(
+        workspaces.contains("mmin +\"$MINUTES\""),
+        "it only takes what is older than the bound, so nothing in flight goes")
+    expect(
+        workspaces.contains("mine \"$dir\" || continue"),
+        "and only what carries a mark one of these harnesses made")
+
+    let drive = String(
+        data: FileManager.default.contents(atPath: "scripts/sweep-drive.sh") ?? Data(),
+        encoding: .utf8) ?? ""
+    expect(!drive.isEmpty, "the drive sweep is there to read")
+    for forbidden in ["/Users", "/System", "/Applications", "/Library"] {
+        expect(
+            drive.contains(forbidden),
+            "the drive sweep refuses \(forbidden) by name")
+    }
+    expect(
+        drive.contains("lukotta-*") && drive.contains("vec-*"),
+        "and takes only the names this project writes")
+    expect(
+        !drive.contains("rm -rf \"$POINT\"") && !drive.contains("rm -rf \"${POINT}\""),
+        "it never removes the mount point itself, only things inside it")
+}
+
 group("aStickThatIsStillAnInstallerSaysSo") {
     // A USB stick made from an installer ISO keeps carrying the image after a
     // quick format: the format writes inside a partition and the image's own
