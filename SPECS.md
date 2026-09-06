@@ -1,6 +1,6 @@
 # Specifications
 
-<!-- covers: sources/** checked: 2026-09-05 -->
+<!-- covers: sources/** checked: 2026-09-06 -->
 
 What Lukotta opens, how it opens it, and what it does not.
 
@@ -171,6 +171,24 @@ The same reasoning applies to the drive list: a disk macOS already reads is
 listed with that as its verdict, and not offered for opening.
 
 ---
+
+## 4a. What can be created
+
+The app formats a drive itself, so nobody needs a second computer to prepare
+one. Five kinds, each written by the guest's own tool with a fixed command
+chosen in the helper rather than composed from anything that arrived with the
+request:
+
+| Kind | Written by |
+| --- | --- |
+| NTFS | `mkntfs` |
+| exFAT | `mkfs.exfat` |
+| ext4 | `mke2fs -t ext4` |
+| XFS | `mkfs.xfs` |
+| btrfs | `mkfs.btrfs` |
+
+A kind outside that list is refused by name rather than attempted. APFS and
+HFS+ are not here: macOS creates them, and the guest has no driver for either.
 
 ## 5. What is not supported, and why
 
