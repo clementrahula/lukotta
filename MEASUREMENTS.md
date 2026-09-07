@@ -42,6 +42,11 @@ Twenty-four milliseconds is not a machine anybody notices is busy. The bound is
 a second, and the slowest ordinary action came in at a fortieth of it, with the
 kernel calling the pressure normal while six gigabytes sat in swap.
 
+Run again at 09:45, once the verdict was being written into the log rather than
+only onto a screen the row throws away: twelve of twelve served, twelve
+byte-identical, pressure normal, nothing killed, slowest ordinary action 28 ms.
+Two runs, not one.
+
 One row in that run came back red and it was the instrument. `firstwrite` read
 119 files back where 60 were written and called it "short" -- a count of more
 than was written, printed as a loss. Each cycle removed its destination at the
