@@ -7,10 +7,24 @@ MET: items 1 through 10, proven again on this Mac on 2026-09-07, driving
 `LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1`, so nothing a harness does can touch
 the app the owner runs. Row by row, each run on its own.
 
-The results below were taken on the code 1.22.14 carries, except item 9 and
-item 10, which were taken on the code 1.22.15 carries -- one scan fix and its
-two checks apart. Every row is being re-run on 1.22.15 as this is written, and
-what that run says is recorded under the table rather than assumed here.
+The table below was first taken on the code 1.22.14 carries. It was then taken
+again in one run on the code 1.22.15 carries -- 04:13 to 08:49, all nineteen
+rows the goal tag covers, driving the same dev bundle. **Every one of the ten
+items holds on the code that shipped**, together with the nine rows that hold
+them up: the corrupted-NTFS corpus, a fresh guest, two drives at once, the first
+write after an open, every image container, a full volume, twelve volumes killed
+mid-copy and opened again, the second volume of a Linux laptop disk, and a dead
+mount going before macOS says anything.
+
+One row in that run came back red and it was the instrument. `firstwrite` read
+119 files back where 60 were written and called it "short" -- a count of more
+than was written, printed as a loss. Each cycle removed its destination at the
+end and none cleared it at the start, so cycles 2 to 20 were clean because the
+cycle before them had tidied up, and cycle 1 inherited whatever the last killed
+run had left on the fixture. Both halves are fixed: a cycle now starts on an
+empty destination, and the message says which way the count went. Re-run: 20 of
+20 clean, 0 stale handles, 0 not what was written. That is the fifth instrument
+in this project to report a fault the app did not have.
 
     goal1   writing does not stall          holds   worst request 0.033 s,
                                                     none past five seconds,
