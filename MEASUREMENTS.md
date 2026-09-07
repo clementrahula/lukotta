@@ -16,6 +16,32 @@ write after an open, every image container, a full volume, twelve volumes killed
 mid-copy and opened again, the second volume of a Linux laptop disk, and a dead
 mount going before macOS says anything.
 
+Item 8 asks for two things and only one of them was being decided. "A dozen
+volumes open at once ... with the machine still responsive for ordinary use.
+Measured, numbers written down" -- the twelve staying served failed the row when
+it went wrong, and the responsiveness numbers were printed into a log nothing
+read. The row could have gone green with a four-second home listing. It now
+fails on ordinary use over a second, on the kernel calling the pressure
+critical, on anything killed for sustained pressure, and on nothing having been
+timed at all. Re-run at 09:26 on the shipped code, on this Mac16,12 with 16 GB
+held down to what an 8 GB Mac has:
+
+    twelve volumes served                 12 of 12, at every five-second sample
+    all twelve written and read back      12 byte-identical
+    copies fully visible when they return 15 cycles x 12 volumes
+    engines                               36 processes, 566 MB resident in total
+    ballast holding                       180 MB free, 41% of memory free
+    swap in use                           6044 MB during, 13571 MB after
+    kernel pressure level                 normal
+    killed for sustained pressure         0
+    home listing                          24 ms
+    walk of the source tree               24 ms
+    process launch                        22 ms
+
+Twenty-four milliseconds is not a machine anybody notices is busy. The bound is
+a second, and the slowest ordinary action came in at a fortieth of it, with the
+kernel calling the pressure normal while six gigabytes sat in swap.
+
 One row in that run came back red and it was the instrument. `firstwrite` read
 119 files back where 60 were written and called it "short" -- a count of more
 than was written, printed as a loss. Each cycle removed its destination at the
@@ -41,8 +67,8 @@ in this project to report a fault the app did not have.
             advertises                              vectors; plain xfs, ext4,
                                                     ext3, ext2, exfat, fat
     goal7   dirty NTFS repaired             holds   data intact afterwards
-    goal8   a dozen volumes under 8 GB      holds   twelve opened, held and
-            of pressure, still served               served under the cap
+    goal8   a dozen volumes under 8 GB      holds   see the numbers below
+            of pressure, still served
     goal9   integrity across every vector   holds   see below
             devised
     goal10  no UX cost anywhere above       holds
