@@ -2,10 +2,15 @@
 
 <!-- covers: sources/** checked: 2026-09-07 -->
 
-MET: items 1 through 10, proven again on this Mac on 2026-09-07, on the code
-1.22.14 carries, driving `/Applications/Lukotta Dev.app` -- a bundle built from
-this tree with `LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1`, so nothing a harness
-does can touch the app the owner runs. Row by row, each run on its own:
+MET: items 1 through 10, proven again on this Mac on 2026-09-07, driving
+`/Applications/Lukotta Dev.app` -- a bundle built from this tree with
+`LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1`, so nothing a harness does can touch
+the app the owner runs. Row by row, each run on its own.
+
+The results below were taken on the code 1.22.14 carries, except item 9 and
+item 10, which were taken on the code 1.22.15 carries -- one scan fix and its
+two checks apart. Every row is being re-run on 1.22.15 as this is written, and
+what that run says is recorded under the table rather than assumed here.
 
     goal1   writing does not stall          holds   worst request 0.033 s,
                                                     none past five seconds,
