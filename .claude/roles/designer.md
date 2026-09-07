@@ -1,5 +1,7 @@
 # designer, in this project
 
+<!-- covers: build-app.sh, scripts/vendor-engine.sh checked: 2026-09-07 -->
+
 This project's half of the `designer` brief. The role is in the workflow
 repository; this file is what it means here.
 

@@ -1,6 +1,6 @@
 # Measurements
 
-<!-- covers: sources/** checked: 2026-09-07 -->
+<!-- covers: scripts/** checked: 2026-09-07 -->
 
 MET: items 1 through 10, proven again on this Mac on 2026-09-07, driving
 `/Applications/Lukotta Dev.app` -- a bundle built from this tree with

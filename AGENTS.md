@@ -1,6 +1,6 @@
 # Notes for Coding Agents
 
-<!-- covers: sources/**, scripts/**, tests/** checked: 2026-09-06 -->
+<!-- covers: sources/**, scripts/**, tests/** checked: 2026-09-07 -->
 
 This file lists the things about Lukotta that mislead: commands that report the
 wrong thing, conventions that differ from the default, and rules that look like
