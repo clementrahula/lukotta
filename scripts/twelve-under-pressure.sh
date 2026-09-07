@@ -121,11 +121,17 @@ for what in "home listing" "spotlight-free find" "process launch"; do
 done
 level="$(sed -n 's/^  kernel pressure level  *//p' "$LOG" | tail -1)"
 killed="$(sed -n 's/^  killed for sustained pressure  *\([0-9][0-9]*\) during this run$/\1/p' "$LOG" | tail -1)"
-echo
-echo "=== the machine, while the twelve were squeezed ==="
-echo "  slowest ordinary action      ${slowest} ms (${slowest_what:-none timed})"
-echo "  kernel pressure level        ${level:-unknown}"
-echo "  killed for sustained pressure ${killed:-unknown}"
+# Into the log as well as onto the screen. The row's own output is thrown away
+# when it passes, so a verdict that only reaches the screen is a verdict nobody
+# can read afterwards -- which is how these three latencies came to be printed
+# for weeks with nothing keeping them.
+{
+  echo
+  echo "=== the machine, while the twelve were squeezed ==="
+  echo "  slowest ordinary action      ${slowest} ms (${slowest_what:-none timed})"
+  echo "  kernel pressure level        ${level:-unknown}"
+  echo "  killed for sustained pressure ${killed:-unknown}"
+} | tee -a "$LOG"
 responsive=1
 [ "$slowest" -le 1000 ] 2>/dev/null || { echo "  FAIL: ordinary use took ${slowest} ms" >&2; responsive=0; }
 [ "${level:-unknown}" != "critical" ] || { echo "  FAIL: the kernel called the pressure critical" >&2; responsive=0; }
