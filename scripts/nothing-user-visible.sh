@@ -18,7 +18,7 @@
 # complained, or nothing was listening -- and only one of them is a pass.
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$HERE"
+cd "$HERE" || exit 1
 
 bash scripts/watch-for-complaints.sh --probe || {
   echo "the kernel channel is shut; a zero from the watcher would mean nothing" >&2
