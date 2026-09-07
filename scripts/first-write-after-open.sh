@@ -58,7 +58,7 @@ trap 'release; rm -rf "$WORK"' EXIT
 echo "$CYCLES cycles: attach $IMAGE, open it through the app, write $FILES files at once"
 [ "$SETTLE" != "0" ] && echo "  waiting $SETTLE s after the open before writing"
 
-stale=0; short=0; clean=0; failed=0
+stale=0; wrong=0; clean=0; failed=0
 for c in $(seq 1 "$CYCLES"); do
   DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
     2>/dev/null | head -1 | awk '{print $1}')"
@@ -79,6 +79,14 @@ for c in $(seq 1 "$CYCLES"); do
   [ "$SETTLE" != "0" ] && sleep "$SETTLE"
 
   dest="$point/first-write"
+  # Cleared before the copy, not only after it.
+  #
+  # Every cycle removed its own destination at the end, so cycles 2..N started
+  # empty and cycle 1 started with whatever the last run left -- and these runs
+  # are killed often. On 2026-09-07 cycle 1 read back 119 files where 60 were
+  # written: sixty new ones and the survivors of a run that never reached its
+  # own cleanup. The row failed, and nothing was wrong with the app.
+  rm -rf "$dest" >/dev/null 2>&1
   ditto "$SRC" "$dest" > "$WORK/ditto.log" 2>&1
   rc=$?
   (cd "$dest" && find . -type f -exec shasum -a 256 {} \; | sort) \
@@ -98,13 +106,22 @@ for c in $(seq 1 "$CYCLES"); do
     # a silent log were spent deciding which.
     printf '  cycle %2d: clean\n' "$c"
   else
-    short=$((short+1))
-    echo "  cycle $c: $got of $FILES read back, $(head -1 "$WORK/after.err" | cut -c1-80)"
+    wrong=$((wrong+1))
+    # What actually differs, in the direction it differs.
+    #
+    # This said "N of 60 read back" whatever N was, so more files than were
+    # written read as fewer -- a count of 119 printed as a loss. A number that
+    # cannot say which way it went is worse than no number.
+    if [ "$got" -gt "$FILES" ]; then
+      echo "  cycle $c: $got files where $FILES were written; $((got - FILES)) do not belong to this run"
+    else
+      echo "  cycle $c: $got of $FILES read back, $(head -1 "$WORK/after.err" | cut -c1-80)"
+    fi
   fi
   rm -rf "$dest" >/dev/null 2>&1
   release
 done
 
 echo
-echo "RESULT: $clean clean, $stale stale handles, $short short, $failed did not run"
-[ "$stale" -eq 0 ] && [ "$short" -eq 0 ] && [ "$failed" -eq 0 ]
+echo "RESULT: $clean clean, $stale stale handles, $wrong not what was written, $failed did not run"
+[ "$stale" -eq 0 ] && [ "$wrong" -eq 0 ] && [ "$failed" -eq 0 ]
