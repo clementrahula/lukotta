@@ -32,11 +32,15 @@ does can touch the app the owner runs. Row by row, each run on its own:
     nowindow a dead mount goes before       holds
             macOS can tell anybody
 
-Item 9 is the union of items 5 and 6 and nothing else: `vectors-every-format.sh`
-with no `FIXTURES` set runs seventeen fixtures, and those seventeen are exactly
-the seven item 5 names plus the ten item 6 names. Both sets were run on this
-code, on this Mac, in the same afternoon, and every vector in them held. It was
-run as two invocations rather than one, and that is the whole of the difference.
+Item 9 was then run as its own single invocation, because "the union of two
+other rows held" is an argument and this file is for measurements. Started
+02:49, finished 04:11, one process, `vectors-every-format.sh` with no `FIXTURES`
+set: seventeen fixtures -- ntfs, ext4, btrfs and exfat vectors; plain xfs, ext4,
+ext3, ext2, exfat and fat; luks-ext4, luks-xfs, luks1-lvm, luks2-direct,
+luks2-lvm, luks-lvm-big, luks-multi -- through every vector devised: interrupted
+copies, a killed engine, full volumes, permissions, long and non-ASCII names,
+sparse and very large files, two writers and a reader at once, unmount under
+load, repeated mount cycles, overwriting what is already there. **No failures.**
 
 Item 8 failed once first, and the fault was the instrument: the harness looked
 for the daemon in `/Library/LaunchDaemons`, which only holds helpers installed
