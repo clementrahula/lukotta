@@ -2,15 +2,6 @@
 
 <!-- covers: sources/** checked: 2026-09-07 -->
 
-NOT MET as this stands: item 3's row was rewired on 2026-09-07 and has not been
-run since. `watch-for-complaints.sh` was written for item 3 -- no stall, no
-error dialog, no Finder complaint, nothing skipped -- and was wired to no row at
-all, while the `goal3` row ran the poisoned-name check, which is a true claim
-about something else. The watcher now decides instead of printing four numbers,
-`goal3` runs it beside the Finder copy, and the poisoned-name check has its own
-row. None of that has been run yet. Everything below was true of the rows as
-they stood before that change.
-
 MET: items 1 through 10, proven again on this Mac on 2026-09-07, driving
 `/Applications/Lukotta Dev.app` -- a bundle built from this tree with
 `LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1`, so nothing a harness does can touch
