@@ -93,6 +93,45 @@ sampler=$!
 bash "$COPY/eight-gig-pressure.sh" 2>&1 | tee -a "$LOG"
 kill "$sampler" 2>/dev/null
 
+# The responsiveness half of item 8, judged rather than printed.
+#
+# "with the machine still responsive for ordinary use" is half of what item 8
+# asks, and it was being answered by three latencies scrolling past in a log
+# that nothing read. A number nothing decides on is a number nobody checked:
+# this row could have gone green with the home listing taking four seconds.
+#
+# Ordinary use here is what eight-gig-pressure.sh already times under the
+# ballast -- listing a home directory, walking a source tree, launching a
+# process -- plus the kernel's own verdict beside them. A second is where a
+# person stops experiencing a machine as responsive and starts waiting for it,
+# so a second is the bound. Critical pressure, or anything killed for sustained
+# pressure, fails on its own: that is the way a dozen volumes stop being served
+# on a small Mac.
+# Each label read on its own, because one clever pipeline that comes back
+# empty is indistinguishable here from a machine that was never timed -- and
+# an empty answer must fail this, not pass it. That is why the check below
+# also refuses a run in which nothing was timed at all.
+slowest=0; slowest_what=""
+for what in "home listing" "spotlight-free find" "process launch"; do
+  ms="$(/usr/bin/grep -F "  $what " "$LOG" | tail -1 | awk '{print $(NF-1)}')"
+  case "${ms:-}" in
+    ''|*[!0-9]*) continue ;;
+  esac
+  if [ "$ms" -gt "$slowest" ]; then slowest="$ms"; slowest_what="$what"; fi
+done
+level="$(sed -n 's/^  kernel pressure level  *//p' "$LOG" | tail -1)"
+killed="$(sed -n 's/^  killed for sustained pressure  *\([0-9][0-9]*\) during this run$/\1/p' "$LOG" | tail -1)"
+echo
+echo "=== the machine, while the twelve were squeezed ==="
+echo "  slowest ordinary action      ${slowest} ms (${slowest_what:-none timed})"
+echo "  kernel pressure level        ${level:-unknown}"
+echo "  killed for sustained pressure ${killed:-unknown}"
+responsive=1
+[ "$slowest" -le 1000 ] 2>/dev/null || { echo "  FAIL: ordinary use took ${slowest} ms" >&2; responsive=0; }
+[ "${level:-unknown}" != "critical" ] || { echo "  FAIL: the kernel called the pressure critical" >&2; responsive=0; }
+[ "${killed:-0}" = "0" ] || { echo "  FAIL: ${killed} killed for sustained pressure" >&2; responsive=0; }
+[ -n "$slowest_what" ] || { echo "  FAIL: nothing was timed; the latencies were not printed" >&2; responsive=0; }
+
 after="$(served_now)"
 echo
 echo "=== served, sampled every five seconds ==="
@@ -108,8 +147,11 @@ touch /tmp/.crowd-release
 wait "$crowd" 2>/dev/null
 
 echo
-if [ "${lowest:-0}" -eq "$COUNT" ] 2>/dev/null; then
-  echo "RESULT: all $COUNT stayed served throughout the squeeze"
+if [ "${lowest:-0}" -eq "$COUNT" ] 2>/dev/null && [ "$responsive" = "1" ]; then
+  echo "RESULT: all $COUNT stayed served throughout the squeeze, and the machine stayed usable"
+elif [ "${lowest:-0}" -eq "$COUNT" ] 2>/dev/null; then
+  echo "RESULT: all $COUNT stayed served, but the machine did not stay usable" >&2
+  exit 1
 else
   echo "RESULT: down to ${lowest:-unknown} of $COUNT while squeezed" >&2
   exit 1
