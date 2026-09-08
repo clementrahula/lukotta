@@ -2,8 +2,9 @@
 
 <!-- covers: build-app.sh, scripts/vendor-engine.sh checked: 2026-09-07 -->
 
-This project's half of the `designer` brief. The role is in the workflow
-repository; this file is what it means here.
+This project's half of the `designer` brief. The role itself lives outside this
+repository; if you have cloned this project it will not be here, and nothing below
+depends on it - what follows describes THIS repository and stands on its own.
 
 ```
 launch:           ./scripts/vendor-engine.sh   (first run only, downloads the
