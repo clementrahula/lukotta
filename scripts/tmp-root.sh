@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Clement Rahula
 #
+# shellcheck shell=bash
+# Sourced rather than run, so it carries no shebang and shellcheck has to be
+# told which shell it is reading.
+#
 # Put everything temporary this project makes inside one directory it owns.
 #
 # Sourced, not run. One line, first thing, in every script here that makes a

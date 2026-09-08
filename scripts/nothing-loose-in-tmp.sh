@@ -29,7 +29,8 @@ SHARED="${LUKOTTA_TMP_ROOT%/lukotta-work}"
 [ -d "$SHARED" ] || { echo "no shared temporary directory to watch" >&2; exit 2; }
 [ "$SHARED" != "$LUKOTTA_TMP_ROOT" ] || { echo "containment did not take" >&2; exit 1; }
 
-before="$(ls -1a "$SHARED" 2>/dev/null | sort)"
+names() { find "$1" -maxdepth 1 -mindepth 1 2>/dev/null | sed 's|.*/||' | sort; }
+before="$(names "$SHARED")"
 
 # A build, because SwiftPM is the largest single source; and a workspace, because
 # the harnesses are the largest by volume.
@@ -37,7 +38,7 @@ swift build --package-path "$HERE" --product Lukotta >/dev/null 2>&1
 work="$(mktemp -d)"
 : > "$work/app.log"
 
-after="$(ls -1a "$SHARED" 2>/dev/null | sort)"
+after="$(names "$SHARED")"
 rm -rf "$work"
 
 new="$(comm -13 <(printf '%s\n' "$before") <(printf '%s\n' "$after"))"
