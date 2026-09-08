@@ -5,9 +5,9 @@
 The role itself is shared: `~/.claude/agents/reviewer.md`, from the workflow repository.
 This file is the part that is only true here, and it wins where the two disagree.
 
-The gate is `./scripts/run-tests.sh`. `swift build -c release --product Lukotta` checks
-that it compiles and is not the gate; `swift test` is not how this project runs its
-tests.
+The gate is `./scripts/run-tests.sh`, **then `./scripts/lint.sh`** - both, as the release
+half states it. `swift build -c release --product Lukotta` checks that it compiles and is
+not the gate; `swift test` is not how this project runs its tests.
 
 CI additionally builds both shipped applications through `./build-app.sh` with
 `LUKOTTA_INSTALL=0 LUKOTTA_SKIP_TESTS=1` and both branding values, smoke-tests them, runs a
