@@ -82,6 +82,10 @@
 # the engine answers "Invalid LVM disk path" to a question nobody asked. Brace
 # the variable: `${P}:root`.
 set -uo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 V="${LUKOTTA_TESTVOLS:-$HOME/.lukotta-testvols}"
 IMG="$V/luks-multi.img"
 ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"

@@ -13,6 +13,10 @@
 # English is written out here rather than kept in the repository, the catalogue
 # already being its home: a second copy is a second thing to drift.
 set -euo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="${1:-$HOME/Desktop/lukotta-translations.zip}"
 STAGE="$(mktemp -d)"

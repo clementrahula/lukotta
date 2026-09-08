@@ -28,6 +28,12 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at
+# later. SwiftPM is the reason this matters here: it leaves a
+# TemporaryDirectory.XXXXXX behind on every single build and takes none back.
+. "$HERE/scripts/tmp-root.sh"
+
 # Everything the trademark covers, in one place. The unbranded identifier uses
 # example.com, reserved by RFC 2606, so it cannot collide with a real vendor and
 # is recognisable as a placeholder.

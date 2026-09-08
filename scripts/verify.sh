@@ -24,6 +24,10 @@
 # registry: a task that proves something adds a row and it is checked from then
 # on, whatever it was about.
 set -uo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 # Job control, so a backgrounded check becomes its own process group leader and
 # can be signalled as a group. Without it `&` starts no new group in a
 # non-interactive shell, and stopping this script leaves the row -- and the
@@ -112,6 +116,11 @@ BEFORE="$(fingerprint)"
 # being stopped. Counted on 2026-09-06: 208 of them under $TMPDIR, 7.6 GB, none
 # belonging to anything running. Each harness cleans its own and none cleans
 # another's, so nobody owned them.
+#
+# This line was here then and swept almost nothing, because the sweep was
+# guessing which names in a shared directory were ours and was wrong 107 times
+# out of 108. It no longer guesses: everything below lands in one directory this
+# project owns, and the sweep empties that.
 bash "$HERE/scripts/sweep-workspaces.sh" 2>/dev/null | sed 's/^/  /'
 
 

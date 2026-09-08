@@ -69,3 +69,4 @@ fullvolume	goal	slow	what a person is told when a volume runs out of room	bash s
 crowdafter	goal	long	twelve volumes killed mid-copy, then opened again	bash scripts/interrupted-then-crowd.sh
 lvmlock	goal	slow	the second volume of a Linux laptop disk opens too	bash scripts/lvm-lock-rule.sh
 nowindow	goal	slow	a dead mount goes on its own, before macOS tells anybody	bash scripts/never-the-interrupted-window.sh
+tmpcontained	integrity	fast	nothing this project makes is left loose in the shared temporary directory	bash scripts/nothing-loose-in-tmp.sh

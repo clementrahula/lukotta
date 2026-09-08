@@ -8,6 +8,10 @@
 # at runtime are taken: the full Homebrew dependency trees are ~60 MB of
 # binaries the engine never invokes on the host.
 set -euo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 # Staged from artefacts fetched and checksummed against vendor/engine.lock
 # rather than from whatever is installed on this machine. Staging from a local

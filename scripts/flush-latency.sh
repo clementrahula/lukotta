@@ -26,6 +26,10 @@
 # The reading is the distribution, never a pass or a fail: a worst case of four
 # seconds is one bad moment from the dialog and looks like success.
 set -uo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 TARGET="${1:-}"
 MB="${2:-500}"
 FILES="${3:-1}"

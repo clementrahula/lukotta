@@ -3,6 +3,10 @@
 # Copyright (C) 2026 Clement Rahula
 # Static checks. Nothing here needs a drive, a network, or Xcode.
 set -uo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 status=0
 

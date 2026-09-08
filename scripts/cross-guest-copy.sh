@@ -56,6 +56,10 @@
 # The comparison is made after a fresh unlock for the same reason the copy is
 # made at all: a byte read back from cache proves the cache works.
 set -uo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 A="${1:-}"; B="${2:-}"
 [ -d "$A" ] && [ -d "$B" ] || { echo "usage: $0 <volume-a> <volume-b>" >&2; exit 2; }
 

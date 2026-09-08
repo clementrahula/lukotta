@@ -133,6 +133,10 @@
 # with $MFTMirr behind $MFT -- readable, every file intact, and read-only until
 # a chkdsk. Match the image being tested, as try_open and close do here.
 set -uo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
 CORPUS="${1:-}"

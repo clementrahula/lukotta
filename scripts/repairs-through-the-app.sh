@@ -23,6 +23,10 @@
 #   ./scripts/repairs-through-the-app.sh
 set -uo pipefail
 
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
+
 OUT="${OUT:-$HOME/.lukotta-testvols}"
 IMAGE="${IMAGE:-drive2.img}"
 CUT_AFTER="${CUT_AFTER:-2}"

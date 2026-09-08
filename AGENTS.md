@@ -1,6 +1,6 @@
 # Notes for Coding Agents
 
-<!-- covers: sources/**, scripts/**, tests/** checked: 2026-09-07 -->
+<!-- covers: sources/**, scripts/**, tests/** checked: 2026-09-08 -->
 
 This file lists the things about Lukotta that mislead: commands that report the
 wrong thing, conventions that differ from the default, and rules that look like
@@ -1342,6 +1342,38 @@ different programs with two different versions. 6.3.0 passed a line that
 603.0.0 refused, so `scripts/lint.sh` said everything was fine and the push
 went red on the same file seconds later. `lint.sh` now prefers the Homebrew
 one; if it is missing, `brew install swift-format` before trusting a local run.
+
+## Everything Temporary Goes in One Directory, and a New Script Must Say So
+
+`$TMPDIR` is shared with the whole Mac, and this project was writing straight
+into it from about a hundred places. Counted on 2026-09-08: 14,328 SwiftPM
+leftovers, 245 harness workspaces holding 1.7 GB, and 18 copies of `ship.sh`.
+None of it belonged to anything running.
+
+`scripts/tmp-root.sh` moves `$TMPDIR` itself into `$TMPDIR/lukotta-work`, and
+every child inherits it -- every `mktemp`, every `swift build`, every
+`NSTemporaryDirectory()` in the app a harness drives. **A new script that makes
+a temporary anything sources it, first thing, under its `set -` line:**
+
+```bash
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
+```
+
+Forgetting is checked rather than remembered: the test
+`everyScriptThatMakesTemporaryThingsContainsThem` fails and names the script.
+
+Two things this makes true that were not. `scripts/sweep-workspaces.sh` empties
+that one directory by age instead of guessing, from a list of marker filenames,
+which `tmp.XXXXXXXX` in a shared directory was ours -- a guess that recognised 1
+of 108 and would have had to become dangerous to do better. And SwiftPM's own
+leak is caught, which nothing here could have fixed at the call site: it leaves
+eighteen `TemporaryDirectory.XXXXXX` behind on a single build, and takes none
+back.
+
+A trap is not a substitute and never was. It does not run when a run is killed,
+which these runs are, constantly. `ship.sh` was the worst case: it `exec`s a
+copy of itself, so the `trap … EXIT` guarding that copy could not fire once, and
+every release ever run left one behind.
 
 <!-- workflow (managed): the shared doctrine. Do not edit between these markers.
      AGENTS.workflow.md is machine-local and deliberately not committed. If you have cloned

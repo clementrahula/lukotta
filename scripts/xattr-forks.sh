@@ -51,6 +51,10 @@
 # `cp` behaves differently and no better: the file arrives, the data fork is
 # byte-identical, and the resource fork is gone without a word.
 set -uo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 MNT="${1:-}"
 [ -d "$MNT" ] || { echo "usage: $0 <mount-point>" >&2; exit 2; }
 

@@ -52,6 +52,10 @@
 #   IMAGE=/dev/disk4s1 ./scripts/writing-does-not-stall.sh   # a real drive
 set -uo pipefail
 
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
+
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$HERE" || exit 1
 OUT="${OUT:-$HOME/.lukotta-testvols}"

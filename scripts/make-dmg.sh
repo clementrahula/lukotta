@@ -10,6 +10,10 @@
 # window says what to do without a word: drag this onto that. Nothing is
 # installed by the image itself, and nothing runs from it.
 set -euo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 APP="$1"
 OUT="$2"
 NAME="$3"

@@ -23,6 +23,10 @@
 #   ./scripts/with-a-drive-open.sh ext4-vectors.img bash scripts/flush-latency.sh
 set -uo pipefail
 
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
+
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$HERE" || exit 1
 OUT="${OUT:-$HOME/.lukotta-testvols}"

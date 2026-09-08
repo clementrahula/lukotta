@@ -30,6 +30,10 @@
 # fixes. vendor-engine.sh records which patches were applied, and the app reads
 # that record rather than assuming.
 set -euo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 LOCK="$HERE/vendor/engine.lock"
 CACHE="${LUKOTTA_ENGINE_CACHE:-$HERE/vendor/.cache}"
