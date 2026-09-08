@@ -14,5 +14,9 @@ CI additionally builds both shipped applications through `./build-app.sh` with
 runs a privacy check over the whole history. A change to the build or to branding is not
 covered by the unit gate alone.
 
-The request host is **github**. This project has no changelog file at its root; if a
-change needs one, ask rather than assuming a path.
+The request host is **github**.
+
+Release notes are `releases/<version>.md`, one file per version including pre-releases -
+not a changelog at the root, which is why looking only there finds nothing.
+`./scripts/check-changelog.py` refuses developer verbs and runs before publication, so a
+note written in commit-subject voice fails rather than shipping.
