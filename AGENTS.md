@@ -1343,7 +1343,10 @@ different programs with two different versions. 6.3.0 passed a line that
 went red on the same file seconds later. `lint.sh` now prefers the Homebrew
 one; if it is missing, `brew install swift-format` before trusting a local run.
 
-<!-- workflow (managed): the shared doctrine. Do not edit between these markers. -->
+<!-- workflow (managed): the shared doctrine. Do not edit between these markers.
+     AGENTS.workflow.md is machine-local and deliberately not committed. If you have cloned
+     this repository it will not be here, the import below will find nothing, and that is
+     correct - everything this project itself requires is in the rest of this file. -->
 
 @AGENTS.workflow.md
 <!-- end workflow (managed) -->
