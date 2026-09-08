@@ -10,9 +10,11 @@ that it compiles and is not the gate; `swift test` is not how this project runs 
 tests.
 
 CI additionally builds both shipped applications through `./build-app.sh` with
-`LUKOTTA_INSTALL=0 LUKOTTA_SKIP_TESTS=1` and both branding values, smoke-tests them, and
-runs a privacy check over the whole history. A change to the build or to branding is not
-covered by the unit gate alone.
+`LUKOTTA_INSTALL=0 LUKOTTA_SKIP_TESTS=1` and both branding values, smoke-tests them, runs a
+privacy check over the whole history, and finishes with `./scripts/lint.sh`. That last one
+is named in this project's release half as part of the gate and has already caught a push
+going red after a local run passed, so a change judged only against `run-tests.sh` has not
+met what CI runs.
 
 The request host is **github**.
 
