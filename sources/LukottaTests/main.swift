@@ -1667,9 +1667,24 @@ group("theSweepsRefuseWhatIsNotTheirs") {
     expect(
         workspaces.contains("mmin +\"$MINUTES\""),
         "it only takes what is older than the bound, so nothing in flight goes")
+    // It used to guess, from a list of marker filenames, which `tmp.XXXXXXXX`
+    // in the shared $TMPDIR was one of ours. Measured on 2026-09-08 against 108
+    // stale workspaces it recognised one, and the 107 it left held 1.65 GB. A
+    // deleter that guesses at names it does not control is wrong in both
+    // directions: it misses ours, and a more generous list would eventually
+    // take somebody else's. So it sweeps one directory nothing else writes to,
+    // and the guard is that it will not sweep any other.
     expect(
-        workspaces.contains("mine \"$dir\" || continue"),
-        "and only what carries a mark one of these harnesses made")
+        workspaces.contains("LUKOTTA_TMP_ROOT"),
+        "it sweeps the root this project contains its temporary things in")
+    expect(
+        workspaces.contains("lukotta-work") && workspaces.contains("refusing to sweep"),
+        "and refuses to sweep anything that is not that root, by name")
+    for shared in ["\"\"", "\"/\"", "\"/tmp\"", "\"/var/tmp\""] {
+        expect(
+            workspaces.contains(shared),
+            "the shared directory \(shared) is refused by name")
+    }
 
     let drive =
         String(
@@ -1687,6 +1702,55 @@ group("theSweepsRefuseWhatIsNotTheirs") {
     expect(
         !drive.contains("rm -rf \"$POINT\"") && !drive.contains("rm -rf \"${POINT}\""),
         "it never removes the mount point itself, only things inside it")
+}
+
+group("everyScriptThatMakesTemporaryThingsContainsThem") {
+    // The containment is only as good as its coverage, and coverage is the part
+    // that rots: the next harness written here will reach for `mktemp -d`
+    // because every other one does, and nothing about that line says it has to
+    // be contained first. So the coverage is checked rather than remembered.
+    //
+    // Counted on 2026-09-08, before this existed: 14,328 SwiftPM leftovers, 245
+    // harness workspaces holding 1.7 GB, and 18 copies of ship.sh -- all of it
+    // loose in a $TMPDIR shared with the whole Mac.
+    let fm = FileManager.default
+    let root = "scripts/tmp-root.sh"
+    expect(fm.fileExists(atPath: root), "the containment is there to source")
+
+    func text(_ path: String) -> String {
+        String(data: fm.contents(atPath: path) ?? Data(), encoding: .utf8) ?? ""
+    }
+
+    // Anything that makes a temporary thing, or runs something that does.
+    // SwiftPM is in this list for the second reason: it leaves a
+    // TemporaryDirectory.XXXXXX behind on every build and takes none back.
+    let reaches = ["mktemp", "TMPDIR", "swift build", "swift run", "swift-format"]
+    var scripts = ["build-app.sh"]
+    scripts += ((try? fm.contentsOfDirectory(atPath: "scripts")) ?? [])
+        .filter { $0.hasSuffix(".sh") }
+        .map { "scripts/\($0)" }
+        .sorted()
+
+    var unguarded: [String] = []
+    for script in scripts where script != root {
+        let body = text(script)
+        guard reaches.contains(where: { body.contains($0) }) else { continue }
+        if !body.contains("tmp-root.sh") { unguarded.append(script) }
+    }
+    expect(
+        unguarded.isEmpty,
+        "every script that makes temporary things sources the containment first"
+            + (unguarded.isEmpty ? "" : ", but these do not: \(unguarded.joined(separator: ", "))"))
+
+    // And the containment moves $TMPDIR rather than merely naming a directory
+    // beside it: moving it is what makes every child inherit it without being
+    // told -- the mktemp in a harness, the swift build under it, and
+    // NSTemporaryDirectory() inside the app those harnesses drive.
+    let containment = text(root)
+    expect(containment.contains("export TMPDIR"), "it exports TMPDIR, so children inherit it")
+    expect(
+        containment.contains("lukotta-work"),
+        "and the root has a name the sweep can refuse everything else against")
 }
 
 group("aStickThatIsStillAnInstallerSaysSo") {

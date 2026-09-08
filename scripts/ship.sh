@@ -42,6 +42,12 @@ else
 fi
 cd "$HERE"
 
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+# Named rather than relative: below this, this script runs from a copy of itself
+# that does not live in the repository.
+. "$HERE/scripts/tmp-root.sh"
+
 # Run from a copy of itself, always.
 #
 # bash reads a script from the file as it goes, at a byte offset. Editing the
@@ -63,8 +69,20 @@ cd "$HERE"
 if [ "${LUKOTTA_SHIP_COPY:-0}" != "1" ]; then
   __copy="$(/usr/bin/mktemp -t lukotta-ship)"
   cp "$HERE/scripts/ship.sh" "$__copy"
-  trap 'rm -f "$__copy"' EXIT
-  LUKOTTA_SHIP_COPY=1 LUKOTTA_SHIP_HERE="$HERE" exec bash "$__copy" "$@"
+  # The copy is told where it is, and takes itself away. There was a
+  # `trap 'rm -f "$__copy"' EXIT` here and it could never have fired once:
+  # `exec` replaces this shell, so this shell has no exit to trap. Every
+  # release since the copy was introduced left an 18 KB lukotta-ship.XXXXXXXX
+  # behind, and eighteen of them were still there on 2026-09-08.
+  LUKOTTA_SHIP_COPY=1 LUKOTTA_SHIP_HERE="$HERE" LUKOTTA_SHIP_FILE="$__copy" \
+    exec bash "$__copy" "$@"
+fi
+
+# Running from the copy: take it away on the way out, however this ends. A kill
+# still outruns a trap, which is the other half of why the copy is made inside
+# the contained root -- the sweep takes what a killed run leaves.
+if [ -n "${LUKOTTA_SHIP_FILE:-}" ]; then
+  trap 'rm -f "$LUKOTTA_SHIP_FILE"' EXIT
 fi
 
 CHANNEL="${1:-beta}"

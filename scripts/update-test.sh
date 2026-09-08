@@ -25,6 +25,10 @@
 # Beta only. It never touches the released app, its helper, its settings or its
 # saved passphrases.
 set -euo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$HERE"
 

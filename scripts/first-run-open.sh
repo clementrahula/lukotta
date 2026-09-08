@@ -16,6 +16,10 @@
 # every silent build earns -- including the one this was first run against,
 # which had no --drive at all and printed nothing.
 set -uo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 # Which bundle, taken from the engine like every other harness here.
 #
 # This named the dev bundle and nothing else, so on a Mac without one it

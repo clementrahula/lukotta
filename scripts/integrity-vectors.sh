@@ -99,6 +99,10 @@
 # needs.
 set -uo pipefail
 
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
+
 IMAGE="${1:-}"
 # The same default as vectors-every-format.sh, which calls this. They
 # disagreed: that one named the Beta build and this one a Dev build, and a

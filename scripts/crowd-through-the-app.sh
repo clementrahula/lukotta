@@ -30,6 +30,10 @@
 # installed -- see the note in dirty-ntfs-repair.sh about a channel with none.
 set -uo pipefail
 
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
+
 OUT="${1:-$HOME/.lukotta-testvols}"
 COUNT="${COUNT:-12}"
 ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"

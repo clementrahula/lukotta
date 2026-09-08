@@ -5169,11 +5169,40 @@ thousand small files for a Finder cycle -- and removes them from a trap that
 does not run when the run is killed. Two scripts own that now, and the gate
 calls the first before it starts:
 
-    scripts/sweep-workspaces.sh   the mktemp workspaces under $TMPDIR
+    scripts/sweep-workspaces.sh   the workspaces under $TMPDIR
     scripts/sweep-drive.sh        this project's names on a mounted drive
 
 Found and taken back on the day they were written: 208 workspaces, 7.6 GB, and
 105 MB of payloads spread across two of the drives.
+
+**And the sweep was recognising almost none of them — 2026-09-08.** It worked by
+guessing: it looked at every `tmp.XXXXXXXX` in the shared `$TMPDIR` and matched
+a list of marker filenames to decide which were ours. Counted against 108 stale
+workspaces, it recognised **one**. The 107 it walked past held 1.65 GB and were
+unmistakably this project's — `app.log`, `full.err`, `mnt`, `src`,
+`dittoCROWD*.log`, `before.sums`, `.chosen-volume` — and not one of those names
+was on the list. Nobody had noticed, because a sweep that reports "nothing to
+sweep" reads exactly like a directory that is clean.
+
+Extending the list was the obvious repair and is the wrong one: the next harness
+to write a new filename escapes it again, and a list generous enough to catch
+everything of ours eventually takes somebody else's work out of a directory
+shared with the whole Mac. A deleter that guesses at names it does not control
+is wrong by construction.
+
+The same count found what nobody was looking for at all: **14,328**
+`TemporaryDirectory.XXXXXX` directories, which is SwiftPM's own leak — it leaves
+eighteen behind on a single `swift build` and takes none back — and eighteen
+copies of `ship.sh`, one per release ever run, left by a `trap … EXIT` that
+`exec` had guaranteed could never fire.
+
+So the guessing is gone. `scripts/tmp-root.sh` moves `$TMPDIR` itself into
+`$TMPDIR/lukotta-work` at the top of a run, and every child inherits it: every
+`mktemp`, every `swift build`, every `NSTemporaryDirectory()` in the app the
+harnesses drive. The sweep empties that one directory by age and cannot be wrong
+about whose it was, because nothing else on the Mac writes there. Measured after:
+a full test run left eighteen SwiftPM directories, all eighteen inside the root,
+none loose. `scripts/nothing-loose-in-tmp.sh` is the row that keeps it true.
 
 ## 215 GB deleted through the app, and nothing was said — 2026-09-06
 

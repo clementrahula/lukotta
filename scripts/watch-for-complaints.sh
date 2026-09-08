@@ -47,6 +47,10 @@
 # pretend a silent one is a clean one.
 set -uo pipefail
 
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
+
 if [ "${1:-}" = "--probe" ]; then
   echo "checking the kernel channel is open before trusting a zero…"
   n=$(timeout 12 log stream --style compact --predicate 'process == "kernel"' \

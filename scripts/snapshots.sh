@@ -11,6 +11,10 @@
 # Recording is deliberately a separate command. A harness that quietly updates
 # its own baselines reports success no matter what it drew.
 set -euo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 BASELINE="$HERE/tests/snapshots"
 # The unbranded build, always. The header draws the app's own name and icon,

@@ -96,6 +96,10 @@
 # orders reads against a wall of writes -- an I/O scheduler question -- and not
 # to the export, the thread pool, or the filesystem driver.
 set -uo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 IMAGE="${1:-}"
 THREADS="${2:-8}"
 SECONDS_TO_RUN="${3:-420}"

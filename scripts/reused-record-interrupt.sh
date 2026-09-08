@@ -35,6 +35,10 @@
 #   ROUNDS=3 IMAGE=drive3.img ./scripts/reused-record-interrupt.sh
 set -uo pipefail
 
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
+
 OUT="${OUT:-$HOME/.lukotta-testvols}"
 IMAGE="${IMAGE:-drive2.img}"
 ROUNDS="${ROUNDS:-2}"

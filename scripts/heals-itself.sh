@@ -31,6 +31,10 @@
 # and the program that unpacks the image keeps to the directory it is given:
 # 196 checks, none failed, and the shared directory still not created.
 set -uo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 # Whichever installed bundle answers --drive, newest first, and the dev one by
 # name if nothing does. Naming a bundle means testing whatever happens to be
 # installed under that name -- including the app the owner runs, whose published

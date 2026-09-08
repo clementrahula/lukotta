@@ -84,6 +84,10 @@
 # the run that finally failed had gone further than two that had succeeded.
 set -uo pipefail
 
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
+
 TARGET="${1:-}"
 CYCLES="${2:-3}"
 [ -n "$TARGET" ] && [ -d "$TARGET" ] || {

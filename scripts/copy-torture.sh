@@ -47,6 +47,10 @@
 # would call it a pass.
 set -euo pipefail
 
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
+
 TARGET="${1:-}"
 [ -n "$TARGET" ] || { echo "usage: $0 <mounted-volume>" >&2; exit 2; }
 [ -d "$TARGET" ] || { echo "error: $TARGET is not a directory" >&2; exit 2; }

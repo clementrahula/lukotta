@@ -172,6 +172,10 @@
 # the wait and halves the copy speed is not a win, and this goal will not take
 # one number without the other.
 set -uo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 IMAGE="${1:-}"
 NR="${2:-256}"
 SECONDS_TO_RUN="${3:-180}"
