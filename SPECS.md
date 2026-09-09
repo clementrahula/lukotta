@@ -1,6 +1,6 @@
 # Specifications
 
-<!-- covers: sources/** checked: 2026-09-07 -->
+<!-- covers: sources/** checked: 2026-09-09 -->
 
 What Lukotta opens, how it opens it, and what it does not.
 

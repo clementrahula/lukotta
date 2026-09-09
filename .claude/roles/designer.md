@@ -1,6 +1,6 @@
 # designer, in this project
 
-<!-- covers: build-app.sh, scripts/vendor-engine.sh checked: 2026-09-07 -->
+<!-- covers: build-app.sh, scripts/vendor-engine.sh checked: 2026-09-09 -->
 
 This project's half of the `designer` brief. The role itself lives outside this
 repository; if you have cloned this project it will not be here, and nothing below

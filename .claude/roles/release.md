@@ -1,6 +1,6 @@
 # release, in this project
 
-<!-- covers: scripts/ship.sh, scripts/release.sh, build-app.sh checked: 2026-09-07 -->
+<!-- covers: scripts/ship.sh, scripts/release.sh, build-app.sh checked: 2026-09-09 -->
 
 This project's half of the `release` brief. The role itself lives outside this
 repository; if you have cloned this project it will not be here, and nothing below
