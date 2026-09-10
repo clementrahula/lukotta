@@ -1,4 +1,4 @@
-- Att radera en mapp på en BitLocker-enhet avbryts inte längre med meddelandet att vissa objekt måste hoppas över: varje fil försvinner, hur många de än är.
+- Att radera en mapp på en BitLocker-enhet avbryts inte längre med meddelandet att vissa objekt måste hoppas över.
 - Att avbryta en kopiering till en enhet lämnar inte längre tomma filer kvar.
 - Att kopiera och radera många små filer på en enhet går snabbare.
-- Stora kopieringar till en BitLocker-enhet väntar inte längre på att varje skrivning når enheten innan nästa skickas.
+- Stora kopieringar till en BitLocker-enhet väntar inte längre på att varje skrivning når enheten.

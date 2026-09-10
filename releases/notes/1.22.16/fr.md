@@ -1,4 +1,4 @@
-- Supprimer un dossier sur un disque BitLocker ne s'arrête plus en indiquant que certains éléments ont dû être ignorés : chaque fichier disparaît, quel qu'en soit le nombre.
+- Supprimer un dossier sur un disque BitLocker ne s'arrête plus en indiquant que certains éléments ont dû être ignorés.
 - Annuler une copie vers un disque ne laisse plus de fichiers vides derrière elle.
 - Copier et supprimer de nombreux petits fichiers sur un disque est plus rapide.
-- Les copies volumineuses vers un disque BitLocker n'attendent plus que chaque écriture atteigne le disque avant d'envoyer la suivante.
+- Les copies volumineuses vers un disque BitLocker n'attendent plus que chaque écriture atteigne le disque.

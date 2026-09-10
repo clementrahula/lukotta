@@ -1,4 +1,4 @@
-- Das Löschen eines Ordners auf einem BitLocker-Laufwerk bricht nicht mehr mit der Meldung ab, einige Objekte hätten übersprungen werden müssen: Jede Datei wird gelöscht, egal wie viele es sind.
+- Das Löschen eines Ordners auf einem BitLocker-Laufwerk bricht nicht mehr mit der Meldung ab, einige Objekte hätten übersprungen werden müssen.
 - Wird eine Kopie auf ein Laufwerk abgebrochen, bleiben keine leeren Dateien mehr zurück.
 - Viele kleine Dateien lassen sich auf einem Laufwerk schneller kopieren und löschen.
-- Große Kopien auf ein BitLocker-Laufwerk warten nicht mehr darauf, dass jeder Schreibvorgang das Laufwerk erreicht, bevor der nächste gesendet wird.
+- Große Kopien auf ein BitLocker-Laufwerk warten nicht mehr darauf, dass jeder Schreibvorgang das Laufwerk erreicht.

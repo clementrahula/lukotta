@@ -1,4 +1,4 @@
-- Kansion poistaminen BitLocker-asemalta ei enää pysähdy ilmoitukseen, että joitakin kohteita jouduttiin ohittamaan: jokainen tiedosto poistuu, oli niitä kuinka monta tahansa.
+- Kansion poistaminen BitLocker-asemalta ei enää pysähdy ilmoitukseen, että joitakin kohteita jouduttiin ohittamaan.
 - Asemalle tehdyn kopioinnin peruminen ei enää jätä jälkeensä tyhjiä tiedostoja.
 - Monien pienten tiedostojen kopiointi ja poistaminen asemalla on nopeampaa.
-- Suuret kopioinnit BitLocker-asemalle eivät enää odota, että jokainen kirjoitus ehtii asemalle ennen seuraavan lähettämistä.
+- Suuret kopioinnit BitLocker-asemalle eivät enää odota, että jokainen kirjoitus ehtii asemalle.

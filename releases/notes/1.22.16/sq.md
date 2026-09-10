@@ -1,4 +1,4 @@
-- Fshirja e një dosjeje në një disk BitLocker nuk ndalet më me mesazhin se disa elemente duhej të anashkaloheshin: fshihet çdo skedar, sado shumë të jenë.
+- Fshirja e një dosjeje në një disk BitLocker nuk ndalet më me mesazhin se disa elemente duhej të anashkaloheshin.
 - Anulimi i një kopjimi në një disk nuk lë më pas skedarë bosh.
 - Kopjimi dhe fshirja e shumë skedarëve të vegjël në një disk janë më të shpejta.
-- Kopjimet e mëdha në një disk BitLocker nuk presin më që çdo shkrim të arrijë në disk para se të dërgojnë tjetrin.
+- Kopjimet e mëdha në një disk BitLocker nuk presin më që çdo shkrim të arrijë në disk.

@@ -1,4 +1,4 @@
-- BitLocker sürücüsündeki bir klasörü silmek artık bazı öğelerin atlanması gerektiği mesajıyla durmuyor: kaç tane olursa olsun her dosya siliniyor.
+- BitLocker sürücüsündeki bir klasörü silmek artık bazı öğelerin atlanması gerektiği mesajıyla durmuyor.
 - Bir sürücüye yapılan kopyalamayı iptal etmek artık geride boş dosyalar bırakmıyor.
 - Bir sürücüde çok sayıda küçük dosyayı kopyalamak ve silmek daha hızlı.
-- BitLocker sürücüsüne yapılan büyük kopyalamalar artık bir sonrakini göndermeden önce her yazmanın sürücüye ulaşmasını beklemiyor.
+- BitLocker sürücüsüne yapılan büyük kopyalamalar artık her yazmanın sürücüye ulaşmasını beklemiyor.

@@ -1,4 +1,4 @@
-- Hindi na humihinto ang pagbura ng folder sa BitLocker drive na may mensaheng kinailangang laktawan ang ilang item: nabubura ang bawat file, gaano man karami.
+- Hindi na humihinto ang pagbura ng folder sa BitLocker drive na may mensaheng kinailangang laktawan ang ilang item.
 - Hindi na nag-iiwan ng mga walang lamang file ang pagkansela ng pagkopya sa isang drive.
 - Mas mabilis na ang pagkopya at pagbura ng maraming maliliit na file sa isang drive.
-- Hindi na hinihintay ng malalaking pagkopya sa BitLocker drive na maabot ng bawat pagsulat ang drive bago ipadala ang susunod.
+- Hindi na hinihintay ng malalaking pagkopya sa BitLocker drive na maabot ng bawat pagsulat ang drive.

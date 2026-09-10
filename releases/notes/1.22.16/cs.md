@@ -1,4 +1,4 @@
-- Mazání složky na disku BitLocker se už nezastaví hlášením, že některé položky musely být přeskočeny: zmizí každý soubor, ať jich je kolik chce.
+- Mazání složky na disku BitLocker se už nezastaví hlášením, že některé položky musely být přeskočeny.
 - Zrušení kopírování na disk už nezanechá prázdné soubory.
 - Kopírování a mazání mnoha malých souborů na disku je rychlejší.
-- Velká kopírování na disk BitLocker už nečekají, až každý zápis dorazí na disk, než pošlou další.
+- Velká kopírování na disk BitLocker už nečekají, až každý zápis dorazí na disk.

@@ -1,4 +1,4 @@
-- Aplanko trynimas BitLocker diske nebesustoja su pranešimu, kad kai kuriuos elementus teko praleisti: ištrinamas kiekvienas failas, kad ir kiek jų būtų.
+- Aplanko trynimas BitLocker diske nebesustoja su pranešimu, kad kai kuriuos elementus teko praleisti.
 - Atšaukus kopijavimą į diską, nebelieka tuščių failų.
 - Daug mažų failų diske kopijuojama ir trinama greičiau.
-- Dideli kopijavimai į BitLocker diską nebelaukia, kol kiekvienas įrašas pasieks diską, prieš siųsdami kitą.
+- Dideli kopijavimai į BitLocker diską nebelaukia, kol kiekvienas įrašas pasieks diską.

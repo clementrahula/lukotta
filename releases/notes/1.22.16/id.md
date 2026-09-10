@@ -1,4 +1,4 @@
-- Menghapus folder di drive BitLocker tidak lagi berhenti dengan pesan bahwa beberapa item harus dilewati: setiap file terhapus, berapa pun jumlahnya.
+- Menghapus folder di drive BitLocker tidak lagi berhenti dengan pesan bahwa beberapa item harus dilewati.
 - Membatalkan penyalinan ke drive tidak lagi meninggalkan file kosong.
 - Menyalin dan menghapus banyak file kecil di drive kini lebih cepat.
-- Penyalinan besar ke drive BitLocker tidak lagi menunggu setiap penulisan sampai ke drive sebelum mengirim yang berikutnya.
+- Penyalinan besar ke drive BitLocker tidak lagi menunggu setiap penulisan sampai ke drive.
