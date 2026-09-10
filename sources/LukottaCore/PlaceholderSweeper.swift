@@ -116,10 +116,13 @@ public final class PlaceholderSweeper: @unchecked Sendable {
     /// every placeholder of a running copy published, so one that is not, and
     /// has not changed for a while, belongs to a copy that has stopped.
     private func sweepAbandoned(in folder: String, looksLeft: Int) {
-        let keys: [URLResourceKey] = [.isRegularFileKey, .fileSizeKey, .attributeModificationDateKey]
+        let keys: [URLResourceKey] = [
+            .isRegularFileKey, .fileSizeKey, .attributeModificationDateKey,
+        ]
         guard
             let entries = try? FileManager.default.contentsOfDirectory(
-                at: URL(fileURLWithPath: folder, isDirectory: true), includingPropertiesForKeys: keys)
+                at: URL(fileURLWithPath: folder, isDirectory: true),
+                includingPropertiesForKeys: keys)
         else { return }
         let cutoff = Date().addingTimeInterval(-Self.abandoned)
         var tooRecent = false

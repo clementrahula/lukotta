@@ -2644,7 +2644,26 @@ final class AppModel: ObservableObject {
 
     /// Where a drive is open, if it is, so that the drive list can report its
     /// state without navigating away.
-    @Published var openMounts: [String: String] = [:]
+    @Published var openMounts: [String: String] = [:] {
+        didSet { sweepPlaceholders(on: Set(openMounts.values)) }
+    }
+
+    /// One for each open volume, clearing away what a stopped Finder copy
+    /// leaves: every mount, eject, unplug and adoption at launch passes through
+    /// `openMounts`.
+    private var placeholderSweepers: [String: PlaceholderSweeper] = [:]
+
+    private func sweepPlaceholders(on points: Set<String>) {
+        for (point, sweeper) in placeholderSweepers where !points.contains(point) {
+            sweeper.stop()
+            placeholderSweepers[point] = nil
+        }
+        for point in points where placeholderSweepers[point] == nil {
+            let sweeper = PlaceholderSweeper(root: point)
+            sweeper.start()
+            placeholderSweepers[point] = sweeper
+        }
+    }
 
     func mountPoint(for drive: Drive) -> String? {
         if let direct = openMounts[drive.devicePath] { return direct }

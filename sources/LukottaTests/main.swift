@@ -6622,6 +6622,66 @@ group("readOnlyIsBothSidesOfTheConnection") {
         "a read-write mount marks it only where the fallback was what opened it")
 }
 
+group("aStoppedCopyLeavesNoEmptyFiles") {
+    // Finder makes every file of a copy before it writes any: empty, marked
+    // "brok" "MACS" in its FinderInfo. Those it had not reached when the copy
+    // stopped are removed. A finished file, somebody's own empty file and a
+    // file marked as anything else are not.
+    let fm = FileManager.default
+    let temp = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appendingPathComponent("lukotta-placeholders-\(UUID().uuidString)", isDirectory: true)
+    try! fm.createDirectory(at: temp, withIntermediateDirectories: true)
+    defer { try? fm.removeItem(at: temp) }
+
+    func make(_ name: String, contents: [UInt8] = [], finderInfo: String? = nil) -> String {
+        let path = temp.appendingPathComponent(name).path
+        fm.createFile(atPath: path, contents: Data(contents))
+        if let finderInfo {
+            var info =
+                Array(finderInfo.utf8) + [UInt8](repeating: 0, count: 32 - finderInfo.utf8.count)
+            setxattr(path, "com.apple.FinderInfo", &info, info.count, 0, 0)
+        }
+        return path
+    }
+
+    let placeholder = make("placeholder.bin", finderInfo: "brokMACS")
+    let finished = make("finished.bin", contents: [1, 2, 3], finderInfo: "brokMACS")
+    let ownEmpty = make("empty.txt")
+    let otherType = make("typed.txt", finderInfo: "TEXTttxt")
+    expect(
+        PlaceholderSweeper.isPlaceholder(atPath: placeholder),
+        "an empty file marked brok MACS is one")
+    expect(
+        !PlaceholderSweeper.isPlaceholder(atPath: finished), "a marked file with data in it is not")
+    expect(
+        !PlaceholderSweeper.isPlaceholder(atPath: ownEmpty), "an empty file without the mark is not"
+    )
+    expect(
+        !PlaceholderSweeper.isPlaceholder(atPath: otherType),
+        "nor an empty file marked as anything else")
+
+    expect(PlaceholderSweeper.removeIfPlaceholder(placeholder), "a placeholder is removed")
+    expect(!fm.fileExists(atPath: placeholder), "and is gone")
+    for path in [finished, ownEmpty, otherType] {
+        expect(!PlaceholderSweeper.removeIfPlaceholder(path), "anything else is not removed")
+        expect(fm.fileExists(atPath: path), "and is still there")
+    }
+
+    // On NFS the FinderInfo lives in an AppleDouble companion, which goes with
+    // the placeholder; a file that only looks like one by name stays.
+    let paired = make("paired.bin", finderInfo: "brokMACS")
+    let companion = make("._paired.bin", contents: [0x00, 0x05, 0x16, 0x07, 0x00, 0x02])
+    let lookalike = make("lookalike.bin", finderInfo: "brokMACS")
+    let notAppleDouble = make("._lookalike.bin", contents: Array("notes".utf8))
+    expect(
+        PlaceholderSweeper.removeIfPlaceholder(paired), "a placeholder with a companion is removed")
+    expect(!fm.fileExists(atPath: companion), "and its AppleDouble companion with it")
+    expect(
+        PlaceholderSweeper.removeIfPlaceholder(lookalike),
+        "a placeholder beside a lookalike is removed")
+    expect(fm.fileExists(atPath: notAppleDouble), "and the file that is not AppleDouble stays")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")
