@@ -412,14 +412,26 @@ This is the half `krun-devices-raw-device-flush.patch` left visible: that one
 makes the host honour the guest's flush, and this one makes the guest flush
 before it answers.
 
-**Change.** On an export that asks for sync writes, `nfsd_commit()` fsyncs the
-whole file rather than the client's range and, when that succeeds, syncs the
-file's filesystem exactly as `syncfs(2)` does: `sync_filesystem()` with
-`s_umount` held for reading. An error from either goes through the switch that
-was already there, so a failed sync still resets the write verifier and the
-client writes again. The clamp of the client's range to `s_maxbytes` goes, with
-nothing left to feed. What it costs is a sync of the whole volume on every
-COMMIT, which has not been measured.
+**Change.** `nfsd_commit()` syncs the file's filesystem whatever the export
+asks for, exactly as `syncfs(2)` does: `sync_filesystem()` with `s_umount` held
+for reading. It then flushes the device, so what the sync wrote is behind the
+barrier and not only in the drive's cache, and checks the superblock's
+writeback error as `syncfs(2)` does. A failure goes through the switch that was
+already there, so it still resets the write verifier and the client writes
+again. The clamp of the client's range to `s_maxbytes` goes, with nothing left
+to feed.
+
+Two more changes keep an async export as durable as a sync one wherever an
+application could tell. nfsd turned a stable write unstable on an async export
+and told the client it was stable, so a client writing synchronously sent no
+COMMIT at all; a stable write is now written through on any export. And
+`commit_metadata()` does nothing on an async export, which answered a rename
+before it was on the drive; a rename on an async export now syncs the
+filesystem the same way, once its locks are dropped. A create, remove or
+attribute change is still answered first, and is on the drive by the next
+COMMIT or rename. The read-only parameter `nfsd.commit_is_durable` says a
+kernel has all of this, and `vmproxy-writes-commit-at-commit.patch` exports
+async only where it finds it.
 
 **The kernel it applies to.** Not libkrunfw's own. anylinuxfs 0.19.0 takes
 its `libexec/Image` from the `v6.12.62-rev1` release of `nohajc/libkrunfw`, a
@@ -430,15 +442,17 @@ config is byte for byte what the guest reports in `/proc/config.gz`; it is
 kept here as `linux-6.12.62-guest.config`. `scripts/build-guest-kernel.sh`
 rebuilds that kernel from those pins, applies this patch after the fork's
 twenty-three, and refuses to write an Image if olddefconfig moves a line of the
-config, if the config embedded in the result is not that config, or if
-`nfsd_commit` in the result does not call `sync_filesystem`. It applies the
-patches it names, not every `linux-*` file here.
+config, if the config embedded in the result is not that config, or if the
+result lacks a call one of its patches adds: `nfsd_commit` and `nfsd_rename`
+reaching the filesystem sync, and `ni_remove_name` keeping the names it
+removes. It applies the patches it names, not every `linux-*` file here, and
+writes their names to `Image.patches` beside the Image, for `vendor-engine.sh`
+to add to the record.
 
-**Verification.** Built on 2026-09-10 in the pinned bookworm container with
-ten jobs, `make Image` in 140 s. olddefconfig changed nothing, the config
-embedded in the result is the pinned one byte for byte, and the Image's own
-instructions show `nfsd_commit` calling `vfs_fsync_range` with 0 and
-`LLONG_MAX`, then `sync_filesystem` between `down_read` and `up_read`.
+**Verification.** Built on 2026-09-11 in the pinned bookworm container with
+ten jobs, `make Image` in 145 s, with no warning from a patched file.
+olddefconfig changed nothing, the config embedded in the result is the pinned
+one byte for byte, and every call the patches add is in the Image.
 
 Built without this patch and named as the fork names it, the result is not the
 shipped Image byte for byte, and one thing accounts for all of it: the kernel
@@ -449,8 +463,43 @@ carries a `zfs_config.h` configured for userspace too. With that archive put in
 place of this build's and the kernel relinked, the result is identical to the
 shipped Image. Everything else about the recipe is the original.
 
-No guest has booted this kernel yet, and the COMMIT it changes has not been
-measured on a drive.
+## linux-ntfs3-readdir-survives-deletion.patch
 
-**Not yet shipped.** `vendor-engine.sh` still takes the bottle's Image.
+**Defect.** Finder deletes a folder as it lists it, and on a BitLocker drive it
+stopped with "The operation can't be completed because some items had to be
+skipped", leaving files behind. ntfs3 hands out readdir positions that are
+byte offsets inside an index block and walks the blocks in the order they lie
+on disk. Removing an entry moves the ones after it down, and rebalancing moves
+entries between blocks, so a position handed out before a removal points past
+entries nobody has read. A first fix restarted the listing after any removal,
+which handed Finder entries it had already removed, and it stopped with the
+same message on removing one twice.
+
+**Change.** A position names the entry the listing goes on from: bit 62 set, a
+30-bit hash of its name, and its MFT record number. The listing walks the index
+in name order, and to go on from a position it looks the name up again: in the
+inode when that is in memory, in the MFT record read directly when not, and,
+when the entry has been removed since, among the last 4096 names removed from
+that directory, which each directory now keeps. The record is read rather than
+the inode made, because `ntfs_iget5()` given a stale sequence number marks a
+live inode bad. Whatever was created or removed meanwhile, nothing is skipped
+and nothing comes twice. Only a position older than 4096 removals is lost; that
+is logged, and the listing starts again. The index is walked by this patch's
+own code, since `indx_find_sort()` reads a subnode into the node it came from
+and frees nodes without their buffers. Directories get an llseek that accepts
+positions past `s_maxbytes`.
+
+## vmproxy-writes-commit-at-commit.patch
+
+**Defect.** A sync export makes nfsd sync every create, remove and attribute
+change before answering it: 29 ms a create and 10 ms a remove on the BitLocker
+test drive, against none with the export async. That is the whole cost of
+copying many small files, of deleting a folder, and of Finder clearing up a
+cancelled copy.
+
+**Change.** The export is async when `/sys/module/nfsd/parameters/commit_is_durable`
+exists, which only a kernel with `linux-nfsd-commit-is-durable.patch` has, and
+sync otherwise, so a guest booted with the stock `Image-4K` an f2fs volume gets
+is exported as before. The options chosen are printed to the engine log.
+`vendor-engine.sh` also refuses to package this patch without the kernel's.
 
