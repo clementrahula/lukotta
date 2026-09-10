@@ -21,9 +21,9 @@ public final class PlaceholderSweeper: @unchecked Sendable {
     static let settle: TimeInterval = 1
     /// How long a placeholder nobody publishes must stay unchanged before it
     /// counts as one a stopped copy abandoned. A new subscription is told of
-    /// every progress already published at once, so a running copy's
-    /// placeholders are known by the first look.
-    static let abandoned: TimeInterval = 3
+    /// every progress already published once the app's main thread is free,
+    /// which can take seconds, so this waits well past that.
+    static let abandoned: TimeInterval = 10
     /// The most entries of one folder looked at for those.
     static let scanLimit = 10_000
 
@@ -118,7 +118,7 @@ public final class PlaceholderSweeper: @unchecked Sendable {
         let serial = serials
         let url = URL(fileURLWithPath: folder, isDirectory: true)
         let token = Progress.addSubscriber(forFileURL: url) { [weak self] progress in
-            guard let self, let path = Self.path(of: progress) else { return nil }
+            guard let self, let path = Self.path(of: progress, in: folder) else { return nil }
             self.queue.async {
                 // Late from a subscription since removed: nothing to record.
                 guard self.isCurrent(serial, for: path) else { return }
@@ -126,15 +126,16 @@ public final class PlaceholderSweeper: @unchecked Sendable {
                 self.published[path] = serial
             }
             return { [weak self] in
-                // Read as it is withdrawn: a file the copy reached says so.
-                let reached = progress.completedUnitCount > 0
-                self?.withdrawn(path, reached: reached, serial: serial)
+                // Read as it is withdrawn: Finder reports a file it never
+                // reached as -1, and one it started or finished as 0 or more.
+                let untouched = progress.completedUnitCount < 0
+                self?.withdrawn(path, untouched: untouched, serial: serial)
             }
         }
         folders.append((folder, token, serial))
         evictIdleFolder()
         queue.asyncAfter(deadline: .now() + Self.settle) { [weak self] in
-            self?.lookForAbandoned(in: folder, earlier: [:], looksLeft: 3)
+            self?.lookForAbandoned(in: folder, serial: serial, earlier: [:], looksLeft: 3)
         }
     }
 
@@ -155,10 +156,10 @@ public final class PlaceholderSweeper: @unchecked Sendable {
     /// A withdrawal counts only from the subscription that is current for
     /// its folder: one that was removed, even if the folder is watched again
     /// since, withdraws everything it saw and says nothing about a copy.
-    private func withdrawn(_ path: String, reached: Bool, serial: Int) {
+    private func withdrawn(_ path: String, untouched: Bool, serial: Int) {
         queue.async {
             if self.published[path] == serial { self.published[path] = nil }
-            guard self.isCurrent(serial, for: path), !self.stopped, !reached,
+            guard self.isCurrent(serial, for: path), !self.stopped, untouched,
                 let stamp = Self.changeStamp(path)
             else { return }
             let seen = self.generation[path, default: 0]
@@ -184,11 +185,13 @@ public final class PlaceholderSweeper: @unchecked Sendable {
     /// every placeholder of a running copy published, so one that nobody
     /// publishes and that has not changed between two looks `abandoned` apart
     /// belongs to a copy that has stopped.
-    private func lookForAbandoned(in folder: String, earlier: [String: ChangeStamp], looksLeft: Int)
-    {
-        // A folder no longer watched has no subscription telling a running
-        // copy's placeholders apart, so nothing in it is judged.
-        guard !stopped, folders.contains(where: { $0.path == folder }) else { return }
+    private func lookForAbandoned(
+        in folder: String, serial: Int, earlier: [String: ChangeStamp], looksLeft: Int
+    ) {
+        // Only for the subscription that is current: without it nothing tells
+        // a running copy's placeholders apart.
+        guard !stopped, folders.contains(where: { $0.path == folder && $0.serial == serial })
+        else { return }
         var unsure: [String: ChangeStamp] = [:]
         for path in Self.emptyFiles(in: folder)
         where published[path] == nil && Self.isPlaceholder(atPath: path) {
@@ -204,18 +207,21 @@ public final class PlaceholderSweeper: @unchecked Sendable {
         }
         if !unsure.isEmpty, looksLeft > 1 {
             queue.asyncAfter(deadline: .now() + Self.abandoned) { [weak self] in
-                self?.lookForAbandoned(in: folder, earlier: unsure, looksLeft: looksLeft - 1)
+                self?.lookForAbandoned(
+                    in: folder, serial: serial, earlier: unsure, looksLeft: looksLeft - 1)
             }
         }
     }
 
-    /// The file a progress is about. One published by another process -- all
-    /// of Finder's -- arrives with it in userInfo and `fileURL` nil.
-    static func path(of progress: Progress) -> String? {
+    /// The file a progress is about, in the folder subscribed to. One
+    /// published by another process -- all of Finder's -- arrives with it in
+    /// userInfo and `fileURL` nil. Named from the folder, which is already in
+    /// its one spelling, so the main thread makes no call on the volume.
+    static func path(of progress: Progress, in folder: String) -> String? {
         guard let url = progress.userInfo[.fileURLKey] as? URL ?? progress.fileURL else {
             return nil
         }
-        return canonical(url.path)
+        return folder + "/" + url.lastPathComponent
     }
 
     /// One spelling for every path compared here, whatever spelling it came
