@@ -468,18 +468,22 @@ group("theElevatedMountScript") {
     expect(!msScript.contains("-n '"), "NFS options must never use the separated form")
     expect(
         msScript.contains(
-            "--nfs-options='rsize=131072,wsize=131072,readahead=128,dumbtimer,"
+            "--nfs-options='rsize=1048576,wsize=1048576,readahead=128,dumbtimer,"
                 + "timeo=600,retrans=5,deadtimeout=900,mutejukebox,noowners'"),
         "NFS options use the joined form")
     // The other half of what --ignore-permissions does, which the read-only
     // route never had: the export squashes who is asking, and this stops macOS
     // applying the ownership it is told about on top.
     expect(msScript.contains("noowners"), "and carry the half the read-only route was missing")
-    // Asked for at the size the server grants. A megabyte is requested and
-    // 128K is given, and the client then logs a malformed write RPC per write:
+    // Asked for at exactly the size the server is told to allow. Asked for
+    // more than it allowed, the client logged a malformed write RPC per write:
     // seventy thousand in one thirteen-gigabyte copy.
     expect(
-        !msScript.contains("rsize=1048576"), "and not at a size that is only ever negotiated down")
+        msScript.contains("rsize=\(MountScript.transferSize),wsize=\(MountScript.writeSize),")
+            && MountScript.writeSize == MountScript.transferSize
+            && MountScript.nfsBlockSize.contains(
+                "echo \(MountScript.transferSize) > /proc/fs/nfsd/max_block_size"),
+        "and at exactly the size the server is told to allow")
     // Sixty seconds a try, because a healthy thirteen-gigabyte copy was
     // measured spending up to twenty-two seconds unable to answer -- ten
     // separate stalls, mean nine seconds, every one of them recovered. The

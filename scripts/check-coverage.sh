@@ -351,7 +351,7 @@ fi
 #     makes a new script force the decision -- put it in the registry, or say
 #     here why it is not a claim.
 printf 'Harnesses something actually runs…\n'
-# Build and release steps, and four probes that take arguments: each needs a
+# Build and release steps, and five probes that take arguments: each needs a
 # volume or an image named on the command line and exists to be pointed at
 # something during an investigation. A probe is not a claim -- it has no fixture
 # of its own and renders no verdict -- so registering one would put a row in the
@@ -361,7 +361,7 @@ check-engine-updates collect-sources fetch-engine generate-notices lint
 make-dmg make-format-volumes make-test-volumes notary-status release
 run-tests screenshots ship snapshots sparkle-keys translation-bundle
 vendor-engine verify verify-goal
-cross-guest-copy flush-reaches-drive thread-starvation watch-for-complaints"
+cross-guest-copy finder-parity flush-reaches-drive thread-starvation watch-for-complaints"
 unreached=0
 for script in scripts/*.sh; do
   name="$(basename "$script" .sh)"

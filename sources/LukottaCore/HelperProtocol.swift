@@ -108,7 +108,9 @@ public enum HelperInfo {
     /// 53: the daemon can format a volume. Preparing a drive was the one job
     ///    that sent somebody to another computer -- `mkntfs` ships inside this
     ///    app's own guest image and nothing could reach it.
-    public static let contract = 54
+    /// 55: writes go in megabytes. The daemon writes the server's limit into
+    ///    the mount script, so a daemon on 54 would keep serving 128 KiB.
+    public static let contract = 55
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"
