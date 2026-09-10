@@ -5339,3 +5339,39 @@ native stick too:
 
 So the placeholders a person sees on a Lukotta volume are Finder's, and what a
 Lukotta volume owes them is the same behaviour at the same speed.
+
+## A durable COMMIT, and a BitLocker volume that no longer writes synchronously — 2026-09-10
+
+The fault: the macOS client writes UNSTABLE and sends COMMIT at every fsync and
+close, and the guest's nfsd answered the COMMIT with a range fsync that left
+data behind. Measured on the BitLocker test stick with the stock kernel, 32 MiB
+written and fsynced from the Mac, then asked of the guest:
+
+    left dirty after the fsync returned            464 kB
+    cleared by an fsync of that file in the guest  208 kB  (outside the range)
+    cleared by syncfs of the volume                256 kB  (filesystem metadata)
+
+That is why every BitLocker write was made synchronous, and why a Finder copy
+ran at 5.0 MB/s on the stick and 2.2 MB/s on the owner's hard drive.
+
+linux-nfsd-commit-is-durable syncs the whole file and then its filesystem on
+every COMMIT, whatever the export says. With it built into the guest kernel and
+the app's BitLocker switch on, the same measurement through the real mount:
+
+    the guest booted     Linux 6.12.62 (root@lukotta)
+    the export           async
+    the Mac mount        no synchronous flag; rsize and wsize 1 MiB
+    32 MiB write+fsync   1.9 s
+    left dirty after it  32-64 kB, the guest's idle baseline, unmoved by any sync
+
+What the async export spares, measured before it went in, 300 files each:
+
+    sync export    create 29 ms a file, remove 10 ms a file
+    async export   create and remove under 1 ms a file
+
+Three faults in this project's own harness took the test drive down while
+this was measured, and are fixed: verify.sh unmounted every share between
+checks, pkill -9'd every engine on the way out (the drive came back with $MFT
+and $MFTMirr out of step, repaired on the next open), and build-engine.sh
+emptied the directory holding the NTFS checker, so an engine rebuild shipped a
+guest without it.
