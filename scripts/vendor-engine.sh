@@ -158,6 +158,28 @@ else
   echo "  (run scripts/build-engine.sh for the qcow2 and VMDK fixes)"
   rm -f "$OUT/anylinuxfs/PATCHES"
 fi
+# The guest kernel, when scripts/build-guest-kernel.sh has built one. It has a
+# directory of its own because build-engine.sh starts engine-built afresh. Its
+# patch names join the record, so the app reads what the kernel does. They come
+# from the file the build names after the Image it wrote them for.
+KBUILT="$HERE/vendor/kernel-built"
+if [ -f "$KBUILT/Image" ] && [ -f "$KBUILT/Image.sha256" ] && [ -f "$KBUILT/Image.patches" ]; then
+  (cd "$KBUILT" && shasum -a 256 -c Image.sha256 >/dev/null) || {
+    echo "error: $KBUILT/Image does not match its sha256" >&2; exit 1; }
+  echo "  using our own build of the guest kernel"
+  cp -f "$KBUILT/Image" "$OUT/anylinuxfs/libexec/Image"
+  cat "$KBUILT/Image.patches" >> "$OUT/anylinuxfs/PATCHES"
+  sed 's/^/    /' "$KBUILT/Image.patches"
+fi
+# An async export keeps nothing unless the kernel's COMMIT does, so the two go
+# together or neither does.
+if grep -qx 'vmproxy-writes-commit-at-commit' "$OUT/anylinuxfs/PATCHES" 2>/dev/null \
+  && ! grep -qx 'linux-nfsd-commit-is-durable' "$OUT/anylinuxfs/PATCHES"; then
+  echo "error: vmproxy exports async but the guest kernel is not the one that" >&2
+  echo "       makes a COMMIT durable; run scripts/build-guest-kernel.sh" >&2
+  echo "       vendor/kernel-built/Image" >&2
+  exit 1
+fi
 
 # The one library the engine links from outside its own bottle. It sets the
 # lowest macOS the finished app supports, so it is pinned like everything else.

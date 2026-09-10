@@ -1,0 +1,56 @@
+Export async where the guest kernel says a COMMIT and a rename are durable.
+
+A sync export makes nfsd sync every create, remove and attribute change before
+answering it. On the BitLocker test drive that was 29 ms a create and 10 ms a
+remove, against none with the export async: the whole cost of copying many
+small files, of deleting a folder, and of Finder clearing up a cancelled copy.
+
+It is safe only on a kernel with linux-nfsd-commit-is-durable, which syncs the
+filesystem on every COMMIT and rename and keeps stable writes stable whatever
+the export says, and which says so in /sys/module/nfsd/parameters. vmproxy
+looks there, so a guest booted with any other kernel, such as the stock
+Image-4K an f2fs volume gets, is exported sync as before. The options chosen
+are printed.
+
+Exported async, a new file's directory entry reaches the drive by writeback
+unless a COMMIT or a rename comes first, so the guest's writeback runs every
+second rather than after thirty.
+
+diff -ruN a/vmproxy/src/main.rs b/vmproxy/src/main.rs
+--- a/vmproxy/src/main.rs	2026-09-11 00:20:44
++++ b/vmproxy/src/main.rs	2026-09-11 01:54:43
+@@ -1,3 +1,4 @@
++// Modified on 2026-09-11 by Clement Rahula <lukotta@rahula.dev>: exported async where the guest kernel says its COMMIT is durable.
+ // Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: unlock an
+ // Modified on 2026-08-28 by Clement Rahula <lukotta@rahula.dev>: announce the
+ // network interface so that vmnet forwards to it.
+@@ -1373,8 +1374,27 @@
+ 
+     let squash_opts_storage;
+     let effective_export_args_override = if ignore_permissions && export_args_override.is_none() {
+-        squash_opts_storage =
+-            format!("{export_mode},no_subtree_check,all_squash,anonuid=0,anongid=0,insecure");
++        // Async spares every create and remove a sync of its own, and is safe
++        // only on a guest kernel whose COMMIT and rename sync the filesystem,
++        // which such a kernel says here.
++        let sync_mode = if Path::new("/sys/module/nfsd/parameters/commit_is_durable").exists() {
++            "async"
++        } else {
++            "sync"
++        };
++        squash_opts_storage = format!(
++            "{export_mode},{sync_mode},no_subtree_check,all_squash,anonuid=0,anongid=0,insecure"
++        );
++        println!("exporting {squash_opts_storage}");
++        // On an async export, a new file's directory entry reaches the drive
++        // by writeback unless a COMMIT comes first: every second, not thirty.
++        if sync_mode == "async" {
++            for knob in ["dirty_writeback_centisecs", "dirty_expire_centisecs"] {
++                if fs::write(format!("/proc/sys/vm/{knob}"), "100").is_ok() {
++                    println!("{knob} 100");
++                }
++            }
++        }
+         Some(squash_opts_storage.as_str())
+     } else {
+         export_args_override

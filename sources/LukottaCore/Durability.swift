@@ -71,9 +71,18 @@ public enum Durability {
     /// Needs to be able to read the device node, so it is asked where that is
     /// true: in the daemon for a real drive, and in the app for a container
     /// file this user attached.
-    public static func choice(forDevice path: String) -> Choice {
+    public static func choice(
+        forDevice path: String, format: VolumeFormat = .unknown,
+        commitsAreDurable: Bool = EnginePaths.commitsAreDurable
+    ) -> Choice {
         if let journalled = ExtJournal.durabilityOption(forDevice: path) {
             return Choice(guestOption: journalled, stableWrites: false)
+        }
+        // Once the engine's nfsd makes a COMMIT durable, a BitLocker volume
+        // needs neither option: the client writes at the drive's speed and
+        // every fsync is on the drive before it is answered.
+        if format == .bitlocker && commitsAreDurable {
+            return Choice(guestOption: nil, stableWrites: false)
         }
         // A LUKS container takes the client's option too, since 2026-09-06.
         //

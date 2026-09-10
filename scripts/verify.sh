@@ -50,6 +50,10 @@ LIST="${CHECKS:-scripts/checks.tsv}"
 LOGDIR=".verify-logs"
 rm -rf "$LOGDIR"; mkdir -p "$LOGDIR"
 LOG="$(mktemp)"; TALLY="$(mktemp)"
+# Engines already running when this run began serve somebody's drive. On
+# 2026-09-10 the pattern kill below took one serving the BitLocker test drive,
+# because the Stop hook runs this whenever a script has changed.
+BEFORE_ENGINES=" $(/usr/bin/pgrep -f 'anylinuxfs|krun|vmnet-helper' | tr '\n' ' ') "
 # Stopped by hand, and the tree goes too.
 #
 # Without this, killing verify.sh left the running row -- and its harnesses, and
@@ -69,8 +73,11 @@ cleanup_run() {
   # row's group takes the shell and the harness and leaves the engine serving.
   # Measured on 2026-09-05: a stopped gate, its whole tree gone, and three engine
   # processes still holding a device. The harnesses kill by pattern for the same
-  # reason; this does what they do, once, on the way out.
-  /usr/bin/pkill -9 -f 'anylinuxfs|krun|vmnet-helper' >/dev/null 2>&1
+  # reason; this takes the ones this run started, once, on the way out.
+  for __pid in $(/usr/bin/pgrep -f 'anylinuxfs|krun|vmnet-helper'); do
+    case "$BEFORE_ENGINES" in *" $__pid "*) continue ;; esac
+    kill -9 "$__pid" 2>/dev/null
+  done
   if [ -n "${ROW_PID:-}" ] && kill -0 "$ROW_PID" 2>/dev/null; then
     kill -TERM -- "-$ROW_PID" 2>/dev/null || kill -TERM "$ROW_PID" 2>/dev/null
     sleep 2
@@ -204,6 +211,13 @@ echo
 printf '%-10s %-52s %s\n' claim what result
 echo
 
+# What was mounted and attached before this run began is not this run's to
+# clear. The clean slate below once unmounted every share on the Mac, and on
+# 2026-09-10 that took a drive being copied to out from under the copy, because
+# the Stop hook runs this whenever a script has changed.
+BEFORE_MOUNTS="$(mount | /usr/bin/grep '\.local:' | awk '{print $3}')"
+BEFORE_IMAGES="$(hdiutil info 2>/dev/null | /usr/bin/grep '^/dev/disk' | awk '{print $1}')"
+
 # The list is read on fd 3 and every check gets /dev/null for its stdin.
 #
 # On fd 0 the first check that reads stdin swallows the rest of the registry:
@@ -264,10 +278,12 @@ while IFS=$'\t' read -r id tags speed claim cmd <&3; do
   # wrong answer this gate can give.
   for __point in $(mount | /usr/bin/grep '\.local:' | awk '{print $3}' \
                    | awk '{print length, $0}' | sort -rn | cut -d" " -f2-); do
+    case $'\n'"$BEFORE_MOUNTS"$'\n' in *$'\n'"$__point"$'\n'*) continue ;; esac
     umount "$__point" >/dev/null 2>&1 || umount -f "$__point" >/dev/null 2>&1
   done
   for __dev in $(hdiutil info 2>/dev/null | /usr/bin/grep '^/dev/disk' \
                  | awk '{print $1}'); do
+    case $'\n'"$BEFORE_IMAGES"$'\n' in *$'\n'"$__dev"$'\n'*) continue ;; esac
     hdiutil detach "$__dev" -force -quiet >/dev/null 2>&1
   done
 

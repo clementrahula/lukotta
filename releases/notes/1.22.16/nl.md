@@ -1,0 +1,4 @@
+- Het verwijderen van een map op een BitLocker-schijf stopt niet meer met de melding dat sommige onderdelen moesten worden overgeslagen: elk bestand verdwijnt, hoeveel het er ook zijn.
+- Een kopie naar een schijf annuleren laat geen lege bestanden meer achter.
+- Veel kleine bestanden kopiëren en verwijderen op een schijf gaat sneller.
+- Grote kopieën naar een BitLocker-schijf wachten niet meer tot elke schrijfactie de schijf heeft bereikt voordat de volgende wordt verstuurd.

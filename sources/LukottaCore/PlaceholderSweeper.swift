@@ -1,0 +1,293 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Clement Rahula
+
+import CoreServices
+import Foundation
+
+/// Removes the empty files a stopped Finder copy leaves on a volume.
+///
+/// Finder makes every file of a copy before it writes any of them -- empty, and
+/// marked in its FinderInfo as type "brok", creator "MACS" -- and publishes a
+/// file progress for each. When the copy is cancelled or fails, the progress
+/// of every file it had not reached is withdrawn and the file stays behind,
+/// empty, on a Mac's own disks too. Here it goes as soon as that happens. A
+/// file's progress is seen only by subscribing to its folder, so the folders
+/// are learned from the volume's own events.
+public final class PlaceholderSweeper: @unchecked Sendable {
+    /// Folders subscribed to at once, unless every one of them is being copied into.
+    static let folderLimit = 64
+    /// How long a withdrawn progress is left before its file is looked at, so
+    /// that Finder finishes with the file first.
+    static let settle: TimeInterval = 1
+    /// How long a placeholder nobody publishes must stay unchanged before it
+    /// counts as one a stopped copy abandoned. A new subscription is told of
+    /// every progress already published once the app's main thread is free,
+    /// which can take seconds, so this waits well past that.
+    static let abandoned: TimeInterval = 10
+    /// The most entries of one folder looked at for those.
+    static let scanLimit = 10_000
+
+    /// What a file's inode says about when it last changed. A placeholder
+    /// that a new copy takes over, or that Finder finishes, changes; one a
+    /// stopped copy left does not.
+    public struct ChangeStamp: Equatable, Sendable {
+        let inode: UInt64
+        let seconds: Int
+        let nanoseconds: Int
+    }
+
+    private let root: String
+    private let queue = DispatchQueue(label: "com.lukotta.placeholder-sweeper")
+    private var stream: FSEventStreamRef?
+    private var stopped = false
+    /// Subscribed folders, the most recently written last, each with the
+    /// serial of its subscription.
+    private var folders: [(path: String, token: Any, serial: Int)] = []
+    private var serials = 0
+    /// Files whose progress is published now, with the serial of the
+    /// subscription that saw it; nothing here touches them.
+    private var published: [String: Int] = [:]
+    /// Bumped each time a file's progress is published, so that a file a new
+    /// copy has taken up is left to it.
+    private var generation: [String: Int] = [:]
+
+    public init(root: String) {
+        self.root = root
+    }
+
+    public func start() {
+        queue.sync {
+            guard stream == nil, !stopped else { return }
+            var context = FSEventStreamContext(
+                version: 0, info: Unmanaged.passUnretained(self).toOpaque(),
+                retain: nil, release: nil, copyDescription: nil)
+            let flags =
+                kFSEventStreamCreateFlagFileEvents | kFSEventStreamCreateFlagUseCFTypes
+                | kFSEventStreamCreateFlagNoDefer
+            guard
+                let made = FSEventStreamCreate(
+                    nil, Self.eventsArrived, &context, [root] as CFArray,
+                    FSEventStreamEventId(kFSEventStreamEventIdSinceNow), 0.3,
+                    FSEventStreamCreateFlags(flags))
+            else { return }
+            FSEventStreamSetDispatchQueue(made, queue)
+            FSEventStreamStart(made)
+            stream = made
+        }
+    }
+
+    public func stop() {
+        queue.sync {
+            // First: removing a subscription withdraws every progress in its
+            // folder, and those withdrawals are not copies that stopped.
+            stopped = true
+            if let stream {
+                FSEventStreamStop(stream)
+                FSEventStreamInvalidate(stream)
+                FSEventStreamRelease(stream)
+            }
+            stream = nil
+            for folder in folders { Progress.removeSubscriber(folder.token) }
+            folders.removeAll()
+            published.removeAll()
+            generation.removeAll()
+        }
+    }
+
+    private static let eventsArrived: FSEventStreamCallback = { _, info, count, paths, flags, _ in
+        guard let info else { return }
+        let sweeper = Unmanaged<PlaceholderSweeper>.fromOpaque(info).takeUnretainedValue()
+        let names = unsafeBitCast(paths, to: NSArray.self) as? [String] ?? []
+        let created = FSEventStreamEventFlags(kFSEventStreamEventFlagItemCreated)
+        let isFile = FSEventStreamEventFlags(kFSEventStreamEventFlagItemIsFile)
+        for (index, path) in names.enumerated() where index < count {
+            if flags[index] & created != 0, flags[index] & isFile != 0 {
+                sweeper.watch(folder: (canonical(path) as NSString).deletingLastPathComponent)
+            }
+        }
+    }
+
+    /// On the queue.
+    private func watch(folder: String) {
+        guard !stopped else { return }
+        if let index = folders.firstIndex(where: { $0.path == folder }) {
+            folders.append(folders.remove(at: index))
+            return
+        }
+        serials += 1
+        let serial = serials
+        let url = URL(fileURLWithPath: folder, isDirectory: true)
+        let token = Progress.addSubscriber(forFileURL: url) { [weak self] progress in
+            guard let self, let path = Self.path(of: progress, in: folder) else { return nil }
+            self.queue.async {
+                // Late from a subscription since removed: nothing to record.
+                guard self.isCurrent(serial, for: path) else { return }
+                self.generation[path, default: 0] += 1
+                self.published[path] = serial
+            }
+            return { [weak self] in
+                // Read as it is withdrawn: Finder reports a file it never
+                // reached as -1, and one it started or finished as 0 or more.
+                let untouched = progress.completedUnitCount < 0
+                self?.withdrawn(path, untouched: untouched, serial: serial)
+            }
+        }
+        folders.append((folder, token, serial))
+        evictIdleFolder()
+        queue.asyncAfter(deadline: .now() + Self.settle) { [weak self] in
+            self?.lookForAbandoned(in: folder, serial: serial, earlier: [:], looksLeft: 3)
+        }
+    }
+
+    /// Over the limit, the least recently written folder that nothing is being
+    /// copied into stops being watched. It leaves the list before its
+    /// subscription goes, so that the withdrawals that causes are ignored.
+    private func evictIdleFolder() {
+        guard folders.count > Self.folderLimit,
+            let index = folders.firstIndex(where: { folder in
+                !published.keys.contains {
+                    ($0 as NSString).deletingLastPathComponent == folder.path
+                }
+            })
+        else { return }
+        Progress.removeSubscriber(folders.remove(at: index).token)
+    }
+
+    /// A withdrawal counts only from the subscription that is current for
+    /// its folder: one that was removed, even if the folder is watched again
+    /// since, withdraws everything it saw and says nothing about a copy.
+    private func withdrawn(_ path: String, untouched: Bool, serial: Int) {
+        queue.async {
+            if self.published[path] == serial { self.published[path] = nil }
+            guard self.isCurrent(serial, for: path), !self.stopped, untouched,
+                let stamp = Self.changeStamp(path)
+            else { return }
+            let seen = self.generation[path, default: 0]
+            self.queue.asyncAfter(deadline: .now() + Self.settle) {
+                guard !self.stopped, self.generation[path, default: 0] == seen,
+                    self.published[path] == nil
+                else { return }
+                self.generation[path] = nil
+                if Self.removeIfPlaceholder(path, unchangedSince: stamp) {
+                    Log.mount.notice("removed a file a stopped copy had not reached")
+                }
+            }
+        }
+    }
+
+    private func isCurrent(_ serial: Int, for path: String) -> Bool {
+        let folder = (path as NSString).deletingLastPathComponent
+        return folders.contains { $0.path == folder && $0.serial == serial }
+    }
+
+    /// A copy stopped before its folder was subscribed to -- the volume's
+    /// events arrive seconds late -- withdrew its progress unseen. Finder keeps
+    /// every placeholder of a running copy published, so one that nobody
+    /// publishes and that has not changed between two looks `abandoned` apart
+    /// belongs to a copy that has stopped.
+    private func lookForAbandoned(
+        in folder: String, serial: Int, earlier: [String: ChangeStamp], looksLeft: Int
+    ) {
+        // Only for the subscription that is current: without it nothing tells
+        // a running copy's placeholders apart.
+        guard !stopped, folders.contains(where: { $0.path == folder && $0.serial == serial })
+        else { return }
+        var unsure: [String: ChangeStamp] = [:]
+        for path in Self.emptyFiles(in: folder)
+        where published[path] == nil && Self.isPlaceholder(atPath: path) {
+            guard let stamp = Self.changeStamp(path) else { continue }
+            if earlier[path] == stamp {
+                if Self.removeIfPlaceholder(path, unchangedSince: stamp) {
+                    Log.mount.notice(
+                        "removed a file a copy stopped before it was seen had not reached")
+                }
+            } else {
+                unsure[path] = stamp
+            }
+        }
+        if !unsure.isEmpty, looksLeft > 1 {
+            queue.asyncAfter(deadline: .now() + Self.abandoned) { [weak self] in
+                self?.lookForAbandoned(
+                    in: folder, serial: serial, earlier: unsure, looksLeft: looksLeft - 1)
+            }
+        }
+    }
+
+    /// The file a progress is about, in the folder subscribed to. One
+    /// published by another process -- all of Finder's -- arrives with it in
+    /// userInfo and `fileURL` nil. Named from the folder, which is already in
+    /// its one spelling, so the main thread makes no call on the volume.
+    static func path(of progress: Progress, in folder: String) -> String? {
+        guard let url = progress.userInfo[.fileURLKey] as? URL ?? progress.fileURL else {
+            return nil
+        }
+        return folder + "/" + url.lastPathComponent
+    }
+
+    /// One spelling for every path compared here, whatever spelling it came
+    /// in: the folder's real path, which still resolves once the file is gone.
+    static func canonical(_ path: String) -> String {
+        let folder = (path as NSString).deletingLastPathComponent
+        guard let real = realpath(folder, nil) else { return path }
+        defer { free(real) }
+        return String(cString: real) + "/" + (path as NSString).lastPathComponent
+    }
+
+    static func emptyFiles(in folder: String) -> [String] {
+        let keys: [URLResourceKey] = [.isRegularFileKey, .fileSizeKey]
+        guard
+            let entries = try? FileManager.default.contentsOfDirectory(
+                at: URL(fileURLWithPath: folder, isDirectory: true),
+                includingPropertiesForKeys: keys)
+        else { return [] }
+        return entries.prefix(Self.scanLimit).compactMap { entry in
+            guard let values = try? entry.resourceValues(forKeys: Set(keys)),
+                values.isRegularFile == true, values.fileSize == 0
+            else { return nil }
+            return entry.path
+        }
+    }
+
+    public static func changeStamp(_ path: String) -> ChangeStamp? {
+        var status = stat()
+        guard lstat(path, &status) == 0 else { return nil }
+        return ChangeStamp(
+            inode: UInt64(status.st_ino), seconds: Int(status.st_ctimespec.tv_sec),
+            nanoseconds: Int(status.st_ctimespec.tv_nsec))
+    }
+
+    /// Whether a file is one of Finder's unfilled copy targets: a regular file,
+    /// empty, whose FinderInfo marks a copy in progress.
+    public static func isPlaceholder(atPath path: String) -> Bool {
+        var status = stat()
+        guard lstat(path, &status) == 0, status.st_mode & S_IFMT == S_IFREG, status.st_size == 0
+        else { return false }
+        var info = [UInt8](repeating: 0, count: 32)
+        let read = getxattr(path, "com.apple.FinderInfo", &info, info.count, 0, XATTR_NOFOLLOW)
+        return read >= 8 && info.prefix(8).elementsEqual("brokMACS".utf8)
+    }
+
+    /// Removes the file if it is a placeholder and, when a stamp is given, has
+    /// not changed since it was taken, with the AppleDouble companion that
+    /// carries its FinderInfo on a volume without extended attributes, should
+    /// that outlive it.
+    @discardableResult
+    public static func removeIfPlaceholder(_ path: String, unchangedSince stamp: ChangeStamp? = nil)
+        -> Bool
+    {
+        guard isPlaceholder(atPath: path) else { return false }
+        if let stamp, changeStamp(path) != stamp { return false }
+        guard unlink(path) == 0 else { return false }
+        let name = (path as NSString).lastPathComponent
+        let companion = (path as NSString).deletingLastPathComponent + "/._" + name
+        if isAppleDouble(atPath: companion) { unlink(companion) }
+        return true
+    }
+
+    static func isAppleDouble(atPath path: String) -> Bool {
+        guard let handle = FileHandle(forReadingAtPath: path) else { return false }
+        defer { try? handle.close() }
+        let magic = (try? handle.read(upToCount: 4)) ?? Data()
+        return magic.elementsEqual([0x00, 0x05, 0x16, 0x07])
+    }
+}

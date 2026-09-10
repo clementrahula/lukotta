@@ -5312,3 +5312,152 @@ with no durability measure at all was tested twice and read as the safe one, and
 "the safe configuration lost data in 5 of 6 runs" was written down about a build
 that had nothing switched on. Every run below now prints what the mount was
 given, and no configuration is believed without it.
+
+## What Finder does on a native drive — 2026-09-10
+
+Measured so that "behaves like a native drive" has numbers behind it. Finder's
+own copy engine, driven by osascript, onto a macOS-native exFAT USB stick, and
+the same onto the BitLocker test stick through Lukotta as it shipped:
+
+    native exFAT stick, 1 GB in 4 files      10.9 MB/s, Copy window shown
+    BitLocker stick, same copy, 128 KiB      5.0 MB/s, Copy window shown
+    BitLocker stick, same copy, 1 MiB        7.4 MB/s, Copy window shown
+    BitLocker stick, inside the guest        8.7 MB/s  (the drive's own ceiling)
+
+Things that look like faults on a Lukotta volume and are Finder's own, on the
+native stick too:
+
+    placeholders   a 20-file copy had created all 20 destination files within
+                   five seconds, 19 of them empty, none finished
+    ._ files       one AppleDouble companion per file; exFAT has nowhere else
+                   to keep Finder's metadata, and neither has NFSv3
+    cancel         one file: its partial copy gone at once. Twenty files: the
+                   file being written goes, and the 18 untouched empty
+                   placeholders and their ._ companions stay, carrying only
+                   com.apple.FinderInfo -- not a resumable copy
+    delete         0.49 s, because the native stick has a Trash
+
+So the placeholders a person sees on a Lukotta volume are Finder's, and what a
+Lukotta volume owes them is the same behaviour at the same speed.
+
+## A durable COMMIT, and a BitLocker volume that no longer writes synchronously — 2026-09-10
+
+The fault: the macOS client writes UNSTABLE and sends COMMIT at every fsync and
+close, and the guest's nfsd answered the COMMIT with a range fsync that left
+data behind. Measured on the BitLocker test stick with the stock kernel, 32 MiB
+written and fsynced from the Mac, then asked of the guest:
+
+    left dirty after the fsync returned            464 kB
+    cleared by an fsync of that file in the guest  208 kB  (outside the range)
+    cleared by syncfs of the volume                256 kB  (filesystem metadata)
+
+That is why every BitLocker write was made synchronous, and why a Finder copy
+ran at 5.0 MB/s on the stick and 2.2 MB/s on the owner's hard drive.
+
+linux-nfsd-commit-is-durable syncs the whole file and then its filesystem on
+every COMMIT, whatever the export says. With it built into the guest kernel and
+the app's BitLocker switch on, the same measurement through the real mount:
+
+    the guest booted     Linux 6.12.62 (root@lukotta)
+    the export           async
+    the Mac mount        no synchronous flag; rsize and wsize 1 MiB
+    32 MiB write+fsync   1.9 s
+    left dirty after it  32-64 kB, the guest's idle baseline, unmoved by any sync
+
+What the async export spares, measured before it went in, 300 files each:
+
+    sync export    create 29 ms a file, remove 10 ms a file
+    async export   create and remove under 1 ms a file
+
+Three faults in this project's own harness took the test drive down while
+this was measured, and are fixed: verify.sh unmounted every share between
+checks, pkill -9'd every engine on the way out (the drive came back with $MFT
+and $MFTMirr out of step, repaired on the next open), and build-engine.sh
+emptied the directory holding the NTFS checker, so an engine rebuild shipped a
+guest without it.
+
+## A listing that holds while Finder deletes, measured against a native stick — 2026-09-11
+
+The durable COMMIT build still failed the owner's delete: Finder stopped a
+500-file delete at 76 files with "some items had to be skipped". Finder's own
+log said why, `unlink returned -1 (errno: 2 (No such file or directory))`: the
+readdir that restarted after a removal had handed it names it had already
+removed. With the index walked in name order from positions that name an entry,
+on the BitLocker test stick:
+
+    3000 files listed and removed at once       3000 listed, 0 twice, 0 gone, 0 left
+      and with files created meanwhile          3000 of 3000 originals, once each
+    Finder delete, 500 files                    1.0 s, no error
+    Finder delete, 5,002 files                  7.0 s, no error
+    Finder delete, 10,538 files                 14.1 s, no error
+    readdir positions lost, engine log          0
+
+The same Finder copies, against Finder onto a native exFAT stick:
+
+                            BitLocker stick, Lukotta    native exFAT stick
+    1 GB in 4 files         5.6 MB/s, 7.7 mid-copy      8.0 MB/s (64 MB)
+    500 files of 4 KiB      14.0 s                      11.0 s
+    delete of those 500     1.0 s                       0.25 s, into the Trash
+
+The 500 small files took 2.1 s before this build because nfsd answered
+Finder's one stable write per file as stable without writing it through. Each
+file's data and inode are now on the drive before it is answered, a flush of
+the stick per file.
+
+A copy of 20 files of 20 MB, stopped with the Copy window's own button: the
+file being written was gone in 0.6 s, and the 17 untouched empty placeholders
+stayed, as on a native stick. A subscriber to the destination folder saw every
+one of their progresses withdrawn at the press, unfinished and not marked
+cancelled.
+
+With the app removing what such a progress leaves, the same cancel leaves no
+empty file, and the finished ones whole. How soon is Finder's to say: it
+withdraws the progress of the files it never reached only once it has let go of
+the one it was writing. A sweeper printing what it saw, stopped 12 s into the
+copy:
+
+    press                          02:28:40.7
+    Finder withdraws 17, at -1     02:28:47     the file in flight, finished
+    the 17 empty files gone        02:28:48.7
+
+Across the runs, the press to the last empty file gone took 1.4 s to 10.6 s, of
+which the app's part is the second it waits after a withdrawal. A first version
+took 7.3 s for another reason: Finder's progress reaches another process with
+its file in userInfo and `fileURL` nil, so that version never saw a withdrawal
+and found every placeholder by scanning the folder again.
+
+Where a large copy's time goes, sampled every second in the guest during 120 s
+of a 512 MB Finder copy onto the stick:
+
+    nfsd writes of 1 MiB      422, about 3.5 MiB/s
+    COMMITs                   9, one for every 47 MiB
+    Dirty                     28-35 MB throughout
+    Writeback                 4-24 MB throughout, never zero
+
+A COMMIT that syncs the whole filesystem is too rare to matter, and the drive
+never waits for data: the guest's cache is kept full and the stick is writing
+the whole time. The copy runs at what the stick takes, and this late in a day
+of writing that was less than the 7.7 MB/s it took earlier.
+
+And what a COMMIT keeps, on the same build and the same stick, the client
+writing unstably and the export async: `scripts/kill-durability.sh` wrote
+8 MiB with `conv=fsync`, killed the machine as soon as fsync returned, and
+opened the drive again. The file had survived, byte-identical, all 8,388,608
+bytes.
+
+What a stable write costs if it syncs the whole filesystem, which review asked
+for so that a new file's directory entry is on the drive with it: 500 files of
+4 KiB through Finder took 32.6 s onto the stick, against 14.0 s with the file's
+own fsync and 11.0 s onto a native exFAT stick. Three times what a Mac's own
+drive costs, for a guarantee a Mac's own drive does not give, so the stable
+write went back to the fsync and the guest writes back every second instead.
+
+With the app sweeping for placeholders, a Finder copy of 40 zero-byte files
+onto the stick left all 40.
+
+On the build that ships -- stable writes at fsync strength, the guest writing
+back every second (its log reads `dirty_writeback_centisecs 100` and
+`dirty_expire_centisecs 100`), a COMMIT error resetting the write verifier --
+Finder copied 500 files of 4 KiB in 14.5 s and 64 MB at 6.3 MB/s, deleted the
+500 in 1.13 s, and copied 80 folders of 3 files past the app's limit of 64
+watched folders, all byte-identical and with no error.

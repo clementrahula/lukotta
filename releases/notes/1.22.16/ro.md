@@ -1,0 +1,4 @@
+- Ștergerea unui dosar de pe o unitate BitLocker nu se mai oprește cu mesajul că unele articole au trebuit omise: dispare fiecare fișier, oricâte ar fi.
+- Anularea unei copieri pe o unitate nu mai lasă fișiere goale în urmă.
+- Copierea și ștergerea multor fișiere mici pe o unitate sunt mai rapide.
+- Copierile mari pe o unitate BitLocker nu mai așteaptă ca fiecare scriere să ajungă pe unitate înainte de a o trimite pe următoarea.

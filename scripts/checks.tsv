@@ -53,6 +53,9 @@ goal9	goal	long	integrity across every vector devised	bash scripts/vectors-every
 goal10	goal	fast	no UX cost anywhere in the above	bash scripts/run-tests.sh
 cost	ux	slow	a durability option does not cost a copy its speed	MB=500 bash scripts/durability-cost.sh
 durable	hardware	slow	a committed write survives the machine dying, on a real drive	bash scripts/kill-durability.sh "${LUKOTTA_TEST_DEVICE:?set it to a spare drive}"
+finderparity	goal,hardware	slow	on a real BitLocker drive Finder copies at the drive's speed and deletes a 500-file folder with nothing skipped	MB=1024 FILES=500 bash scripts/finder-parity.sh "${LUKOTTA_TEST_VOLUME:?set it to a folder on the open test drive}"
+listing	integrity	slow	a folder listed and emptied at once, as Finder deletes, gives every entry once and leaves none	bash scripts/with-a-drive-open.sh ntfs-vectors.img bash scripts/listing-survives-deletion.sh
+cancelclean	goal,hardware	slow	a Finder copy cancelled onto a Lukotta volume leaves no empty files behind, with the app running	
 unit	code	fast	the unit checks pass	bash scripts/run-tests.sh
 lint	code	fast	the sources lint clean	bash scripts/lint.sh
 private	privacy,release	fast	no release carries anything of the owner's	/usr/bin/python3 scripts/check-private.py

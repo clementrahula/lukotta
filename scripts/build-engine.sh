@@ -129,6 +129,8 @@ echo "Applying patches…"
 APPLIED=()
 for patch in "$HERE"/patches/*.patch; do
   name="$(basename "$patch" .patch)"
+  # The guest kernel's, applied by scripts/build-guest-kernel.sh instead.
+  case "$name" in linux-*) continue ;; esac
   # Each patch says which source it belongs to by what it is named after.
   target="$SRC"
   for crate in "${CRATES[@]}"; do
@@ -224,7 +226,10 @@ cp "$VMRUNNER_LIB" "$SRC/vmrunner-sys/target/libvmrunner_sys.a"
 UNPACKER="$SRC/init-rootfs/init-rootfs"
 [ -x "$UNPACKER" ] || { echo "error: no init-rootfs was built" >&2; exit 1; }
 
-rm -rf "$OUT"; mkdir -p "$OUT"
+# Only what this script builds. build-ntfsck.sh writes the NTFS checker into
+# the same directory, and emptying it here shipped a guest with no checker.
+mkdir -p "$OUT"
+rm -f "$OUT/anylinuxfs" "$OUT/vmproxy" "$OUT/init-rootfs" "$OUT/PATCHES"
 cp "$HOST" "$GUEST" "$UNPACKER" "$OUT/"
 
 # Checked rather than intended. A remap that stops working -- a flag rustc

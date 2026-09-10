@@ -4,15 +4,16 @@
 
 Modifications to the engine that Lukotta carries. `scripts/build-engine.sh`
 fetches every source pinned in `vendor/engine.lock`, verifies it against the
-checksums the release verifies, applies every patch in this directory, and
-builds the two binaries that change. All other components come from the
-checksummed bottle.
+checksums the release verifies, applies every patch in this directory but the
+guest kernel's, and builds the two binaries that change. All other components
+come from the checksummed bottle.
 
 Each patch is applied to the source it is named after: `imago-*` to the imago
-crate, `krun-devices-*` to the krun-devices crate, and the remainder to
-anylinuxfs. Those two crates form the engine's image layer and are compiled into
-the host binary rather than loaded beside it, so the build directs Cargo to the
-patched copies with `[patch.crates-io]`.
+crate, `krun-devices-*` to the krun-devices crate, `linux-*` to the guest
+kernel by `scripts/build-guest-kernel.sh`, and the remainder to anylinuxfs. The
+two crates form the engine's image layer and are compiled into the host binary
+rather than loaded beside it, so the build directs Cargo to the patched copies
+with `[patch.crates-io]`.
 
 `scripts/vendor-engine.sh` records the names of the applied patches in
 `engine/anylinuxfs/PATCHES`. The application determines from that file which
@@ -23,7 +24,10 @@ without these modifications, and reports the formats it cannot open by name.
 
 anylinuxfs is licensed under GPL-3.0-or-later, imago under MIT, and krun-devices
 under Apache-2.0. All three are compatible with the GPL-3.0-or-later terms under
-which Lukotta as a whole is conveyed.
+which Lukotta as a whole is conveyed. The guest kernel is licensed under
+GPL-2.0-only; it runs inside the virtual machine as a program of its own and is
+not combined with Lukotta, and a change to one of its files is made under that
+file's GPL-2.0 terms.
 
 A change to an existing file is made under the licence that file already
 carries. The three files added to imago, `src/vdi/mod.rs`, `src/vhd/mod.rs` and
@@ -33,11 +37,11 @@ terms are chosen so that the drivers may be offered upstream; the
 GPL-3.0-or-later terms covering Lukotta do not extend to them.
 
 Every file a patch modifies carries a notice of the modification and its date,
-as section 5(a) of the GNU General Public License version 3 and section 4(b) of
-the Apache License 2.0 require. `collect-sources.sh` places all three upstream
-sources and every patch in this directory into the corresponding source
-accompanying each release, so that a recipient receives the modifications
-together with the works they modify.
+as section 5(a) of the GNU General Public License version 3, section 2(a) of
+version 2 and section 4(b) of the Apache License 2.0 require.
+`collect-sources.sh` places all three upstream sources and every patch in this
+directory into the corresponding source accompanying each release, so that a
+recipient receives the modifications together with the works they modify.
 
 ## vmproxy-decrypt-what-it-probes.patch
 
@@ -391,4 +395,139 @@ NFS COMMIT before ntfs3 has put it on `/dev/vda`. This patch closes the half of
 the chain that was provably broken and leaves the half that is still broken
 plainly visible. It is verified harmless -- 1 GB copied byte-identical at
 7.0 MB/s, the same as without it -- and it is not claimed to fix the symptom.
+
+## linux-nfsd-commit-is-durable.patch
+
+**Defect.** An NFS COMMIT that nfsd had answered did not mean the data was on
+the disk. The macOS client writes UNSTABLE and then sends COMMIT, and takes
+the reply as its writes being durable. nfsd answers by calling
+`vfs_fsync_range()` over the client's range and nothing else, and on ntfs3 that
+is `generic_file_fsync`, which does not reach the volume metadata that
+`syncfs(2)` writes. Measured on a real drive on 2026-09-10: after a 32 MiB
+write and fsync from the Mac, 464 kB was still dirty in the guest. An fsync of
+that one file inside the guest cleared 208 kB of it, and syncfs of the volume
+cleared the other 256 kB.
+
+This is the half `krun-devices-raw-device-flush.patch` left visible: that one
+makes the host honour the guest's flush, and this one makes the guest flush
+before it answers.
+
+**Change.** `nfsd_commit()` syncs the file's filesystem whatever the export
+asks for, exactly as `syncfs(2)` does: `sync_filesystem()` with `s_umount` held
+for reading. It then flushes the device, so what the sync wrote is behind the
+barrier and not only in the drive's cache. A writeback error, the file's and
+then the filesystem's, is told to the open file once, as `fsync(2)` and
+`syncfs(2)` tell it, and changes the write verifier, so that the client writes
+again what it had been told was safe. A failure of the sync itself goes
+through the switch that was already there and does the same. The clamp of the client's range to
+`s_maxbytes` goes, with nothing left to feed.
+
+On an async export nfsd also turned a stable write unstable while telling the
+client it was stable, so a client writing synchronously sent no COMMIT at all,
+and `commit_metadata()` did nothing, which answered a rename before it was on
+the drive. A stable write is now written through on any export, as `fsync(2)`
+writes a file: its data and inode, then a flush. The rest of what a new file
+changes -- its directory entry, its clusters in the volume's bitmap -- is not
+synced with it, because that takes a sync of the whole filesystem: 500 files of
+4 KiB took 32.6 s to copy onto the test stick that way, against 14.0 s without
+it and 11.0 s onto a native stick. It is written by the guest's writeback,
+which vmproxy has run every second, and is behind a flush only at the next
+COMMIT, rename or stable write. A rename on an async export syncs the
+filesystem as a COMMIT does, once its locks are dropped, and fails only on an
+error that sync met. A create, remove or attribute change is answered before it
+is on the drive, and a drive that loses power before the next flush can come
+back without it. The read-only parameter `nfsd.commit_is_durable` says a kernel has
+all of this, and `vmproxy-writes-commit-at-commit.patch` exports async only
+where it finds it.
+
+**The kernel it applies to.** Not libkrunfw's own. anylinuxfs 0.19.0 takes
+its `libexec/Image` from the `v6.12.62-rev1` release of `nohajc/libkrunfw`, a
+fork of libkrunfw v5.1.0 with two more patches, a 16K-page config carrying more
+filesystems, and OpenZFS 2.4.0 grafted into the tree as a module. The `Image`
+in that release is byte for byte the one the bottle ships, and the fork's
+config is byte for byte what the guest reports in `/proc/config.gz`; it is
+kept here as `linux-6.12.62-guest.config`. `scripts/build-guest-kernel.sh`
+rebuilds that kernel from those pins, applies this patch after the fork's
+twenty-three, and refuses to write an Image if olddefconfig moves a line of the
+config, if the config embedded in the result is not that config, or if the
+result lacks a call one of its patches adds: `nfsd_commit` and `nfsd_rename`
+reaching the filesystem sync, and `ni_remove_name` keeping the names it
+removes. It applies the patches it names, not every `linux-*` file here, and
+writes their names to `Image.patches` beside the Image, for `vendor-engine.sh`
+to add to the record.
+
+**Verification.** Built on 2026-09-11 in the pinned bookworm container with
+ten jobs, `make Image` in 147 s, with no warning from a patched file.
+olddefconfig changed nothing, the config embedded in the result is the pinned
+one byte for byte, and every call the patches add is in the Image.
+
+On the BitLocker test stick, booted with that Image, exported async, the
+guest writing back every second (its log reads `dirty_writeback_centisecs 100`
+and `dirty_expire_centisecs 100`) and the client writing unstably:
+`scripts/kill-durability.sh` wrote 8 MiB with `conv=fsync`, killed the machine
+as soon as fsync returned, and opened the drive again, and the file was
+byte-identical. A Finder copy of 500 files of 4 KiB took 14.5 s, against
+11.0 s onto a native exFAT stick.
+
+Built without this patch and named as the fork names it, the result is not the
+shipped Image byte for byte, and one thing accounts for all of it: the kernel
+headers archive the kernel embeds (`CONFIG_IKHEADERS`). The shipped one was
+generated from the config before the fork enabled NFS, SMB and F2FS, lacks
+eight netfilter headers whose names differ from others only in case, and
+carries a `zfs_config.h` configured for userspace too. With that archive put in
+place of this build's and the kernel relinked, the result is identical to the
+shipped Image. Everything else about the recipe is the original.
+
+## linux-ntfs3-readdir-survives-deletion.patch
+
+**Defect.** Finder deletes a folder as it lists it, and on a BitLocker drive it
+stopped with "The operation can't be completed because some items had to be
+skipped", leaving files behind. ntfs3 hands out readdir positions that are
+byte offsets inside an index block and walks the blocks in the order they lie
+on disk. Removing an entry moves the ones after it down, and rebalancing moves
+entries between blocks, so a position handed out before a removal points past
+entries nobody has read. A first fix restarted the listing after any removal,
+which handed Finder entries it had already removed, and it stopped with the
+same message on removing one twice.
+
+**Change.** A position names the entry the listing goes on from: bit 62 set, a
+30-bit hash of its name, and its MFT record number. The listing walks the index
+in name order, and to go on from a position it looks the name up again: in the
+inode when that is in memory, in the MFT record read directly when not, and,
+when the entry has been removed since, among the last 4096 names removed from
+that directory, which each directory now keeps. The record is read rather than
+the inode made, because `ntfs_iget5()` given a stale sequence number marks a
+live inode bad. Whatever was created or removed meanwhile, nothing is skipped
+and nothing comes twice. Only a position older than 4096 removals is lost; that
+is logged, and the listing starts again. The index is walked by this patch's
+own code, since `indx_find_sort()` reads a subnode into the node it came from
+and frees nodes without their buffers. Directories get an llseek that accepts
+positions past `s_maxbytes`.
+
+**Verification.** On the BitLocker test stick on 2026-09-11,
+`scripts/listing-survives-deletion.sh` made 3,000 files and listed and removed
+them at once: 3,000 listed, none twice, none already gone, none left. With
+files created while it listed, every one of the 3,000 originals came exactly
+once. Finder then deleted folders of 500, 5,002 and 10,538 files with no error,
+and the engine log recorded no lost position. The same 500-file delete stopped
+at 76 files before this patch.
+
+## vmproxy-writes-commit-at-commit.patch
+
+**Defect.** A sync export makes nfsd sync every create, remove and attribute
+change before answering it: 29 ms a create and 10 ms a remove on the BitLocker
+test drive, against none with the export async. That is the whole cost of
+copying many small files, of deleting a folder, and of Finder clearing up a
+cancelled copy.
+
+**Change.** The export is async when `/sys/module/nfsd/parameters/commit_is_durable`
+exists, which only a kernel with `linux-nfsd-commit-is-durable.patch` has, and
+sync otherwise, so a guest booted with the stock `Image-4K` an f2fs volume gets
+is exported as before. The options chosen are printed to the engine log.
+`vendor-engine.sh` also refuses to package this patch without the kernel's.
+
+**Verification.** On the BitLocker test stick on 2026-09-11, booted with the
+kernel carrying `linux-nfsd-commit-is-durable.patch`, the engine log reads
+`exporting rw,async,no_subtree_check,all_squash,anonuid=0,anongid=0,insecure`.
+A Finder delete of 10,538 files took 14.1 s.
 

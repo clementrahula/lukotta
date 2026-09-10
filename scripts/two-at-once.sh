@@ -48,17 +48,20 @@ B="${B:-$OUT/crowd/drive4.img}"
 
 WORK="$(mktemp -d)"
 DEVS=""
-clean_up() {
-  for p in $(mount | /usr/bin/grep -F '.local:/mnt/' | awk '{print $3}'); do
-    umount -f "$p" >/dev/null 2>&1
+# Shares that were up before this run belong to somebody: a drive being copied
+# to was force-unmounted by this script's clean-up until 2026-09-10.
+BEFORE="$(mount | /usr/bin/grep -F '.local:/mnt/' | awk '{print $3}')"
+ours() {
+  mount | /usr/bin/grep -F '.local:/mnt/' | awk '{print $3}' | while read -r p; do
+    case $'\n'"$BEFORE"$'\n' in *$'\n'"$p"$'\n'*) ;; *) printf '%s\n' "$p" ;; esac
   done
+}
+clean_up() {
+  for p in $(ours); do umount -f "$p" >/dev/null 2>&1; done
   for d in $DEVS; do hdiutil detach "$d" -force -quiet >/dev/null 2>&1; done
   rm -rf "$WORK"
 }
 trap clean_up EXIT
-for p in $(mount | /usr/bin/grep -F '.local:/mnt/' | awk '{print $3}'); do
-  umount -f "$p" >/dev/null 2>&1
-done
 
 open_one() {
   local img="$1" n="$2" dev

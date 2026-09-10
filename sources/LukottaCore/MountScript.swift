@@ -86,8 +86,8 @@ public enum MountScript {
         ///
         /// Read off a live mount with `nfsstat -m`: the "original mount
         /// options" repeat what was asked for, and the "current mount
-        /// parameters" -- what is actually in force -- say
-        /// `rsize=131072,wsize=131072` however large a figure went in. Asking
+        /// parameters" -- what is actually in force -- say what the server
+        /// allows. With the server capped at 131072, asking the client
         /// for a megabyte therefore set nothing and left the two disagreeing,
         /// and the client filled the system log with
         ///
@@ -2401,20 +2401,15 @@ public enum MountScript {
     /// So the floor is a READDIR waiting behind a saturated write stream, and
     /// the write size is the only knob measured to reach it: ninety seconds
     /// down to sixteen. The median near eight is what NFS costs here.
-    /// Raised from 32768 to 131072 on 2026-09-06, when every write became a
-    /// synchronous one.
-    ///
-    /// The paragraphs above chose 32768 to keep a directory listing answerable
-    /// while a copy saturates the write stream, and that reasoning held for an
-    /// unsafe mount. It does not survive `-o sync`: a durable write costs one
-    /// device flush, about 19 ms, whatever its size, so the write size is the
-    /// whole of the throughput. On the 247 GB drive, 256 MiB in one stream:
-    /// 2.0 MB/s at 32 KiB, 14.0 MB/s at 128 KiB, both durable, against
-    /// 7.7 MB/s for the unsafe mount that shipped before either.
-    public static let writeSize = 131072
+    /// A durable write costs one round trip to the device whatever its size,
+    /// so the write size is the throughput. On the BitLocker test stick, whose
+    /// own ceiling inside the guest is 8.7 MB/s: 5.0 MB/s at 128 KiB through
+    /// Finder, 7.2 MB/s at 1 MiB, both durable. The client grants a megabyte
+    /// once the server allows one.
+    public static let writeSize = 1_048_576
 
     /// What both sides are asked for, and what the server is told to allow.
-    public static let transferSize = 131072
+    public static let transferSize = 1_048_576
 
     /// The environment line both actions carry.
     ///
