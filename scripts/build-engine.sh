@@ -129,6 +129,8 @@ echo "Applying patches…"
 APPLIED=()
 for patch in "$HERE"/patches/*.patch; do
   name="$(basename "$patch" .patch)"
+  # The guest kernel's, applied by scripts/build-guest-kernel.sh instead.
+  case "$name" in linux-*) continue ;; esac
   # Each patch says which source it belongs to by what it is named after.
   target="$SRC"
   for crate in "${CRATES[@]}"; do

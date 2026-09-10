@@ -104,7 +104,8 @@ if [ -d "$HERE/patches" ]; then
     [ -e "$p" ] && note "  OK   anylinuxfs-patches/$(basename "$p")  <- this repository"
   done
   note "       apply with: patch -p1 -d anylinuxfs-${ANYLINUXFS_VER} < <patch>"
-  note "       the imago- and krun-devices- patches apply to those crates instead"
+  note "       the imago- and krun-devices- patches apply to those crates instead,"
+  note "       and linux- ones to the guest kernel (scripts/build-guest-kernel.sh)"
 fi
 note ""
 

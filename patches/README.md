@@ -4,15 +4,16 @@
 
 Modifications to the engine that Lukotta carries. `scripts/build-engine.sh`
 fetches every source pinned in `vendor/engine.lock`, verifies it against the
-checksums the release verifies, applies every patch in this directory, and
-builds the two binaries that change. All other components come from the
-checksummed bottle.
+checksums the release verifies, applies every patch in this directory but the
+guest kernel's, and builds the two binaries that change. All other components
+come from the checksummed bottle.
 
 Each patch is applied to the source it is named after: `imago-*` to the imago
-crate, `krun-devices-*` to the krun-devices crate, and the remainder to
-anylinuxfs. Those two crates form the engine's image layer and are compiled into
-the host binary rather than loaded beside it, so the build directs Cargo to the
-patched copies with `[patch.crates-io]`.
+crate, `krun-devices-*` to the krun-devices crate, `linux-*` to the guest
+kernel by `scripts/build-guest-kernel.sh`, and the remainder to anylinuxfs. The
+two crates form the engine's image layer and are compiled into the host binary
+rather than loaded beside it, so the build directs Cargo to the patched copies
+with `[patch.crates-io]`.
 
 `scripts/vendor-engine.sh` records the names of the applied patches in
 `engine/anylinuxfs/PATCHES`. The application determines from that file which
@@ -23,7 +24,10 @@ without these modifications, and reports the formats it cannot open by name.
 
 anylinuxfs is licensed under GPL-3.0-or-later, imago under MIT, and krun-devices
 under Apache-2.0. All three are compatible with the GPL-3.0-or-later terms under
-which Lukotta as a whole is conveyed.
+which Lukotta as a whole is conveyed. The guest kernel is licensed under
+GPL-2.0-only; it runs inside the virtual machine as a program of its own and is
+not combined with Lukotta, and a change to one of its files is made under that
+file's GPL-2.0 terms.
 
 A change to an existing file is made under the licence that file already
 carries. The three files added to imago, `src/vdi/mod.rs`, `src/vhd/mod.rs` and
@@ -33,11 +37,11 @@ terms are chosen so that the drivers may be offered upstream; the
 GPL-3.0-or-later terms covering Lukotta do not extend to them.
 
 Every file a patch modifies carries a notice of the modification and its date,
-as section 5(a) of the GNU General Public License version 3 and section 4(b) of
-the Apache License 2.0 require. `collect-sources.sh` places all three upstream
-sources and every patch in this directory into the corresponding source
-accompanying each release, so that a recipient receives the modifications
-together with the works they modify.
+as section 5(a) of the GNU General Public License version 3, section 2(a) of
+version 2 and section 4(b) of the Apache License 2.0 require.
+`collect-sources.sh` places all three upstream sources and every patch in this
+directory into the corresponding source accompanying each release, so that a
+recipient receives the modifications together with the works they modify.
 
 ## vmproxy-decrypt-what-it-probes.patch
 
@@ -391,4 +395,62 @@ NFS COMMIT before ntfs3 has put it on `/dev/vda`. This patch closes the half of
 the chain that was provably broken and leaves the half that is still broken
 plainly visible. It is verified harmless -- 1 GB copied byte-identical at
 7.0 MB/s, the same as without it -- and it is not claimed to fix the symptom.
+
+## linux-nfsd-commit-is-durable.patch
+
+**Defect.** An NFS COMMIT that nfsd had answered did not mean the data was on
+the disk. The macOS client writes UNSTABLE and then sends COMMIT, and takes
+the reply as its writes being durable. nfsd answers by calling
+`vfs_fsync_range()` over the client's range and nothing else, and on ntfs3 that
+is `generic_file_fsync`, which does not reach the volume metadata that
+`syncfs(2)` writes. Measured on a real drive on 2026-09-10: after a 32 MiB
+write and fsync from the Mac, 464 kB was still dirty in the guest. An fsync of
+that one file inside the guest cleared 208 kB of it, and syncfs of the volume
+cleared the other 256 kB.
+
+This is the half `krun-devices-raw-device-flush.patch` left visible: that one
+makes the host honour the guest's flush, and this one makes the guest flush
+before it answers.
+
+**Change.** On an export that asks for sync writes, `nfsd_commit()` fsyncs the
+whole file rather than the client's range and, when that succeeds, syncs the
+file's filesystem exactly as `syncfs(2)` does: `sync_filesystem()` with
+`s_umount` held for reading. An error from either goes through the switch that
+was already there, so a failed sync still resets the write verifier and the
+client writes again. The clamp of the client's range to `s_maxbytes` goes, with
+nothing left to feed. What it costs is a sync of the whole volume on every
+COMMIT, which has not been measured.
+
+**The kernel it applies to.** Not libkrunfw's own. anylinuxfs 0.19.0 takes
+its `libexec/Image` from the `v6.12.62-rev1` release of `nohajc/libkrunfw`, a
+fork of libkrunfw v5.1.0 with two more patches, a 16K-page config carrying more
+filesystems, and OpenZFS 2.4.0 grafted into the tree as a module. The `Image`
+in that release is byte for byte the one the bottle ships, and the fork's
+config is byte for byte what the guest reports in `/proc/config.gz`; it is
+kept here as `linux-6.12.62-guest.config`. `scripts/build-guest-kernel.sh`
+rebuilds that kernel from those pins, applies this patch after the fork's
+twenty-three, and refuses to write an Image if olddefconfig moves a line of the
+config, if the config embedded in the result is not that config, or if
+`nfsd_commit` in the result does not call `sync_filesystem`. It applies the
+patches it names, not every `linux-*` file here.
+
+**Verification.** Built on 2026-09-10 in the pinned bookworm container with
+ten jobs, `make Image` in 140 s. olddefconfig changed nothing, the config
+embedded in the result is the pinned one byte for byte, and the Image's own
+instructions show `nfsd_commit` calling `vfs_fsync_range` with 0 and
+`LLONG_MAX`, then `sync_filesystem` between `down_read` and `up_read`.
+
+Built without this patch and named as the fork names it, the result is not the
+shipped Image byte for byte, and one thing accounts for all of it: the kernel
+headers archive the kernel embeds (`CONFIG_IKHEADERS`). The shipped one was
+generated from the config before the fork enabled NFS, SMB and F2FS, lacks
+eight netfilter headers whose names differ from others only in case, and
+carries a `zfs_config.h` configured for userspace too. With that archive put in
+place of this build's and the kernel relinked, the result is identical to the
+shipped Image. Everything else about the recipe is the original.
+
+No guest has booted this kernel yet, and the COMMIT it changes has not been
+measured on a drive.
+
+**Not yet shipped.** `vendor-engine.sh` still takes the bottle's Image.
 
