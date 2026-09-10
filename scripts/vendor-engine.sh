@@ -170,6 +170,15 @@ if [ -f "$KBUILT/Image" ] && [ -f "$KBUILT/Image.sha256" ] && [ -f "$KBUILT/KERN
   cat "$KBUILT/KERNEL_PATCHES" >> "$OUT/anylinuxfs/PATCHES"
   sed 's/^/    /' "$KBUILT/KERNEL_PATCHES"
 fi
+# An async export keeps nothing unless the kernel's COMMIT does, so the two go
+# together or neither does.
+if grep -qx 'vmproxy-writes-commit-at-commit' "$OUT/anylinuxfs/PATCHES" 2>/dev/null \
+  && ! grep -qx 'linux-nfsd-commit-is-durable' "$OUT/anylinuxfs/PATCHES"; then
+  echo "error: vmproxy exports async but the guest kernel is not the one that" >&2
+  echo "       makes a COMMIT durable; run scripts/build-guest-kernel.sh" >&2
+  echo "       vendor/kernel-built/Image" >&2
+  exit 1
+fi
 
 # The one library the engine links from outside its own bottle. It sets the
 # lowest macOS the finished app supports, so it is pinned like everything else.

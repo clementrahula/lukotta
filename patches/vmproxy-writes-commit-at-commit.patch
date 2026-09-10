@@ -1,0 +1,29 @@
+Export async, and leave durability to the kernel's COMMIT.
+
+A sync export makes nfsd sync every create, remove and attribute change
+before answering it. On the BitLocker test drive that was 29 ms a create and
+10 ms a remove, against none at all with the export async: the whole cost of
+copying many small files, of deleting a folder, and of Finder clearing up a
+cancelled copy.
+
+It is safe only with linux-nfsd-commit-is-durable, which syncs the whole file
+and then its filesystem on every COMMIT whatever the export says, so what an
+application commits is on the drive before it is told so. vendor-engine.sh
+refuses an engine that carries this without that.
+
+--- a/vmproxy/src/main.rs	2026-09-04 17:47:15
++++ b/vmproxy/src/main.rs	2026-09-10 23:33:05
+@@ -1,3 +1,4 @@
++// Modified on 2026-09-10 by Clement Rahula <lukotta@rahula.dev>: exported async, leaving durability to the kernel's COMMIT.
+ // Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: unlock an
+ // Modified on 2026-08-28 by Clement Rahula <lukotta@rahula.dev>: announce the
+ // network interface so that vmnet forwards to it.
+@@ -1374,7 +1375,7 @@
+     let squash_opts_storage;
+     let effective_export_args_override = if ignore_permissions && export_args_override.is_none() {
+         squash_opts_storage =
+-            format!("{export_mode},no_subtree_check,all_squash,anonuid=0,anongid=0,insecure");
++            format!("{export_mode},async,no_subtree_check,all_squash,anonuid=0,anongid=0,insecure");
+         Some(squash_opts_storage.as_str())
+     } else {
+         export_args_override
