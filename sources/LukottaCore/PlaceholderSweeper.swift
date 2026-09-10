@@ -20,9 +20,10 @@ public final class PlaceholderSweeper: @unchecked Sendable {
     /// that Finder finishes with the file first.
     static let settle: TimeInterval = 1
     /// How long a placeholder nobody publishes must stay unchanged before it
-    /// counts as one a stopped copy abandoned: long enough that publications
-    /// delivered late through the app's main thread have arrived.
-    static let abandoned: TimeInterval = 10
+    /// counts as one a stopped copy abandoned. A new subscription is told of
+    /// every progress already published at once, so a running copy's
+    /// placeholders are known by the first look.
+    static let abandoned: TimeInterval = 3
     /// The most entries of one folder looked at for those.
     static let scanLimit = 10_000
 
@@ -101,7 +102,7 @@ public final class PlaceholderSweeper: @unchecked Sendable {
         let isFile = FSEventStreamEventFlags(kFSEventStreamEventFlagItemIsFile)
         for (index, path) in names.enumerated() where index < count {
             if flags[index] & created != 0, flags[index] & isFile != 0 {
-                sweeper.watch(folder: (path as NSString).deletingLastPathComponent)
+                sweeper.watch(folder: (canonical(path) as NSString).deletingLastPathComponent)
             }
         }
     }
@@ -117,7 +118,7 @@ public final class PlaceholderSweeper: @unchecked Sendable {
         let serial = serials
         let url = URL(fileURLWithPath: folder, isDirectory: true)
         let token = Progress.addSubscriber(forFileURL: url) { [weak self] progress in
-            guard let self, let path = progress.fileURL?.path else { return nil }
+            guard let self, let path = Self.path(of: progress) else { return nil }
             self.queue.async {
                 self.generation[path, default: 0] += 1
                 self.published[path] = serial
@@ -198,6 +199,24 @@ public final class PlaceholderSweeper: @unchecked Sendable {
                 self?.lookForAbandoned(in: folder, earlier: unsure, looksLeft: looksLeft - 1)
             }
         }
+    }
+
+    /// The file a progress is about. One published by another process -- all
+    /// of Finder's -- arrives with it in userInfo and `fileURL` nil.
+    static func path(of progress: Progress) -> String? {
+        guard let url = progress.userInfo[.fileURLKey] as? URL ?? progress.fileURL else {
+            return nil
+        }
+        return canonical(url.path)
+    }
+
+    /// One spelling for every path compared here, whatever spelling it came
+    /// in: the folder's real path, which still resolves once the file is gone.
+    static func canonical(_ path: String) -> String {
+        let folder = (path as NSString).deletingLastPathComponent
+        guard let real = realpath(folder, nil) else { return path }
+        defer { free(real) }
+        return String(cString: real) + "/" + (path as NSString).lastPathComponent
     }
 
     static func emptyFiles(in folder: String) -> [String] {
