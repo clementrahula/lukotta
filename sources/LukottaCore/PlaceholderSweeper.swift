@@ -120,6 +120,8 @@ public final class PlaceholderSweeper: @unchecked Sendable {
         let token = Progress.addSubscriber(forFileURL: url) { [weak self] progress in
             guard let self, let path = Self.path(of: progress) else { return nil }
             self.queue.async {
+                // Late from a subscription since removed: nothing to record.
+                guard self.isCurrent(serial, for: path) else { return }
                 self.generation[path, default: 0] += 1
                 self.published[path] = serial
             }
@@ -155,11 +157,10 @@ public final class PlaceholderSweeper: @unchecked Sendable {
     /// since, withdraws everything it saw and says nothing about a copy.
     private func withdrawn(_ path: String, reached: Bool, serial: Int) {
         queue.async {
-            let folder = (path as NSString).deletingLastPathComponent
-            guard self.folders.contains(where: { $0.path == folder && $0.serial == serial })
-            else { return }
             if self.published[path] == serial { self.published[path] = nil }
-            guard !self.stopped, !reached, let stamp = Self.changeStamp(path) else { return }
+            guard self.isCurrent(serial, for: path), !self.stopped, !reached,
+                let stamp = Self.changeStamp(path)
+            else { return }
             let seen = self.generation[path, default: 0]
             self.queue.asyncAfter(deadline: .now() + Self.settle) {
                 guard !self.stopped, self.generation[path, default: 0] == seen,
@@ -173,6 +174,11 @@ public final class PlaceholderSweeper: @unchecked Sendable {
         }
     }
 
+    private func isCurrent(_ serial: Int, for path: String) -> Bool {
+        let folder = (path as NSString).deletingLastPathComponent
+        return folders.contains { $0.path == folder && $0.serial == serial }
+    }
+
     /// A copy stopped before its folder was subscribed to -- the volume's
     /// events arrive seconds late -- withdrew its progress unseen. Finder keeps
     /// every placeholder of a running copy published, so one that nobody
@@ -180,7 +186,9 @@ public final class PlaceholderSweeper: @unchecked Sendable {
     /// belongs to a copy that has stopped.
     private func lookForAbandoned(in folder: String, earlier: [String: ChangeStamp], looksLeft: Int)
     {
-        guard !stopped else { return }
+        // A folder no longer watched has no subscription telling a running
+        // copy's placeholders apart, so nothing in it is judged.
+        guard !stopped, folders.contains(where: { $0.path == folder }) else { return }
         var unsure: [String: ChangeStamp] = [:]
         for path in Self.emptyFiles(in: folder)
         where published[path] == nil && Self.isPlaceholder(atPath: path) {
