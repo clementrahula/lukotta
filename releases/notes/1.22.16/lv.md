@@ -1,4 +1,4 @@
 - Mapes dzēšana BitLocker diskā vairs neapstājas ar ziņojumu, ka dažus vienumus nācās izlaist: tiek dzēsts katrs fails, lai cik to būtu.
 - Atceļot kopēšanu uz disku, vairs nepaliek tukši faili.
 - Daudzu mazu failu kopēšana un dzēšana diskā ir ātrāka.
-- Kopēšana uz BitLocker disku vairs negaida, lai katrs ieraksts sasniegtu disku, pirms tiek sūtīts nākamais.
+- Liela kopēšana uz BitLocker disku vairs negaida, lai katrs ieraksts sasniegtu disku, pirms tiek sūtīts nākamais.

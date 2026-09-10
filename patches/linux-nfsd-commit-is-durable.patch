@@ -20,15 +20,17 @@ An async export spares every create and remove a sync of its own (29 ms and
 10 ms each on the test drive, against none), but nfsd also made a stable write
 unstable there while telling the client it was stable, and skipped a rename's
 metadata commit. A stable write is now written through on any export, as
-fsync(2) writes a file: its data and inode, then a flush. A new file's
-directory entry is not synced with it: that takes a sync of the whole
-filesystem, which made 500 files of 4 KiB take 32.6 s to copy onto the test
-stick against 14.0 s without it and 11.0 s onto a native stick. It reaches the
-drive with the next writeback, which vmproxy has the guest run every second, or
-the next COMMIT or rename. A rename on an async export syncs the filesystem,
-once its locks are dropped, before it is answered, and fails only on an error
-that sync met. A create, remove or attribute change is answered before it is
-on the drive, and is on it by the next writeback, COMMIT or rename.
+fsync(2) writes a file: its data and inode, then a flush. The rest of what a
+new file changes, its directory entry and its clusters in the volume's bitmap,
+is not synced with it: that takes a sync of the whole filesystem, which made
+500 files of 4 KiB take 32.6 s to copy onto the test stick against 14.0 s
+without it and 11.0 s onto a native stick. It is written by the guest's
+writeback, which vmproxy runs every second, and is behind a flush only at the
+next COMMIT, rename or stable write. A rename on an async export syncs the
+filesystem, once its locks are dropped, before it is answered, and fails only
+on an error that sync met. A create, remove or attribute change is answered
+before it is on the drive, and a drive that loses power before the next flush
+can come back without it.
 
 The read-only nfsd parameter commit_is_durable says a kernel has this, and
 vmproxy exports async only where it finds it.

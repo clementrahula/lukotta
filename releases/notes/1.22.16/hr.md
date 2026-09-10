@@ -1,4 +1,4 @@
 - Brisanje mape na BitLocker pogonu više ne staje uz poruku da su neke stavke morale biti preskočene: nestaje svaka datoteka, koliko god ih bilo.
 - Otkazivanje kopiranja na pogon više ne ostavlja prazne datoteke.
 - Kopiranje i brisanje mnogo malih datoteka na pogonu je brže.
-- Kopiranje na BitLocker pogon više ne čeka da svako zapisivanje stigne do pogona prije slanja sljedećeg.
+- Veliko kopiranje na BitLocker pogon više ne čeka da svako zapisivanje stigne do pogona prije slanja sljedećeg.

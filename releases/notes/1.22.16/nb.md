@@ -1,4 +1,4 @@
 - Sletting av en mappe på en BitLocker-stasjon stopper ikke lenger med meldingen om at noen objekter måtte hoppes over: hver fil forsvinner, uansett hvor mange det er.
 - Å avbryte en kopiering til en stasjon etterlater ikke lenger tomme filer.
 - Det går raskere å kopiere og slette mange små filer på en stasjon.
-- Kopiering til en BitLocker-stasjon venter ikke lenger på at hver skriving når stasjonen før den neste sendes.
+- Store kopieringer til en BitLocker-stasjon venter ikke lenger på at hver skriving når stasjonen før den neste sendes.

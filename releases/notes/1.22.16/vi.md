@@ -1,4 +1,4 @@
 - Việc xóa một thư mục trên ổ đĩa BitLocker không còn dừng lại với thông báo rằng một số mục đã phải bỏ qua: mọi tệp đều bị xóa, dù có bao nhiêu đi nữa.
 - Hủy một lần sao chép vào ổ đĩa không còn để lại các tệp trống.
 - Sao chép và xóa nhiều tệp nhỏ trên ổ đĩa nhanh hơn.
-- Các lần sao chép vào ổ đĩa BitLocker không còn chờ từng lần ghi đến được ổ đĩa rồi mới gửi lần tiếp theo.
+- Các lần sao chép lớn vào ổ đĩa BitLocker không còn chờ từng lần ghi đến được ổ đĩa rồi mới gửi lần tiếp theo.

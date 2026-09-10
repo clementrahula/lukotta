@@ -1,4 +1,4 @@
 - Eliminar una carpeta en una unidad BitLocker ya no se detiene diciendo que algunos ítems se han tenido que omitir: se eliminan todos los archivos, sean cuantos sean.
 - Cancelar una copia a una unidad ya no deja archivos vacíos.
 - Copiar y eliminar muchos archivos pequeños en una unidad es más rápido.
-- Las copias a una unidad BitLocker ya no esperan a que cada escritura llegue a la unidad antes de enviar la siguiente.
+- Las copias grandes a una unidad BitLocker ya no esperan a que cada escritura llegue a la unidad antes de enviar la siguiente.

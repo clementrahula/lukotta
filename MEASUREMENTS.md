@@ -5401,7 +5401,8 @@ The same Finder copies, against Finder onto a native exFAT stick:
 
 The 500 small files took 2.1 s before this build because nfsd answered
 Finder's one stable write per file as stable without writing it through. Each
-is now on the drive before it is answered, a flush of the stick per file.
+file's data and inode are now on the drive before it is answered, a flush of
+the stick per file.
 
 A copy of 20 files of 20 MB, stopped with the Copy window's own button: the
 file being written was gone in 0.6 s, and the 17 untouched empty placeholders
