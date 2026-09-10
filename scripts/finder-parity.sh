@@ -152,7 +152,7 @@ printf 'tree delete   %6ss  osascript %s%s  %s\n' "$secs" "$rc" "${err:+ ($err)}
 # does not confuse.
 mount_point="$(cd "$TARGET" && pwd -P)"
 while [ "$mount_point" != / ] \
-  && [ "$(stat -f %d "$mount_point")" = "$(stat -f %d "$(dirname "$mount_point")")" ]; do
+  && [ "$(/usr/bin/stat -f %d "$mount_point")" = "$(/usr/bin/stat -f %d "$(dirname "$mount_point")")" ]; do
   mount_point="$(dirname "$mount_point")"
 done
 for trashed in "$mount_point/.Trashes/$(id -u)/$RUN-"*; do
