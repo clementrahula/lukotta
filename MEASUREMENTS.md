@@ -5410,16 +5410,21 @@ stayed, as on a native stick. A subscriber to the destination folder saw every
 one of their progresses withdrawn at the press, unfinished and not marked
 cancelled.
 
-With the app removing what such a progress leaves, the same cancel:
+With the app removing what such a progress leaves, the same cancel leaves no
+empty file, and the finished ones whole. How soon is Finder's to say: it
+withdraws the progress of the files it never reached only once it has let go of
+the one it was writing. A sweeper printing what it saw, stopped 12 s into the
+copy:
 
-    +0.05 s after the press    20 files, 17 empty
-    +1.4 s                     2 files, 0 empty: the two that had finished, whole
+    press                          02:28:40.7
+    Finder withdraws 17, at -1     02:28:47     the file in flight, finished
+    the 17 empty files gone        02:28:48.7
 
-A first version took 7.3 s, and not for the reason it seemed. Finder's progress
-reaches another process with its file in userInfo and `fileURL` nil, so that
-version never saw a withdrawal, and every placeholder it removed it found by
-scanning the folder again. It now reads the file where Finder puts it, and a
-placeholder goes a second after its progress is withdrawn.
+Across the runs, the press to the last empty file gone took 1.4 s to 10.6 s, of
+which the app's part is the second it waits after a withdrawal. A first version
+took 7.3 s for another reason: Finder's progress reaches another process with
+its file in userInfo and `fileURL` nil, so that version never saw a withdrawal
+and found every placeholder by scanning the folder again.
 
 Where a large copy's time goes, sampled every second in the guest during 120 s
 of a 512 MB Finder copy onto the stick:
