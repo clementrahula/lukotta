@@ -1,50 +1,116 @@
-Make an answered NFS COMMIT mean the data is on the disk.
+Make an answered COMMIT, rename or stable write mean the data is on the drive,
+whatever the export says.
 
-The macOS client writes UNSTABLE and then sends COMMIT, and takes the reply
-as its data being durable. nfsd answers a COMMIT by calling vfs_fsync_range()
-over the client's range and nothing else, and on an async export not even
-that. On ntfs3 a range fsync is generic_file_fsync, which writes the file's
-pages in that range and its inode, and not the volume's own metadata, which
-is what syncfs(2) writes.
+The macOS client writes UNSTABLE and then sends COMMIT, and takes the reply as
+its data being durable. nfsd answers a COMMIT with vfs_fsync_range() over the
+client's range, and on an async export with nothing. On ntfs3 a range fsync is
+generic_file_fsync, which writes the file's pages and inode and not the
+volume's own metadata, which only syncfs(2) writes. Measured on a real drive on
+2026-09-10: after a 32 MiB write and fsync from the Mac, 464 kB was still dirty
+in the guest; an fsync of the file cleared 208 kB of it, and syncfs of the
+volume the other 256 kB.
 
-Measured on a real drive on 2026-09-10: after a 32 MiB write and fsync from
-the Mac, 464 kB was still dirty in the guest. An fsync of that one file
-inside the guest cleared 208 kB of it, and syncfs of the volume cleared the
-other 256 kB. The Mac had been told all of it was stable.
+COMMIT now syncs the file's filesystem as syncfs(2) does, with s_umount held
+for reading, then flushes the device, so the metadata the sync wrote is behind
+the flush, and reports a writeback error the filesystem met on the way.
 
-COMMIT now fsyncs the whole file rather than the client's range, whatever
-the export asks for, and when that succeeds syncs the file's filesystem
-exactly as syncfs(2) does: sync_filesystem() with s_umount held for reading.
-An error from either goes through the switch that was already there, so a
-failed sync still resets the write verifier and the client sends its writes
-again. That lets the export be async, which spares every create and remove
-a sync of its own (29 ms and 10 ms each on the test drive, against none),
-while what an application commits is still on the drive before it is told
-so. The code that clamped the client's range to s_maxbytes is removed,
-having nothing left to feed.
+An async export spares every create and remove a sync of its own (29 ms and
+10 ms each on the test drive, against none), but nfsd also makes a stable write
+unstable there while telling the client it is stable, and skips a rename's
+metadata commit. A stable write is now written through on any export, and a
+rename on an async export syncs the filesystem, once its locks are dropped,
+before it is answered: renaming over a file is how applications save safely. A
+create, remove or attribute change is still answered before it is on the drive,
+as a journalling filesystem answers them before its journal is written, and is
+on it by the next COMMIT or rename.
 
---- a/fs/nfsd/vfs.c	2026-09-10 22:48:29
-+++ b/fs/nfsd/vfs.c	2026-09-10 23:31:17
+The read-only nfsd parameter commit_is_durable says a kernel has this, and
+vmproxy exports async only where it finds it.
+
+diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
+--- a/fs/nfsd/vfs.c	2026-09-11 00:15:11
++++ b/fs/nfsd/vfs.c	2026-09-11 00:24:54
 @@ -1,4 +1,5 @@
  // SPDX-License-Identifier: GPL-2.0
-+// Modified on 2026-09-10 by Clement Rahula <lukotta@rahula.dev>: COMMIT syncs the whole file and then its filesystem.
++// Modified on 2026-09-11 by Clement Rahula <lukotta@rahula.dev>: COMMIT and rename sync the filesystem, and stable writes stay stable, whatever the export says.
  /*
   * File operations used by nfsd. Some of these have been ripped from
   * other parts of the kernel because they weren't exported, others
-@@ -1340,31 +1341,25 @@
+@@ -31,6 +32,8 @@
+ #include <linux/exportfs.h>
+ #include <linux/writeback.h>
+ #include <linux/security.h>
++#include <linux/blkdev.h>
++#include <linux/moduleparam.h>
+ 
+ #include "xdr3.h"
+ 
+@@ -48,6 +51,31 @@
+ 
+ #define NFSDDBG_FACILITY		NFSDDBG_FILEOP
+ 
++/*
++ * vmproxy exports async only on a kernel that has this: one where a COMMIT
++ * or a rename is on the drive before it is answered, and a write asked to be
++ * stable is written through, whatever the export says.
++ */
++static bool commit_is_durable = true;
++module_param(commit_is_durable, bool, 0444);
++
++/*
++ * Write a filesystem out as syncfs(2) does, then flush the device, and report
++ * a writeback error met on the way.
++ */
++static int nfsd_sync_fs(struct super_block *sb)
++{
++	errseq_t since = errseq_sample(&sb->s_wb_err);
++	int err;
++
++	down_read(&sb->s_umount);
++	err = sync_filesystem(sb);
++	up_read(&sb->s_umount);
++	if (!err && sb->s_bdev)
++		err = blkdev_issue_flush(sb->s_bdev);
++	return err ?: errseq_check(&sb->s_wb_err, since);
++}
++
+ /**
+  * nfserrno - Map Linux errnos to NFS errnos
+  * @errno: POSIX(-ish) error code to be mapped
+@@ -1184,9 +1212,10 @@
+ 
+ 	exp = fhp->fh_export;
+ 
+-	if (!EX_ISSYNC(exp))
+-		stable = NFS_UNSTABLE;
+-
++	/*
++	 * Kept stable on an async export too: the reply tells the client the
++	 * write is stable, and the client sends no COMMIT for it.
++	 */
+ 	if (stable && !fhp->fh_use_wgather)
+ 		flags |= RWF_SYNC;
+ 
+@@ -1340,48 +1369,30 @@
  	    u64 offset, u32 count, __be32 *verf)
  {
  	__be32			err = nfs_ok;
 -	u64			maxbytes;
 -	loff_t			start, end;
- 	struct nfsd_net		*nn;
+-	struct nfsd_net		*nn;
++	struct nfsd_net		*nn = net_generic(nf->nf_net, nfsd_net_id);
++	errseq_t		since = READ_ONCE(nf->nf_file->f_wb_err);
++	int			err2;
  
--	/*
+ 	/*
 -	 * Convert the client-provided (offset, count) range to a
 -	 * (start, end) range. If the client-provided range falls
 -	 * outside the maximum file size of the underlying FS,
 -	 * clamp the sync range appropriately.
--	 */
++	 * The whole filesystem, whatever the export asks for: on ntfs3 an
++	 * fsync of the client's range leaves the volume's own metadata dirty,
++	 * which only syncfs(2) writes.
+ 	 */
 -	start = 0;
 -	end = LLONG_MAX;
 -	maxbytes = (u64)fhp->fh_dentry->d_sb->s_maxbytes;
@@ -52,37 +118,62 @@ having nothing left to feed.
 -		start = offset;
 -		if (count && (offset + count - 1 < maxbytes))
 -			end = offset + count - 1;
--	}
--
- 	nn = net_generic(nf->nf_net, nfsd_net_id);
--	if (EX_ISSYNC(fhp->fh_export)) {
-+	{
- 		errseq_t since = READ_ONCE(nf->nf_file->f_wb_err);
-+		struct super_block *sb = nf->nf_file->f_path.dentry->d_sb;
- 		int err2;
++	err2 = nfsd_sync_fs(nf->nf_file->f_path.dentry->d_sb);
++	switch (err2) {
++	case 0:
++		nfsd_copy_write_verifier(verf, nn);
++		err2 = filemap_check_wb_err(nf->nf_file->f_mapping, since);
++		err = nfserrno(err2);
++		break;
++	case -EINVAL:
++		err = nfserr_notsupp;
++		break;
++	default:
++		commit_reset_write_verifier(nn, rqstp, err2);
++		err = nfserrno(err2);
+ 	}
  
+-	nn = net_generic(nf->nf_net, nfsd_net_id);
+-	if (EX_ISSYNC(fhp->fh_export)) {
+-		errseq_t since = READ_ONCE(nf->nf_file->f_wb_err);
+-		int err2;
+-
 -		err2 = vfs_fsync_range(nf->nf_file, start, end, 0);
-+		/*
-+		 * Whatever the export asks for, and not the client's range:
-+		 * a range fsync on ntfs3 leaves data dirty that only
-+		 * syncfs(2) of the volume writes.
-+		 */
-+		err2 = vfs_fsync_range(nf->nf_file, 0, LLONG_MAX, 0);
-+		if (!err2) {
-+			down_read(&sb->s_umount);
-+			err2 = sync_filesystem(sb);
-+			up_read(&sb->s_umount);
-+		}
- 		switch (err2) {
- 		case 0:
- 			nfsd_copy_write_verifier(verf, nn);
-@@ -1379,8 +1374,7 @@
- 			commit_reset_write_verifier(nn, rqstp, err2);
- 			err = nfserrno(err2);
- 		}
+-		switch (err2) {
+-		case 0:
+-			nfsd_copy_write_verifier(verf, nn);
+-			err2 = filemap_check_wb_err(nf->nf_file->f_mapping,
+-						    since);
+-			err = nfserrno(err2);
+-			break;
+-		case -EINVAL:
+-			err = nfserr_notsupp;
+-			break;
+-		default:
+-			commit_reset_write_verifier(nn, rqstp, err2);
+-			err = nfserrno(err2);
+-		}
 -	} else
 -		nfsd_copy_write_verifier(verf, nn);
-+	}
- 
+-
  	return err;
  }
+ 
+@@ -1930,6 +1941,17 @@
+ 		nfsd_close_cached_files(ndentry);
+ 		dput(ndentry);
+ 		goto retry;
++	}
++
++	/*
++	 * A rename is how an application saves a file safely, and on an async
++	 * export commit_metadata() does nothing, so the filesystem is synced
++	 * here, with no lock held.
++	 */
++	if (err == nfs_ok && !EX_ISSYNC(tfhp->fh_export)) {
++		host_err = nfsd_sync_fs(tdir->i_sb);
++		if (host_err)
++			err = nfserrno(host_err);
+ 	}
+ out:
+ 	return err;

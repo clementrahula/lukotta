@@ -1,126 +1,489 @@
-Keep a directory listing whole while its entries are being deleted.
+Keep a directory listing whole while entries are created and removed in it.
 
 ntfs3 hands out readdir positions that are byte offsets inside an index
-block. Deleting an entry moves the ones after it down, so a position handed
-out before the deletion points past entries nobody has seen, and they are
-skipped. Finder deletes as it lists, and ends with "some items had to be
-skipped". Positions now carry the directory's deletion count, and a stale
-one starts the listing again after the dots.
+block, and walks the blocks in the order they sit on disk. Removing an entry
+moves the ones after it down, and rebalancing moves entries between blocks, so
+a position handed out before the change points past entries nobody has seen.
+Finder deletes a folder as it lists it, and ends with "some items had to be
+skipped" and files left behind.
 
---- a/fs/ntfs3/dir.c	2026-09-10 22:51:40
-+++ b/fs/ntfs3/dir.c	2026-09-10 22:57:45
+A position now names the entry the listing goes on from, by its MFT record and
+a hash of its name, and the listing walks the index in name order. Going on
+from a position looks its name up again: in the inode when it is in memory, in
+the MFT record when not, and, when the entry has since been removed, among the
+last 4096 names removed from that directory, which each directory now keeps.
+Whatever was created or removed meanwhile, nothing is skipped and nothing is
+returned twice. A position older than those 4096 is logged and the listing
+starts again, the one case left in which an entry can come twice.
+
+The index is walked here and not with indx_find_sort(), which reads a subnode
+into the node it came from and frees nodes without their buffers. Directories
+get their own llseek, positions reaching past s_maxbytes.
+
+diff -ruN a/fs/ntfs3/dir.c b/fs/ntfs3/dir.c
+--- a/fs/ntfs3/dir.c	2026-09-11 00:15:11
++++ b/fs/ntfs3/dir.c	2026-09-11 00:24:51
 @@ -1,4 +1,5 @@
  // SPDX-License-Identifier: GPL-2.0
-+// Modified on 2026-09-10 by Clement Rahula <lukotta@rahula.dev>: readdir positions survive deletion of entries already returned.
++// Modified on 2026-09-11 by Clement Rahula <lukotta@rahula.dev>: readdir walks names in order from a position that names an entry.
  /*
   *
   * Copyright (C) 2019-2021 Paragon Software GmbH, All rights reserved.
-@@ -343,8 +344,30 @@
- 	}
+@@ -8,6 +9,7 @@
+  */
  
- 	return dir_emit(ctx, (s8 *)name, name_len, ino, dt_type);
+ #include <linux/fs.h>
++#include <linux/jhash.h>
+ #include <linux/nls.h>
+ 
+ #include "debug.h"
+@@ -346,80 +348,259 @@
+ }
+ 
+ /*
+- * ntfs_read_hdr - Helper function for ntfs_readdir().
++ * A readdir position names the entry the listing goes on from, by its MFT
++ * record and a hash of its name, and the index is walked in name order, so
++ * creating or removing entries mid-listing skips nothing and repeats nothing.
++ * indx_find_sort() is not used: it reads a subnode into the node it came from.
++ */
++#define NTFS_DIR_NAMED	(1ULL << 62)
++#define NTFS_DIR_END	((loff_t)(NTFS_DIR_NAMED - 1))
++#define NTFS_DIR_HASH	0x3FFFFFFFU
++/* Names kept after they are removed, for positions handed out before. */
++#define NTFS_DIR_GONE_MAX 4096
++
++struct ntfs_dir_gone {
++	struct list_head list;
++	u32 rno;
++	u32 hash;
++	u8 len;
++	__le16 name[];
++};
++
++static u32 ntfs_dir_hash(const __le16 *name, u8 len)
++{
++	return jhash(name, len * sizeof(__le16), 0) & NTFS_DIR_HASH;
++}
++
++static loff_t ntfs_dir_position(const struct NTFS_DE *e,
++				const struct ATTR_FILE_NAME *fname)
++{
++	return NTFS_DIR_NAMED |
++	       ((u64)ntfs_dir_hash(fname->name, fname->name_len) << 32) |
++	       lower_32_bits(ino_get(&e->ref));
 +}
 +
 +/*
-+ * A position is a byte offset inside an index block, and deleting an entry
-+ * moves the ones after it down, so a position handed out before a deletion
-+ * can point past entries nobody has seen. Every position therefore carries
-+ * the directory's deletion count above the offset, and a stale one starts
-+ * the listing again after the dots.
-+ */
-+#define NTFS_DIR_POS_BITS 40
-+#define NTFS_DIR_POS_MASK ((1ULL << NTFS_DIR_POS_BITS) - 1)
-+#define NTFS_DIR_TAG_MASK 0x7FFFFFULL
-+
-+static inline u64 ntfs_dir_tag(const struct ntfs_inode *ni)
-+{
-+	return READ_ONCE(ni->dir.deletions) & NTFS_DIR_TAG_MASK;
- }
++ * ntfs_dir_forget - Keep a name that is being removed from 'dir_ni', for a
++ * position handed out while it was there.
+  *
+- * returns 0 if ok.
+- * returns -EINVAL if directory is corrupted.
+- * returns +1 if 'ctx' is full.
++ * Called with the directory locked for writing.
+  */
+-static int ntfs_read_hdr(struct ntfs_sb_info *sbi, struct ntfs_inode *ni,
+-			 const struct INDEX_HDR *hdr, u64 vbo, u64 pos,
+-			 u8 *name, struct dir_context *ctx)
++void ntfs_dir_forget(struct ntfs_inode *dir_ni, CLST rno,
++		     const struct ATTR_FILE_NAME *fname)
+ {
+-	const struct NTFS_DE *e;
+-	u32 e_size;
+-	u32 end = le32_to_cpu(hdr->used);
+-	u32 off = le32_to_cpu(hdr->de_off);
++	struct ntfs_index *indx = &dir_ni->dir;
++	struct ntfs_dir_gone *g;
  
-+static inline loff_t ntfs_dir_pos(const struct ntfs_inode *ni, u64 pos)
-+{
-+	return (loff_t)((ntfs_dir_tag(ni) << NTFS_DIR_POS_BITS) |
-+			(pos & NTFS_DIR_POS_MASK));
+-	for (;; off += e_size) {
+-		if (off + sizeof(struct NTFS_DE) > end)
+-			return -EINVAL;
++	if (fname->type == FILE_NAME_DOS)
++		return;
+ 
+-		e = Add2Ptr(hdr, off);
+-		e_size = le16_to_cpu(e->size);
+-		if (e_size < sizeof(struct NTFS_DE) || off + e_size > end)
+-			return -EINVAL;
++	if (!indx->gone.next)
++		INIT_LIST_HEAD(&indx->gone);
+ 
+-		if (de_is_last(e))
+-			return 0;
++	if (indx->gone_count >= NTFS_DIR_GONE_MAX) {
++		g = list_last_entry(&indx->gone, struct ntfs_dir_gone, list);
++		list_del(&g->list);
++		kfree(g);
++		indx->gone_count -= 1;
++	}
+ 
+-		/* Skip already enumerated. */
+-		if (vbo + off < pos)
+-			continue;
++	g = kmalloc(struct_size(g, name, fname->name_len), GFP_NOFS);
++	if (!g)
++		return;
+ 
+-		if (le16_to_cpu(e->key_size) < SIZEOF_ATTRIBUTE_FILENAME)
++	g->rno = lower_32_bits(rno);
++	g->hash = ntfs_dir_hash(fname->name, fname->name_len);
++	g->len = fname->name_len;
++	memcpy(g->name, fname->name, fname->name_len * sizeof(__le16));
++	list_add(&g->list, &indx->gone);
++	indx->gone_count += 1;
 +}
 +
- /*
-  * ntfs_read_hdr - Helper function for ntfs_readdir().
-  *
-@@ -380,7 +403,7 @@
- 		if (le16_to_cpu(e->key_size) < SIZEOF_ATTRIBUTE_FILENAME)
++void ntfs_dir_forget_all(struct ntfs_index *indx)
++{
++	struct ntfs_dir_gone *g, *tmp;
++
++	if (!indx->gone.next)
++		return;
++
++	list_for_each_entry_safe(g, tmp, &indx->gone, list)
++		kfree(g);
++	INIT_LIST_HEAD(&indx->gone);
++	indx->gone_count = 0;
++}
++
++static void ntfs_dir_copy_name(struct cpu_str *uni, const __le16 *name, u8 len)
++{
++	u8 i;
++
++	uni->len = len;
++	for (i = 0; i < len; i++)
++		uni->name[i] = le16_to_cpu(name[i]);
++}
++
++/* Whether 'attr' is the name in 'dir_ni' that a position was handed out for. */
++static bool ntfs_dir_name_is(struct ntfs_inode *dir_ni,
++			     const struct ATTRIB *attr, u32 hash,
++			     struct cpu_str *uni)
++{
++	const struct ATTR_FILE_NAME *fname;
++
++	if (attr->type != ATTR_NAME)
++		return false;
++
++	fname = resident_data_ex(attr, SIZEOF_ATTRIBUTE_FILENAME);
++	if (!fname || fname->type == FILE_NAME_DOS ||
++	    le32_to_cpu(attr->res.data_size) < fname_full_size(fname) ||
++	    !mi_is_ref(&dir_ni->mi, &fname->home) ||
++	    ntfs_dir_hash(fname->name, fname->name_len) != hash)
++		return false;
++
++	ntfs_dir_copy_name(uni, fname->name, fname->name_len);
++	return true;
++}
++
++/*
++ * ntfs_dir_position_name - The name position 'pos' was handed out for: the
++ * entry's own while it is in the directory, the one it had once it is gone.
++ */
++static bool ntfs_dir_position_name(struct ntfs_inode *dir_ni, u64 pos,
++				   struct cpu_str *uni)
++{
++	struct ntfs_sb_info *sbi = dir_ni->mi.sbi;
++	struct ntfs_index *indx = &dir_ni->dir;
++	u32 rno = lower_32_bits(pos);
++	u32 hash = upper_32_bits(pos) & NTFS_DIR_HASH;
++	struct ntfs_dir_gone *g;
++	struct ATTRIB *attr = NULL;
++	struct mft_inode *mi;
++	struct inode *inode;
++	bool found = false;
++
++	/*
++	 * An inode in memory can hold a name its record on disk has not got
++	 * yet. Without one the record is read as it is and no inode is made:
++	 * a position can outlive its entry, and ntfs_iget5() given a stale
++	 * sequence number marks a live inode bad.
++	 */
++	inode = ilookup(sbi->sb, rno);
++	if (inode) {
++		struct ntfs_inode *ni = ntfs_i(inode);
++		struct ATTR_LIST_ENTRY *le = NULL;
++
++		if (!is_bad_inode(inode)) {
++			ni_lock(ni);
++			while (!found &&
++			       (attr = ni_find_attr(ni, attr, &le, ATTR_NAME,
++						    NULL, 0, NULL, NULL)))
++				found = ntfs_dir_name_is(dir_ni, attr, hash, uni);
++			ni_unlock(ni);
++		}
++		iput(inode);
++	} else if (!mi_get(sbi, rno, &mi)) {
++		if (is_rec_inuse(mi->mrec)) {
++			while (!found && (attr = mi_enum_attr(mi, attr)))
++				found = ntfs_dir_name_is(dir_ni, attr, hash, uni);
++		}
++		mi_put(mi);
++	}
++
++	if (found || !indx->gone.next)
++		return found;
++
++	list_for_each_entry(g, &indx->gone, list) {
++		if (g->rno == rno && g->hash == hash) {
++			ntfs_dir_copy_name(uni, g->name, g->len);
++			return true;
++		}
++	}
++	return false;
++}
++
++/* The entry the walk is at. */
++static struct NTFS_DE **ntfs_dir_at(struct ntfs_fnd *fnd)
++{
++	return fnd->level ? &fnd->de[fnd->level - 1] : &fnd->root_de;
++}
++
++/* From the entry the walk is at down to the first entry of its lowest subnode. */
++static int ntfs_dir_down(struct ntfs_inode *ni, struct ntfs_fnd *fnd)
++{
++	struct NTFS_DE *e = *ntfs_dir_at(fnd);
++
++	while (de_has_vcn_ex(e)) {
++		struct indx_node *node = NULL;
++		int err;
++
++		if (fnd->level >= ARRAY_SIZE(fnd->nodes) ||
++		    le16_to_cpu(e->size) < sizeof(struct NTFS_DE) + sizeof(u64))
  			return -EINVAL;
  
 -		ctx->pos = vbo + off;
-+		ctx->pos = ntfs_dir_pos(ni, vbo + off);
++		err = indx_read(&ni->dir, ni, de_get_vbn(e), &node);
++		if (err)
++			return err;
  
- 		/* Submit the name to the filldir callback. */
- 		if (!ntfs_dir_emit(sbi, ni, e, name, ctx)) {
-@@ -409,7 +432,8 @@
+-		/* Submit the name to the filldir callback. */
+-		if (!ntfs_dir_emit(sbi, ni, e, name, ctx)) {
+-			/* ctx is full. */
+-			return +1;
++		e = hdr_first_de(&node->index->ihdr);
++		if (!e) {
++			put_indx_node(node);
++			return -EINVAL;
+ 		}
++
++		fnd->nodes[fnd->level] = node;
++		fnd->de[fnd->level] = e;
++		fnd->level += 1;
+ 	}
++	return 0;
+ }
+ 
+ /*
++ * Past the entry the walk is at to the next in name order: the first entry
++ * under the next entry's subnode or, past a node's last entry, the entry that
++ * node hangs from. Returns 1 past the directory's last entry.
++ */
++static int ntfs_dir_next(struct ntfs_inode *ni, const struct INDEX_ROOT *root,
++			 struct ntfs_fnd *fnd)
++{
++	struct NTFS_DE **at = ntfs_dir_at(fnd);
++	const struct INDEX_HDR *hdr;
++
++	if (de_is_last(*at)) {
++		if (!fnd->level)
++			return 1;
++		fnd->level -= 1;
++		put_indx_node(fnd->nodes[fnd->level]);
++		fnd->nodes[fnd->level] = NULL;
++		return 0;
++	}
++
++	hdr = fnd->level ? &fnd->nodes[fnd->level - 1]->index->ihdr :
++			   &root->ihdr;
++	*at = hdr_next_de(hdr, *at);
++	if (!*at)
++		return -EINVAL;
++	return ntfs_dir_down(ni, fnd);
++}
++
++/*
+  * ntfs_readdir - file_operations::iterate_shared
+- *
+- * Use non sorted enumeration.
+- * We have an example of broken volume where sorted enumeration
+- * counts each name twice.
+  */
+ static int ntfs_readdir(struct file *file, struct dir_context *ctx)
+ {
+ 	const struct INDEX_ROOT *root;
+-	u64 vbo;
+-	size_t bit;
+-	loff_t eod;
+-	int err = 0;
++	int err = 0, diff;
+ 	struct inode *dir = file_inode(file);
+ 	struct ntfs_inode *ni = ntfs_i(dir);
  	struct super_block *sb = dir->i_sb;
  	struct ntfs_sb_info *sbi = sb->s_fs_info;
- 	loff_t i_size = i_size_read(dir);
+-	loff_t i_size = i_size_read(dir);
 -	u32 pos = ctx->pos;
-+	u64 cookie = ctx->pos;
-+	u32 pos = cookie & NTFS_DIR_POS_MASK;
- 	u8 *name = NULL;
- 	struct indx_node *node = NULL;
- 	u8 index_bits = ni->dir.index_bits;
-@@ -422,6 +446,10 @@
- 	if (pos >= eod)
+-	u8 *name = NULL;
+-	struct indx_node *node = NULL;
+-	u8 index_bits = ni->dir.index_bits;
++	struct cpu_str *uni = NULL;
++	struct ntfs_fnd *fnd;
++	struct NTFS_DE *e;
++	u8 *name;
+ 
+ 	/* Name is a buffer of PATH_MAX length. */
+ 	static_assert(NTFS_NAME_LEN * 4 < PATH_MAX);
+ 
+-	eod = i_size + sbi->record_size;
+-
+-	if (pos >= eod)
++	if (ctx->pos == NTFS_DIR_END)
  		return 0;
  
-+	/* Handed out before a deletion: it may point past live entries. */
-+	if (pos > 2 && (cookie >> NTFS_DIR_POS_BITS) != ntfs_dir_tag(ni))
-+		pos = 2;
-+
  	if (!dir_emit_dots(file, ctx))
- 		return 0;
+@@ -430,6 +611,12 @@
+ 	if (!name)
+ 		return -ENOMEM;
  
-@@ -463,14 +491,14 @@
++	fnd = fnd_get();
++	if (!fnd) {
++		__putname(name);
++		return -ENOMEM;
++	}
++
+ 	if (!ni->mi_loaded && ni->attr_list.size) {
+ 		/*
+ 		 * Directory inode is locked for read.
+@@ -447,76 +634,74 @@
+ 			goto out;
  	}
  
- 	if (!i_size) {
--		ctx->pos = eod;
-+		ctx->pos = ntfs_dir_pos(ni, eod);
++	if (ctx->pos & NTFS_DIR_NAMED) {
++		uni = kmalloc(struct_size(uni, name, NTFS_NAME_LEN), GFP_NOFS);
++		if (!uni) {
++			err = -ENOMEM;
++			goto out;
++		}
++		if (!ntfs_dir_position_name(ni, ctx->pos, uni)) {
++			/* More names were removed since than are kept. */
++			ntfs_warn(sb, "readdir position %llx in r=%lx is lost, listing it again",
++				  ctx->pos, dir->i_ino);
++			kfree(uni);
++			uni = NULL;
++		}
++	}
++
+ 	root = indx_get_root(&ni->dir, ni, NULL, NULL);
+ 	if (!root) {
+ 		err = -EINVAL;
  		goto out;
  	}
  
- 	for (;;) {
- 		vbo = (u64)bit << index_bits;
- 		if (vbo >= i_size) {
+-	if (pos >= sbi->record_size) {
+-		bit = (pos - sbi->record_size) >> index_bits;
++	if (uni) {
++		err = indx_find(&ni->dir, ni, root, uni, 0, sbi, &diff, &e,
++				fnd);
+ 	} else {
+-		err = ntfs_read_hdr(sbi, ni, &root->ihdr, 0, pos, name, ctx);
+-		if (err)
+-			goto out;
+-		bit = 0;
++		fnd->root_de = hdr_first_de(&root->ihdr);
++		err = fnd->root_de ? ntfs_dir_down(ni, fnd) : -EINVAL;
+ 	}
+ 
+-	if (!i_size) {
+-		ctx->pos = eod;
+-		goto out;
+-	}
++	while (!err) {
++		e = *ntfs_dir_at(fnd);
++		if (!de_is_last(e)) {
++			const struct ATTR_FILE_NAME *fname = (void *)(e + 1);
++			u16 key_size = le16_to_cpu(e->key_size);
+ 
+-	for (;;) {
+-		vbo = (u64)bit << index_bits;
+-		if (vbo >= i_size) {
 -			ctx->pos = eod;
-+			ctx->pos = ntfs_dir_pos(ni, eod);
- 			goto out;
- 		}
+-			goto out;
+-		}
++			if (key_size < SIZEOF_ATTRIBUTE_FILENAME ||
++			    key_size < fname_full_size(fname) ||
++			    sizeof(struct NTFS_DE) + key_size >
++				    le16_to_cpu(e->size)) {
++				err = -EINVAL;
++				break;
++			}
  
-@@ -479,7 +507,7 @@
- 			goto out;
+-		err = indx_used_bit(&ni->dir, ni, &bit);
+-		if (err)
+-			goto out;
++			ctx->pos = ntfs_dir_position(e, fname);
  
- 		if (bit == MINUS_ONE_T) {
+-		if (bit == MINUS_ONE_T) {
 -			ctx->pos = eod;
-+			ctx->pos = ntfs_dir_pos(ni, eod);
- 			goto out;
+-			goto out;
++			/* Submit the name to the filldir callback. */
++			if (!ntfs_dir_emit(sbi, ni, e, name, ctx)) {
++				/* ctx is full. */
++				goto out;
++			}
  		}
++		err = ntfs_dir_next(ni, root, fnd);
++	}
  
-@@ -512,11 +540,11 @@
- 		err = 0;
- 	} else if (err == -ENOENT) {
- 		err = 0;
+-		vbo = (u64)bit << index_bits;
+-		if (vbo >= i_size) {
+-			err = -EINVAL;
+-			goto out;
+-		}
+-
+-		err = indx_read(&ni->dir, ni, bit << ni->dir.idx2vbn_bits,
+-				&node);
+-		if (err)
+-			goto out;
+-
+-		err = ntfs_read_hdr(sbi, ni, &node->index->ihdr,
+-				    vbo + sbi->record_size, pos, name, ctx);
+-		if (err)
+-			goto out;
+-
+-		bit += 1;
++	if (err == 1) {
++		ctx->pos = NTFS_DIR_END;
++		err = 0;
+ 	}
+ 
+ out:
+-
++	kfree(uni);
++	fnd_put(fnd);
+ 	__putname(name);
+-	put_indx_node(node);
+ 
+-	if (err == 1) {
+-		/* 'ctx' is full. */
+-		err = 0;
+-	} else if (err == -ENOENT) {
+-		err = 0;
 -		ctx->pos = pos;
-+		ctx->pos = ntfs_dir_pos(ni, pos);
- 	} else if (err < 0) {
+-	} else if (err < 0) {
++	if (err < 0) {
  		if (err == -EINVAL)
  			_ntfs_bad_inode(dir);
 -		ctx->pos = eod;
-+		ctx->pos = ntfs_dir_pos(ni, eod);
++		ctx->pos = NTFS_DIR_END;
  	}
  
  	return err;
-@@ -621,9 +649,16 @@
+@@ -621,9 +806,16 @@
  	return is_empty;
  }
  
-+/* Positions carry the tag above the offset, past the volume's s_maxbytes. */
++/* A position reaches bit 62, past the volume's s_maxbytes. */
 +static loff_t ntfs_dir_llseek(struct file *file, loff_t offset, int whence)
 +{
 +	return generic_file_llseek_size(file, offset, whence, LLONG_MAX,
@@ -134,7 +497,7 @@ one starts the listing again after the dots.
  	.read		= generic_read_dir,
  	.iterate_shared	= ntfs_readdir,
  	.fsync		= generic_file_fsync,
-@@ -636,7 +671,7 @@
+@@ -636,7 +828,7 @@
  
  #if IS_ENABLED(CONFIG_NTFS_FS)
  const struct file_operations ntfs_legacy_dir_operations = {
@@ -143,46 +506,75 @@ one starts the listing again after the dots.
  	.read		= generic_read_dir,
  	.iterate_shared	= ntfs_readdir,
  	.open		= ntfs_file_open,
---- a/fs/ntfs3/index.c	2026-09-10 22:51:40
-+++ b/fs/ntfs3/index.c	2026-09-10 22:57:45
+diff -ruN a/fs/ntfs3/frecord.c b/fs/ntfs3/frecord.c
+--- a/fs/ntfs3/frecord.c	2026-09-11 00:15:11
++++ b/fs/ntfs3/frecord.c	2026-09-11 00:22:03
 @@ -1,4 +1,5 @@
  // SPDX-License-Identifier: GPL-2.0
-+// Modified on 2026-09-10 by Clement Rahula <lukotta@rahula.dev>: readdir positions survive deletion of entries already returned.
++// Modified on 2026-09-11 by Clement Rahula <lukotta@rahula.dev>: a removed name is kept for readdir.
  /*
   *
   * Copyright (C) 2019-2021 Paragon Software GmbH, All rights reserved.
-@@ -889,6 +890,7 @@
- 		goto out;
+@@ -2923,6 +2924,7 @@
+ 	err = indx_delete_entry(&dir_ni->dir, dir_ni, fname, de_key_size, sbi);
+ 	if (err)
+ 		return err;
++	ntfs_dir_forget(dir_ni, ni->mi.rno, fname);
  
- 	indx->type = type;
-+	indx->deletions = 0;
- 	indx->idx2vbn_bits = __ffs(root->index_block_clst);
+ 	/* Step 2: Remove name from MFT. */
+ 	ni_remove_attr_le(ni, attr_from_name(fname), mi, le);
+@@ -2944,6 +2946,7 @@
+ 					de2_key_size, sbi);
+ 		if (err)
+ 			return err;
++		ntfs_dir_forget(dir_ni, ni->mi.rno, fname);
  
- 	t32 = le32_to_cpu(root->index_block_size);
-@@ -2288,6 +2290,9 @@
- 	size_t trim_bit;
- 	const struct INDEX_NAMES *in;
+ 		/* Step 4: Remove paired name from MFT. */
+ 		ni_remove_attr_le(ni, attr_from_name(fname), mi, le);
+diff -ruN a/fs/ntfs3/index.c b/fs/ntfs3/index.c
+--- a/fs/ntfs3/index.c	2026-09-11 00:15:11
++++ b/fs/ntfs3/index.c	2026-09-11 00:21:33
+@@ -1,4 +1,5 @@
+ // SPDX-License-Identifier: GPL-2.0
++// Modified on 2026-09-11 by Clement Rahula <lukotta@rahula.dev>: an index drops the removed names kept for readdir.
+ /*
+  *
+  * Copyright (C) 2019-2021 Paragon Software GmbH, All rights reserved.
+@@ -869,6 +870,7 @@
+ {
+ 	run_close(&indx->alloc_run);
+ 	run_close(&indx->bitmap_run);
++	ntfs_dir_forget_all(indx);
+ }
  
-+	/* Entries after this one move down; see ntfs_dir_pos(). */
-+	indx->deletions++;
-+
- 	fnd = fnd_get();
- 	if (!fnd) {
- 		err = -ENOMEM;
---- a/fs/ntfs3/ntfs_fs.h	2026-09-10 22:51:41
-+++ b/fs/ntfs3/ntfs_fs.h	2026-09-10 22:58:51
+ int indx_init(struct ntfs_index *indx, struct ntfs_sb_info *sbi,
+diff -ruN a/fs/ntfs3/ntfs_fs.h b/fs/ntfs3/ntfs_fs.h
+--- a/fs/ntfs3/ntfs_fs.h	2026-09-11 00:15:11
++++ b/fs/ntfs3/ntfs_fs.h	2026-09-11 00:21:59
 @@ -1,4 +1,5 @@
  /* SPDX-License-Identifier: GPL-2.0 */
-+/* Modified on 2026-09-10 by Clement Rahula <lukotta@rahula.dev>: readdir positions survive deletion of entries already returned. */
++/* Modified on 2026-09-11 by Clement Rahula <lukotta@rahula.dev>: a directory index keeps removed names for readdir. */
  /*
   *
   * Copyright (C) 2019-2021 Paragon Software GmbH, All rights reserved.
-@@ -199,6 +200,8 @@
+@@ -199,6 +200,10 @@
  	u8 idx2vbn_bits; // log2(root->index_block_clst)
  	u8 vbn2vbo_bits; // index_block_size < cluster? 9 : cluster_bits
  	u8 type; // index_mutex_classed
-+	/* Deletions so far; stamped into readdir positions. */
-+	u32 deletions;
++
++	/* Names removed from a directory lately, newest first. */
++	struct list_head gone;
++	u32 gone_count;
  };
  
  /* Minimum MFT zone. */
+@@ -493,6 +498,9 @@
+ struct inode *dir_search_u(struct inode *dir, const struct cpu_str *uni,
+ 			   struct ntfs_fnd *fnd);
+ bool dir_is_empty(struct inode *dir);
++void ntfs_dir_forget(struct ntfs_inode *dir_ni, CLST rno,
++		     const struct ATTR_FILE_NAME *fname);
++void ntfs_dir_forget_all(struct ntfs_index *indx);
+ extern const struct file_operations ntfs_dir_operations;
+ extern const struct file_operations ntfs_legacy_dir_operations;
+ 

@@ -160,15 +160,16 @@ else
 fi
 # The guest kernel, when scripts/build-guest-kernel.sh has built one. It has a
 # directory of its own because build-engine.sh starts engine-built afresh. Its
-# patch names join the record, so the app reads what the kernel does.
+# patch names join the record, so the app reads what the kernel does. They come
+# from the file the build names after the Image it wrote them for.
 KBUILT="$HERE/vendor/kernel-built"
-if [ -f "$KBUILT/Image" ] && [ -f "$KBUILT/Image.sha256" ] && [ -f "$KBUILT/KERNEL_PATCHES" ]; then
+if [ -f "$KBUILT/Image" ] && [ -f "$KBUILT/Image.sha256" ] && [ -f "$KBUILT/Image.patches" ]; then
   (cd "$KBUILT" && shasum -a 256 -c Image.sha256 >/dev/null) || {
     echo "error: $KBUILT/Image does not match its sha256" >&2; exit 1; }
   echo "  using our own build of the guest kernel"
   cp -f "$KBUILT/Image" "$OUT/anylinuxfs/libexec/Image"
-  cat "$KBUILT/KERNEL_PATCHES" >> "$OUT/anylinuxfs/PATCHES"
-  sed 's/^/    /' "$KBUILT/KERNEL_PATCHES"
+  cat "$KBUILT/Image.patches" >> "$OUT/anylinuxfs/PATCHES"
+  sed 's/^/    /' "$KBUILT/Image.patches"
 fi
 # An async export keeps nothing unless the kernel's COMMIT does, so the two go
 # together or neither does.

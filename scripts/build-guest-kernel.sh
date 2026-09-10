@@ -192,18 +192,25 @@ else
   fail "the config embedded in the Image is not the pinned one"
 fi
 
-objdump -d --no-show-raw-insn --disassemble=nfsd_commit "$K/vmlinux" > /out/nfsd_commit.dis
-# A disassembly that never found the function is not one without the call.
-[ "$(grep -c '<nfsd_commit>:$' /out/nfsd_commit.dis || true)" = "1" ] \
-  || fail "nfsd_commit is not in vmlinux to be read"
-calls="$(grep -c '<sync_filesystem>$' /out/nfsd_commit.dis || true)"
-say "nfsd_commit calls sync_filesystem $calls time(s); its calls:"
-grep -E '[[:space:]]bl[[:space:]]' /out/nfsd_commit.dis | sed 's/^ */    /' || true
-if [ "$EXPECT_SYNC" = "1" ]; then
-  [ "$calls" -ge 1 ] || fail "nfsd_commit does not call sync_filesystem: the patch is not in"
-else
-  [ "$calls" = "0" ] || fail "nfsd_commit calls sync_filesystem in a build meant to be as shipped"
-fi
+# Each patch shows as a call in a function it changes. A disassembly that never
+# found the function is not one without the call.
+calls_in() {
+  objdump -d --no-show-raw-insn --disassemble="$1" "$K/vmlinux" > "/out/$1.dis"
+  [ "$(grep -c "<$1>:\$" "/out/$1.dis" || true)" = "1" ] || fail "$1 is not in vmlinux to be read"
+  grep -cE "<($2)(\\.[a-z]+\\.[0-9]+)?>\$" "/out/$1.dis" || true
+}
+for check in "nfsd_commit nfsd_sync_fs|sync_filesystem" \
+             "nfsd_rename nfsd_sync_fs|sync_filesystem" \
+             "ni_remove_name ntfs_dir_forget"; do
+  set -- $check
+  n="$(calls_in "$1" "$2")"
+  say "$1 calls $2: $n"
+  if [ "$EXPECT_SYNC" = "1" ]; then
+    [ "$n" -ge 1 ] || fail "$1 does not call $2: the patch is not in"
+  else
+    [ "$n" = "0" ] || fail "$1 calls $2 in a build meant to be as shipped"
+  fi
+done
 
 cp "$K/arch/arm64/boot/Image" /out/Image
 INNER
@@ -230,11 +237,12 @@ cp "$WORK/out/Image" "$DEST"
 sum="$(/usr/bin/shasum -a 256 "$DEST" | awk '{print $1}')"
 printf '%s  %s\n' "$sum" "$(basename "$DEST")" > "$DEST.sha256"
 # The patches it carries, by name, for vendor-engine.sh to add to the record
-# the app reads. Nothing is written when the build is the one that shipped.
+# the app reads. The file is named after this Image, so no other build's list
+# is read for it, and none is written for the build that shipped.
 if [ "$AS_SHIPPED" = "1" ]; then
-  rm -f "$(dirname "$DEST")/KERNEL_PATCHES"
+  rm -f "$DEST.patches"
 else
-  printf '%s\n' "${OWN_PATCHES[@]%.patch}" > "$(dirname "$DEST")/KERNEL_PATCHES"
+  printf '%s\n' "${OWN_PATCHES[@]%.patch}" > "$DEST.patches"
 fi
 
 echo "Image…"

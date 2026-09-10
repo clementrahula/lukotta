@@ -148,7 +148,13 @@ printf 'tree delete   %6ss  osascript %s%s  %s\n' "$secs" "$rc" "${err:+ ($err)}
 
 # The Trash is never emptied from here: that empties every Trash on the Mac.
 # What this run put in the volume's own Trash comes back out by name.
-mount_point="$(df "$TARGET" | awk 'NR==2 {print $NF}')"
+# The mount point is where the device changes, which a name with spaces in it
+# does not confuse.
+mount_point="$(cd "$TARGET" && pwd -P)"
+while [ "$mount_point" != / ] \
+  && [ "$(stat -f %d "$mount_point")" = "$(stat -f %d "$(dirname "$mount_point")")" ]; do
+  mount_point="$(dirname "$mount_point")"
+done
 for trashed in "$mount_point/.Trashes/$(id -u)/$RUN-"*; do
   [ -e "$trashed" ] && rm -rf "$trashed"
 done
