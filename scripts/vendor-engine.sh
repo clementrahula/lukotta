@@ -158,6 +158,18 @@ else
   echo "  (run scripts/build-engine.sh for the qcow2 and VMDK fixes)"
   rm -f "$OUT/anylinuxfs/PATCHES"
 fi
+# The guest kernel, when scripts/build-guest-kernel.sh has built one. It has a
+# directory of its own because build-engine.sh starts engine-built afresh. Its
+# patch names join the record, so the app reads what the kernel does.
+KBUILT="$HERE/vendor/kernel-built"
+if [ -f "$KBUILT/Image" ] && [ -f "$KBUILT/Image.sha256" ] && [ -f "$KBUILT/KERNEL_PATCHES" ]; then
+  (cd "$KBUILT" && shasum -a 256 -c Image.sha256 >/dev/null) || {
+    echo "error: $KBUILT/Image does not match its sha256" >&2; exit 1; }
+  echo "  using our own build of the guest kernel"
+  cp -f "$KBUILT/Image" "$OUT/anylinuxfs/libexec/Image"
+  cat "$KBUILT/KERNEL_PATCHES" >> "$OUT/anylinuxfs/PATCHES"
+  sed 's/^/    /' "$KBUILT/KERNEL_PATCHES"
+fi
 
 # The one library the engine links from outside its own bottle. It sets the
 # lowest macOS the finished app supports, so it is pinned like everything else.

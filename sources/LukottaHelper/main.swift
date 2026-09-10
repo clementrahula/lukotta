@@ -547,7 +547,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
 
             // What this volume needs for a write it has acknowledged to
             // survive the machine dying. See `Durability`.
-            let durability = Durability.choice(forDevice: devicePath)
+            let durability = Durability.choice(forDevice: devicePath, format: probed)
             var inputs = MountScript.Inputs(
                 enginePath: engine.path,
                 devicePath: devicePath,

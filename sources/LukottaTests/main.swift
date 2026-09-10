@@ -6518,6 +6518,22 @@ group("aDirtyVolumeIsRepairedRatherThanDemoted") {
         "a drive opened read-only is not written to, not even to repair it")
 }
 
+group("aBitLockerVolumeWritesSynchronouslyUntilCommitsAreDurable") {
+    let nowhere = "/nonexistent/lukotta-durability-test"
+    let today = Durability.choice(forDevice: nowhere, format: .bitlocker, commitsAreDurable: false)
+    expect(
+        today.stableWrites && today.guestOption == nil,
+        "without the kernel fix a BitLocker volume still writes stably")
+    let fixed = Durability.choice(forDevice: nowhere, format: .bitlocker, commitsAreDurable: true)
+    expect(
+        !fixed.stableWrites && fixed.guestOption == nil,
+        "with it, a BitLocker volume writes at the drive's speed")
+    let luks = Durability.choice(forDevice: nowhere, format: .luks, commitsAreDurable: true)
+    expect(luks.stableWrites, "and nothing else changes: a LUKS container still writes stably")
+    let unread = Durability.choice(forDevice: nowhere, commitsAreDurable: true)
+    expect(unread.stableWrites, "nor does a volume whose first sector was not read")
+}
+
 group("readOnlyIsBothSidesOfTheConnection") {
     // The export stops the host writing and `-o ro` makes the mount inside the
     // guest read-only underneath it. Either alone leaves one side able to

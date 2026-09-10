@@ -35,7 +35,7 @@ ZFS_SHA256="7bdf13de0a71d95554c0e3e47d5e8f50786c30d4f4b63b7c593b1d11af75c9ee"
 CONFIG="$HERE/patches/$KERNEL-guest.config"
 # This project's, applied after the fork's in this order. Named rather than
 # globbed, so a patch still being written beside them is not built in unasked.
-OWN_PATCHES=(linux-nfsd-commit-is-durable.patch)
+OWN_PATCHES=(linux-nfsd-commit-is-durable.patch linux-ntfs3-readdir-survives-deletion.patch)
 # Bookworm, because the config records its gcc 12.2 and binutils 2.40.
 BUILDER="debian:bookworm@sha256:6ebd97fa83deb272194a2cf015b3d26a4d538e9ad3a7a79d544c8af5b0a01443"
 # libexec/Image in the anylinuxfs 0.19.0 bottle.
@@ -229,6 +229,13 @@ mkdir -p "$(dirname "$DEST")"
 cp "$WORK/out/Image" "$DEST"
 sum="$(/usr/bin/shasum -a 256 "$DEST" | awk '{print $1}')"
 printf '%s  %s\n' "$sum" "$(basename "$DEST")" > "$DEST.sha256"
+# The patches it carries, by name, for vendor-engine.sh to add to the record
+# the app reads. Nothing is written when the build is the one that shipped.
+if [ "$AS_SHIPPED" = "1" ]; then
+  rm -f "$(dirname "$DEST")/KERNEL_PATCHES"
+else
+  printf '%s\n' "${OWN_PATCHES[@]%.patch}" > "$(dirname "$DEST")/KERNEL_PATCHES"
+fi
 
 echo "Image…"
 echo "  $DEST"

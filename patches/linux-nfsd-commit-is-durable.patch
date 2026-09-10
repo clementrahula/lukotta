@@ -2,43 +2,43 @@ Make an answered NFS COMMIT mean the data is on the disk.
 
 The macOS client writes UNSTABLE and then sends COMMIT, and takes the reply
 as its data being durable. nfsd answers a COMMIT by calling vfs_fsync_range()
-over the client's range and nothing else. On ntfs3 that is
-generic_file_fsync, which writes the file's pages in that range and its
-inode, and not the volume's own metadata, which is what syncfs(2) writes.
+over the client's range and nothing else, and on an async export not even
+that. On ntfs3 a range fsync is generic_file_fsync, which writes the file's
+pages in that range and its inode, and not the volume's own metadata, which
+is what syncfs(2) writes.
 
 Measured on a real drive on 2026-09-10: after a 32 MiB write and fsync from
 the Mac, 464 kB was still dirty in the guest. An fsync of that one file
 inside the guest cleared 208 kB of it, and syncfs of the volume cleared the
 other 256 kB. The Mac had been told all of it was stable.
 
-On an export that asks for sync writes, which is the only case where nfsd
-syncs anything, COMMIT now fsyncs the whole file rather than the client's
-range, and when that succeeds syncs the file's filesystem exactly as
-syncfs(2) does: sync_filesystem() with s_umount held for reading. An error
-from either goes through the switch that was already there, so a failed sync
-still resets the write verifier and the client sends its writes again. The
-code that clamped the client's range to s_maxbytes is removed, having
-nothing left to feed.
+COMMIT now fsyncs the whole file rather than the client's range, whatever
+the export asks for, and when that succeeds syncs the file's filesystem
+exactly as syncfs(2) does: sync_filesystem() with s_umount held for reading.
+An error from either goes through the switch that was already there, so a
+failed sync still resets the write verifier and the client sends its writes
+again. That lets the export be async, which spares every create and remove
+a sync of its own (29 ms and 10 ms each on the test drive, against none),
+while what an application commits is still on the drive before it is told
+so. The code that clamped the client's range to s_maxbytes is removed,
+having nothing left to feed.
 
-What it costs is a sync of the whole volume on every COMMIT. That has not
-been measured yet.
-
---- a/fs/nfsd/vfs.c
-+++ b/fs/nfsd/vfs.c
+--- a/fs/nfsd/vfs.c	2026-09-10 22:48:29
++++ b/fs/nfsd/vfs.c	2026-09-10 23:31:17
 @@ -1,4 +1,5 @@
  // SPDX-License-Identifier: GPL-2.0
 +// Modified on 2026-09-10 by Clement Rahula <lukotta@rahula.dev>: COMMIT syncs the whole file and then its filesystem.
  /*
   * File operations used by nfsd. Some of these have been ripped from
   * other parts of the kernel because they weren't exported, others
-@@ -1340,31 +1341,24 @@
+@@ -1340,31 +1341,25 @@
  	    u64 offset, u32 count, __be32 *verf)
  {
  	__be32			err = nfs_ok;
 -	u64			maxbytes;
 -	loff_t			start, end;
  	struct nfsd_net		*nn;
--
+ 
 -	/*
 -	 * Convert the client-provided (offset, count) range to a
 -	 * (start, end) range. If the client-provided range falls
@@ -53,17 +53,19 @@ been measured yet.
 -		if (count && (offset + count - 1 < maxbytes))
 -			end = offset + count - 1;
 -	}
- 
+-
  	nn = net_generic(nf->nf_net, nfsd_net_id);
- 	if (EX_ISSYNC(fhp->fh_export)) {
+-	if (EX_ISSYNC(fhp->fh_export)) {
++	{
  		errseq_t since = READ_ONCE(nf->nf_file->f_wb_err);
 +		struct super_block *sb = nf->nf_file->f_path.dentry->d_sb;
  		int err2;
  
 -		err2 = vfs_fsync_range(nf->nf_file, start, end, 0);
 +		/*
-+		 * Not the client's range: a range fsync on ntfs3 leaves
-+		 * data dirty that only syncfs(2) of the volume writes.
++		 * Whatever the export asks for, and not the client's range:
++		 * a range fsync on ntfs3 leaves data dirty that only
++		 * syncfs(2) of the volume writes.
 +		 */
 +		err2 = vfs_fsync_range(nf->nf_file, 0, LLONG_MAX, 0);
 +		if (!err2) {
@@ -74,3 +76,13 @@ been measured yet.
  		switch (err2) {
  		case 0:
  			nfsd_copy_write_verifier(verf, nn);
+@@ -1379,8 +1374,7 @@
+ 			commit_reset_write_verifier(nn, rqstp, err2);
+ 			err = nfserrno(err2);
+ 		}
+-	} else
+-		nfsd_copy_write_verifier(verf, nn);
++	}
+ 
+ 	return err;
+ }

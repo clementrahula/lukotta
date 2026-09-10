@@ -110,7 +110,9 @@ public enum HelperInfo {
     ///    app's own guest image and nothing could reach it.
     /// 55: writes go in megabytes. The daemon writes the server's limit into
     ///    the mount script, so a daemon on 54 would keep serving 128 KiB.
-    public static let contract = 55
+    /// 56: the daemon decides a BitLocker volume's write mode from the engine
+    ///    it runs with, and one on 55 would go on writing it synchronously.
+    public static let contract = 56
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"
