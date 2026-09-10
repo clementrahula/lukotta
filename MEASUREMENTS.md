@@ -5434,3 +5434,9 @@ A COMMIT that syncs the whole filesystem is too rare to matter, and the drive
 never waits for data: the guest's cache is kept full and the stick is writing
 the whole time. The copy runs at what the stick takes, and this late in a day
 of writing that was less than the 7.7 MB/s it took earlier.
+
+And what a COMMIT keeps, on the same build and the same stick, the client
+writing unstably and the export async: `scripts/kill-durability.sh` wrote
+8 MiB with `conv=fsync`, killed the machine as soon as fsync returned, and
+opened the drive again. The file had survived, byte-identical, all 8,388,608
+bytes.

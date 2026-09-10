@@ -454,6 +454,12 @@ ten jobs, `make Image` in 145 s, with no warning from a patched file.
 olddefconfig changed nothing, the config embedded in the result is the pinned
 one byte for byte, and every call the patches add is in the Image.
 
+On the BitLocker test stick, booted with that Image, exported async, and with
+the client writing unstably: `scripts/kill-durability.sh` wrote 8 MiB with
+`conv=fsync`, killed the machine as soon as fsync returned, and opened the
+drive again, and the file was byte-identical. A Finder copy of 500 files of
+4 KiB took 14.0 s, against 11.0 s onto a native exFAT stick.
+
 Built without this patch and named as the fork names it, the result is not the
 shipped Image byte for byte, and one thing accounts for all of it: the kernel
 headers archive the kernel embeds (`CONFIG_IKHEADERS`). The shipped one was
