@@ -417,9 +417,9 @@ asks for, exactly as `syncfs(2)` does: `sync_filesystem()` with `s_umount` held
 for reading. It then flushes the device, so what the sync wrote is behind the
 barrier and not only in the drive's cache. A writeback error, the file's and
 then the filesystem's, is told to the open file once, as `fsync(2)` and
-`syncfs(2)` tell it, and not again at every COMMIT after it. A failure goes
-through the switch that was already there, so it still resets the write
-verifier and the client writes again. The clamp of the client's range to
+`syncfs(2)` tell it, and changes the write verifier, so that the client writes
+again what it had been told was safe. A failure of the sync itself goes
+through the switch that was already there and does the same. The clamp of the client's range to
 `s_maxbytes` goes, with nothing left to feed.
 
 On an async export nfsd also turned a stable write unstable while telling the

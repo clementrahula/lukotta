@@ -13,8 +13,8 @@ volume the other 256 kB.
 COMMIT now syncs the file's filesystem as syncfs(2) does, with s_umount held
 for reading, then flushes the device, so what the sync wrote is behind the
 flush. A writeback error, the file's and then the filesystem's, is told to the
-open file once, as fsync(2) and syncfs(2) tell it, and not again at every
-COMMIT after it.
+open file once, as fsync(2) and syncfs(2) tell it, and changes the write
+verifier, so that the client writes again what it had been told was safe.
 
 An async export spares every create and remove a sync of its own (29 ms and
 10 ms each on the test drive, against none), but nfsd also made a stable write
@@ -32,7 +32,7 @@ vmproxy exports async only where it finds it.
 
 diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
 --- a/fs/nfsd/vfs.c	2026-09-11 00:15:11
-+++ b/fs/nfsd/vfs.c	2026-09-11 01:29:23
++++ b/fs/nfsd/vfs.c	2026-09-11 01:44:15
 @@ -1,4 +1,5 @@
  // SPDX-License-Identifier: GPL-2.0
 +// Modified on 2026-09-11 by Clement Rahula <lukotta@rahula.dev>: COMMIT and rename sync the filesystem, and stable writes stay stable, whatever the export says.
@@ -128,7 +128,7 @@ diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
  out_nfserr:
  	if (host_err >= 0) {
  		trace_nfsd_write_io_done(rqstp, fhp, offset, *cnt);
-@@ -1340,48 +1380,38 @@
+@@ -1340,47 +1380,42 @@
  	    u64 offset, u32 count, __be32 *verf)
  {
  	__be32			err = nfs_ok;
@@ -156,27 +156,18 @@ diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
 -		start = offset;
 -		if (count && (offset + count - 1 < maxbytes))
 -			end = offset + count - 1;
+-	}
 +	err2 = nfsd_sync_fs(sb);
 +	switch (err2) {
-+	case 0:
-+		nfsd_copy_write_verifier(verf, nn);
++	case 0: {
 +		/*
 +		 * A writeback error, the file's and then the filesystem's, told
-+		 * to this open file once, as fsync(2) and syncfs(2) tell it, and
-+		 * not again at every COMMIT after.
++		 * to this open file once, as fsync(2) and syncfs(2) tell it. The
++		 * write verifier changes with it, so that the client writes again
++		 * what it had been told was safe.
 +		 */
-+		err2 = file_check_and_advance_wb_err(file);
-+		if (!err2)
-+			err2 = errseq_check_and_advance(&sb->s_wb_err, &file->f_sb_err);
-+		err = nfserrno(err2);
-+		break;
-+	case -EINVAL:
-+		err = nfserr_notsupp;
-+		break;
-+	default:
-+		commit_reset_write_verifier(nn, rqstp, err2);
-+		err = nfserrno(err2);
- 	}
++		int file_err = file_check_and_advance_wb_err(file);
++		int sb_err = errseq_check_and_advance(&sb->s_wb_err, &file->f_sb_err);
  
 -	nn = net_generic(nf->nf_net, nfsd_net_id);
 -	if (EX_ISSYNC(fhp->fh_export)) {
@@ -195,16 +186,27 @@ diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
 -			err = nfserr_notsupp;
 -			break;
 -		default:
--			commit_reset_write_verifier(nn, rqstp, err2);
++		err2 = file_err ?: sb_err;
++		if (err2)
+ 			commit_reset_write_verifier(nn, rqstp, err2);
 -			err = nfserrno(err2);
 -		}
 -	} else
--		nfsd_copy_write_verifier(verf, nn);
--
+ 		nfsd_copy_write_verifier(verf, nn);
++		err = nfserrno(err2);
++		break;
++	}
++	case -EINVAL:
++		err = nfserr_notsupp;
++		break;
++	default:
++		commit_reset_write_verifier(nn, rqstp, err2);
++		err = nfserrno(err2);
++	}
+ 
  	return err;
  }
- 
-@@ -1930,6 +1960,21 @@
+@@ -1930,6 +1965,21 @@
  		nfsd_close_cached_files(ndentry);
  		dput(ndentry);
  		goto retry;
