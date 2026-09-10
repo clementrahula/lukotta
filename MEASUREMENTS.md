@@ -5421,3 +5421,16 @@ subscriber about six seconds late: the folder was not yet being watched when
 the copy stopped, so its placeholders went once they had been still for five
 seconds. A copy cancelled after that goes through the withdrawn progress, a
 second after the press.
+
+Where a large copy's time goes, sampled every second in the guest during 120 s
+of a 512 MB Finder copy onto the stick:
+
+    nfsd writes of 1 MiB      422, about 3.5 MiB/s
+    COMMITs                   9, one for every 47 MiB
+    Dirty                     28-35 MB throughout
+    Writeback                 4-24 MB throughout, never zero
+
+A COMMIT that syncs the whole filesystem is too rare to matter, and the drive
+never waits for data: the guest's cache is kept full and the stick is writing
+the whole time. The copy runs at what the stick takes, and this late in a day
+of writing that was less than the 7.7 MB/s it took earlier.
