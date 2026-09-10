@@ -1,4 +1,4 @@
 - Kansion poistaminen BitLocker-asemalta ei enää pysähdy ilmoitukseen, että joitakin kohteita jouduttiin ohittamaan: jokainen tiedosto poistuu, oli niitä kuinka monta tahansa.
 - Asemalle tehdyn kopioinnin peruminen ei enää jätä jälkeensä tyhjiä tiedostoja.
-- Monien pienten tiedostojen kopiointi ja poistaminen asemalla on nopeampaa, ja jokainen kopioitu tiedosto on asemalla heti, kun Finder ilmoittaa sen valmiiksi.
+- Monien pienten tiedostojen kopiointi ja poistaminen asemalla on nopeampaa.
 - Kopioinnit BitLocker-asemalle eivät enää odota, että jokainen kirjoitus ehtii asemalle ennen seuraavan lähettämistä.

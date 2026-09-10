@@ -1,4 +1,4 @@
 - Memadam folder pada pemacu BitLocker tidak lagi terhenti dengan mesej bahawa sesetengah item terpaksa dilangkau: setiap fail dipadam, walau berapa pun banyaknya.
 - Membatalkan salinan ke pemacu tidak lagi meninggalkan fail kosong.
-- Menyalin dan memadam banyak fail kecil pada pemacu kini lebih pantas, dan setiap fail yang disalin sudah berada pada pemacu sebaik sahaja Finder mengatakan ia selesai.
+- Menyalin dan memadam banyak fail kecil pada pemacu kini lebih pantas.
 - Salinan ke pemacu BitLocker tidak lagi menunggu setiap penulisan sampai ke pemacu sebelum menghantar yang seterusnya.

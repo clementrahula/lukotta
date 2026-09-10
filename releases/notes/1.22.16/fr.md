@@ -1,4 +1,4 @@
 - Supprimer un dossier sur un disque BitLocker ne s'arrête plus en indiquant que certains éléments ont dû être ignorés : chaque fichier disparaît, quel qu'en soit le nombre.
 - Annuler une copie vers un disque ne laisse plus de fichiers vides derrière elle.
-- Copier et supprimer de nombreux petits fichiers sur un disque est plus rapide, et chaque fichier copié est sur le disque dès que le Finder indique qu'il est terminé.
+- Copier et supprimer de nombreux petits fichiers sur un disque est plus rapide.
 - Les copies vers un disque BitLocker n'attendent plus que chaque écriture atteigne le disque avant d'envoyer la suivante.

@@ -1,4 +1,4 @@
 - Usuwanie folderu z dysku BitLocker nie zatrzymuje się już komunikatem, że niektóre rzeczy trzeba było pominąć: znika każdy plik, niezależnie od ich liczby.
 - Anulowanie kopiowania na dysk nie zostawia już pustych plików.
-- Kopiowanie i usuwanie wielu małych plików na dysku jest szybsze, a każdy skopiowany plik jest na dysku, gdy tylko Finder poda, że jest gotowy.
+- Kopiowanie i usuwanie wielu małych plików na dysku jest szybsze.
 - Kopiowanie na dysk BitLocker nie czeka już, aż każdy zapis dotrze do dysku, zanim wyśle następny.

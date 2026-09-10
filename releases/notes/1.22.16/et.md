@@ -1,4 +1,4 @@
 - Kausta kustutamine BitLockeri kettalt ei peatu enam teatega, et mõned üksused tuli vahele jätta: iga fail kaob, olgu neid kui palju tahes.
 - Kettale kopeerimise katkestamine ei jäta enam maha tühje faile.
-- Paljude väikeste failide kopeerimine ja kustutamine kettal on kiirem ning iga kopeeritud fail on kettal kohe, kui Finder ütleb, et see on valmis.
+- Paljude väikeste failide kopeerimine ja kustutamine kettal on kiirem.
 - Kopeerimine BitLockeri kettale ei oota enam, et iga kirjutus jõuaks kettale, enne kui järgmine saadetakse.

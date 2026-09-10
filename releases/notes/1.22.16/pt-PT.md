@@ -1,4 +1,4 @@
 - Apagar uma pasta numa unidade BitLocker já não para com a mensagem de que alguns itens tiveram de ser ignorados: todos os ficheiros desaparecem, sejam quantos forem.
 - Cancelar uma cópia para uma unidade já não deixa ficheiros vazios para trás.
-- Copiar e apagar muitos ficheiros pequenos numa unidade é mais rápido, e cada ficheiro copiado está na unidade assim que o Finder diz que terminou.
+- Copiar e apagar muitos ficheiros pequenos numa unidade é mais rápido.
 - As cópias para uma unidade BitLocker já não esperam que cada escrita chegue à unidade antes de enviar a seguinte.

@@ -1,4 +1,4 @@
 - Sletning af en mappe på et BitLocker-drev stopper ikke længere med beskeden om, at nogle emner måtte springes over: hver fil forsvinder, uanset hvor mange der er.
 - Når en kopiering til et drev annulleres, efterlades der ikke længere tomme filer.
-- Det går hurtigere at kopiere og slette mange små filer på et drev, og hver kopieret fil er på drevet, så snart Finder siger, at den er færdig.
+- Det går hurtigere at kopiere og slette mange små filer på et drev.
 - Kopiering til et BitLocker-drev venter ikke længere på, at hver skrivning når drevet, før den næste sendes.

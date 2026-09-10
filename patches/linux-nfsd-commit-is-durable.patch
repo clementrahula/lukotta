@@ -19,20 +19,23 @@ verifier, so that the client writes again what it had been told was safe.
 An async export spares every create and remove a sync of its own (29 ms and
 10 ms each on the test drive, against none), but nfsd also made a stable write
 unstable there while telling the client it was stable, and skipped a rename's
-metadata commit. On an async export a stable write is now followed by the same
-sync as a COMMIT, because the client sends no COMMIT after it and the create
-before it was not synced either; on a sync export it stays the range fsync it
-was. A rename on an async export syncs the filesystem, once its locks are
-dropped, before it is answered, and fails only on an error that sync met. A
-create, remove or attribute change is still answered before it is on the
-drive, and is on it by the next COMMIT, stable write or rename.
+metadata commit. A stable write is now written through on any export, as
+fsync(2) writes a file: its data and inode, then a flush. A new file's
+directory entry is not synced with it: that takes a sync of the whole
+filesystem, which made 500 files of 4 KiB take 32.6 s to copy onto the test
+stick against 14.0 s without it and 11.0 s onto a native stick. It reaches the
+drive with the next writeback, which vmproxy has the guest run every second, or
+the next COMMIT or rename. A rename on an async export syncs the filesystem,
+once its locks are dropped, before it is answered, and fails only on an error
+that sync met. A create, remove or attribute change is answered before it is
+on the drive, and is on it by the next writeback, COMMIT or rename.
 
 The read-only nfsd parameter commit_is_durable says a kernel has this, and
 vmproxy exports async only where it finds it.
 
 diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
 --- a/fs/nfsd/vfs.c	2026-09-11 00:15:11
-+++ b/fs/nfsd/vfs.c	2026-09-11 01:44:15
++++ b/fs/nfsd/vfs.c	2026-09-11 01:54:32
 @@ -1,4 +1,5 @@
  // SPDX-License-Identifier: GPL-2.0
 +// Modified on 2026-09-11 by Clement Rahula <lukotta@rahula.dev>: COMMIT and rename sync the filesystem, and stable writes stay stable, whatever the export says.
@@ -79,56 +82,23 @@ diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
  /**
   * nfserrno - Map Linux errnos to NFS errnos
   * @errno: POSIX(-ish) error code to be mapped
-@@ -1163,6 +1190,7 @@
- 	unsigned int		pflags = current->flags;
- 	rwf_t			flags = 0;
- 	bool			restore_flags = false;
-+	bool			sync_after;
- 
- 	trace_nfsd_write_opened(rqstp, fhp, offset, *cnt);
- 
-@@ -1184,10 +1212,14 @@
+@@ -1184,9 +1211,12 @@
  
  	exp = fhp->fh_export;
  
 -	if (!EX_ISSYNC(exp))
 -		stable = NFS_UNSTABLE;
 -
--	if (stable && !fhp->fh_use_wgather)
 +	/*
 +	 * Kept stable on an async export too: the reply tells the client the
-+	 * write is stable, and the client sends no COMMIT for it. There the
-+	 * create before it was not synced either, so the whole filesystem is,
-+	 * after the write, as a COMMIT syncs it.
++	 * write is stable, and the client sends no COMMIT for it. It is synced
++	 * as fsync(2) syncs a file, its data and inode; a new file's directory
++	 * entry reaches the drive with the next writeback or COMMIT.
 +	 */
-+	sync_after = stable && !EX_ISSYNC(exp);
-+	if (stable && !sync_after && !fhp->fh_use_wgather)
+ 	if (stable && !fhp->fh_use_wgather)
  		flags |= RWF_SYNC;
  
- 	iov_iter_kvec(&iter, ITER_SOURCE, vec, vlen, *cnt);
-@@ -1206,12 +1238,20 @@
- 	if (host_err < 0)
- 		goto out_nfserr;
- 
--	if (stable && fhp->fh_use_wgather) {
-+	if (stable && !sync_after && fhp->fh_use_wgather) {
- 		host_err = wait_for_concurrent_writes(file);
- 		if (host_err < 0)
- 			commit_reset_write_verifier(nn, rqstp, host_err);
- 	}
- 
-+	if (sync_after) {
-+		host_err = nfsd_sync_fs(sb);
-+		if (!host_err)
-+			host_err = filemap_check_wb_err(file->f_mapping, since);
-+		if (host_err < 0)
-+			commit_reset_write_verifier(nn, rqstp, host_err);
-+	}
-+
- out_nfserr:
- 	if (host_err >= 0) {
- 		trace_nfsd_write_io_done(rqstp, fhp, offset, *cnt);
-@@ -1340,47 +1380,42 @@
+@@ -1340,47 +1370,42 @@
  	    u64 offset, u32 count, __be32 *verf)
  {
  	__be32			err = nfs_ok;
@@ -206,7 +176,7 @@ diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
  
  	return err;
  }
-@@ -1930,6 +1965,21 @@
+@@ -1930,6 +1955,21 @@
  		nfsd_close_cached_files(ndentry);
  		dput(ndentry);
  		goto retry;

@@ -1,4 +1,4 @@
 - Egy BitLocker-meghajtón lévő mappa törlése már nem áll le azzal az üzenettel, hogy egyes elemeket ki kellett hagyni: minden fájl eltűnik, akármennyi is van.
 - Egy meghajtóra irányuló másolás megszakítása már nem hagy maga után üres fájlokat.
-- Sok kis fájl másolása és törlése a meghajtón gyorsabb, és minden átmásolt fájl a meghajtón van, amint a Finder jelzi, hogy elkészült.
+- Sok kis fájl másolása és törlése a meghajtón gyorsabb.
 - A BitLocker-meghajtóra irányuló másolás már nem várja meg, hogy minden írás elérje a meghajtót, mielőtt elküldené a következőt.
