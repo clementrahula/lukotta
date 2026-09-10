@@ -5312,3 +5312,30 @@ with no durability measure at all was tested twice and read as the safe one, and
 "the safe configuration lost data in 5 of 6 runs" was written down about a build
 that had nothing switched on. Every run below now prints what the mount was
 given, and no configuration is believed without it.
+
+## What Finder does on a native drive — 2026-09-10
+
+Measured so that "behaves like a native drive" has numbers behind it. Finder's
+own copy engine, driven by osascript, onto a macOS-native exFAT USB stick, and
+the same onto the BitLocker test stick through Lukotta as it shipped:
+
+    native exFAT stick, 1 GB in 4 files      10.9 MB/s, Copy window shown
+    BitLocker stick, same copy, 128 KiB      5.0 MB/s, Copy window shown
+    BitLocker stick, same copy, 1 MiB        7.4 MB/s, Copy window shown
+    BitLocker stick, inside the guest        8.7 MB/s  (the drive's own ceiling)
+
+Things that look like faults on a Lukotta volume and are Finder's own, on the
+native stick too:
+
+    placeholders   a 20-file copy had created all 20 destination files within
+                   five seconds, 19 of them empty, none finished
+    ._ files       one AppleDouble companion per file; exFAT has nowhere else
+                   to keep Finder's metadata, and neither has NFSv3
+    cancel         one file: its partial copy gone at once. Twenty files: the
+                   file being written goes, and the 18 untouched empty
+                   placeholders and their ._ companions stay, carrying only
+                   com.apple.FinderInfo -- not a resumable copy
+    delete         0.49 s, because the native stick has a Trash
+
+So the placeholders a person sees on a Lukotta volume are Finder's, and what a
+Lukotta volume owes them is the same behaviour at the same speed.
