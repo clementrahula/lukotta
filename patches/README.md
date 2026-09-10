@@ -489,6 +489,14 @@ own code, since `indx_find_sort()` reads a subnode into the node it came from
 and frees nodes without their buffers. Directories get an llseek that accepts
 positions past `s_maxbytes`.
 
+**Verification.** On the BitLocker test stick on 2026-09-11,
+`scripts/listing-survives-deletion.sh` made 3,000 files and listed and removed
+them at once: 3,000 listed, none twice, none already gone, none left. With
+files created while it listed, every one of the 3,000 originals came exactly
+once. Finder then deleted folders of 500, 5,002 and 10,538 files with no error,
+and the engine log recorded no lost position. The same 500-file delete stopped
+at 76 files before this patch.
+
 ## vmproxy-writes-commit-at-commit.patch
 
 **Defect.** A sync export makes nfsd sync every create, remove and attribute
@@ -502,4 +510,9 @@ exists, which only a kernel with `linux-nfsd-commit-is-durable.patch` has, and
 sync otherwise, so a guest booted with the stock `Image-4K` an f2fs volume gets
 is exported as before. The options chosen are printed to the engine log.
 `vendor-engine.sh` also refuses to package this patch without the kernel's.
+
+**Verification.** On the BitLocker test stick on 2026-09-11, booted with the
+kernel carrying `linux-nfsd-commit-is-durable.patch`, the engine log reads
+`exporting rw,async,no_subtree_check,all_squash,anonuid=0,anongid=0,insecure`.
+A Finder delete of 10,538 files took 14.1 s.
 
