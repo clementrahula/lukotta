@@ -5410,18 +5410,16 @@ stayed, as on a native stick. A subscriber to the destination folder saw every
 one of their progresses withdrawn at the press, unfinished and not marked
 cancelled.
 
-With the app removing what such a progress leaves, the same cancel, pressed
-eight seconds into the copy:
+With the app removing what such a progress leaves, the same cancel:
 
-    +0.6 s after the press     20 files, 18 empty
-    +1.8 s                     18 files, 17 empty
-    +7.3 s                     1 file, 0 empty: the one that finished, whole
+    +0.05 s after the press    20 files, 17 empty
+    +1.4 s                     2 files, 0 empty: the two that had finished, whole
 
-The seven seconds are the volume's events, which on this NFS mount reach a
-subscriber about six seconds late: the folder was not yet being watched when
-the copy stopped, so its placeholders went once they had been still for five
-seconds. A copy cancelled after that goes through the withdrawn progress, a
-second after the press.
+A first version took 7.3 s, and not for the reason it seemed. Finder's progress
+reaches another process with its file in userInfo and `fileURL` nil, so that
+version never saw a withdrawal, and every placeholder it removed it found by
+scanning the folder again. It now reads the file where Finder puts it, and a
+placeholder goes a second after its progress is withdrawn.
 
 Where a large copy's time goes, sampled every second in the guest during 120 s
 of a 512 MB Finder copy onto the stick:
@@ -5451,3 +5449,10 @@ write went back to the fsync and the guest writes back every second instead.
 
 With the app sweeping for placeholders, a Finder copy of 40 zero-byte files
 onto the stick left all 40.
+
+On the build that ships -- stable writes at fsync strength, the guest writing
+back every second (its log reads `dirty_writeback_centisecs 100` and
+`dirty_expire_centisecs 100`), a COMMIT error resetting the write verifier --
+Finder copied 500 files of 4 KiB in 14.5 s and 64 MB at 6.3 MB/s, deleted the
+500 in 1.13 s, and copied 80 folders of 3 files past the app's limit of 64
+watched folders, all byte-identical and with no error.
