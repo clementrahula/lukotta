@@ -5375,3 +5375,49 @@ checks, pkill -9'd every engine on the way out (the drive came back with $MFT
 and $MFTMirr out of step, repaired on the next open), and build-engine.sh
 emptied the directory holding the NTFS checker, so an engine rebuild shipped a
 guest without it.
+
+## A listing that holds while Finder deletes, measured against a native stick — 2026-09-11
+
+The durable COMMIT build still failed the owner's delete: Finder stopped a
+500-file delete at 76 files with "some items had to be skipped". Finder's own
+log said why, `unlink returned -1 (errno: 2 (No such file or directory))`: the
+readdir that restarted after a removal had handed it names it had already
+removed. With the index walked in name order from positions that name an entry,
+on the BitLocker test stick:
+
+    3000 files listed and removed at once       3000 listed, 0 twice, 0 gone, 0 left
+      and with files created meanwhile          3000 of 3000 originals, once each
+    Finder delete, 500 files                    1.0 s, no error
+    Finder delete, 5,002 files                  7.0 s, no error
+    Finder delete, 10,538 files                 14.1 s, no error
+    readdir positions lost, engine log          0
+
+The same Finder copies, against Finder onto a native exFAT stick:
+
+                            BitLocker stick, Lukotta    native exFAT stick
+    1 GB in 4 files         5.6 MB/s, 7.7 mid-copy      8.0 MB/s (64 MB)
+    500 files of 4 KiB      14.0 s                      11.0 s
+    delete of those 500     1.0 s                       0.25 s, into the Trash
+
+The 500 small files took 2.1 s before this build because nfsd answered
+Finder's one stable write per file as stable without writing it through. Each
+is now on the drive before it is answered, a flush of the stick per file.
+
+A copy of 20 files of 20 MB, stopped with the Copy window's own button: the
+file being written was gone in 0.6 s, and the 17 untouched empty placeholders
+stayed, as on a native stick. A subscriber to the destination folder saw every
+one of their progresses withdrawn at the press, unfinished and not marked
+cancelled.
+
+With the app removing what such a progress leaves, the same cancel, pressed
+eight seconds into the copy:
+
+    +0.6 s after the press     20 files, 18 empty
+    +1.8 s                     18 files, 17 empty
+    +7.3 s                     1 file, 0 empty: the one that finished, whole
+
+The seven seconds are the volume's events, which on this NFS mount reach a
+subscriber about six seconds late: the folder was not yet being watched when
+the copy stopped, so its placeholders went once they had been still for five
+seconds. A copy cancelled after that goes through the withdrawn progress, a
+second after the press.
