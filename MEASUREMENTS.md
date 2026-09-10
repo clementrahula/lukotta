@@ -5440,3 +5440,13 @@ writing unstably and the export async: `scripts/kill-durability.sh` wrote
 8 MiB with `conv=fsync`, killed the machine as soon as fsync returned, and
 opened the drive again. The file had survived, byte-identical, all 8,388,608
 bytes.
+
+What a stable write costs if it syncs the whole filesystem, which review asked
+for so that a new file's directory entry is on the drive with it: 500 files of
+4 KiB through Finder took 32.6 s onto the stick, against 14.0 s with the file's
+own fsync and 11.0 s onto a native exFAT stick. Three times what a Mac's own
+drive costs, for a guarantee a Mac's own drive does not give, so the stable
+write went back to the fsync and the guest writes back every second instead.
+
+With the app sweeping for placeholders, a Finder copy of 40 zero-byte files
+onto the stick left all 40.
