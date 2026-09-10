@@ -457,15 +457,17 @@ writes their names to `Image.patches` beside the Image, for `vendor-engine.sh`
 to add to the record.
 
 **Verification.** Built on 2026-09-11 in the pinned bookworm container with
-ten jobs, `make Image` in 145 s, with no warning from a patched file.
+ten jobs, `make Image` in 147 s, with no warning from a patched file.
 olddefconfig changed nothing, the config embedded in the result is the pinned
 one byte for byte, and every call the patches add is in the Image.
 
-On the BitLocker test stick, booted with that Image, exported async, and with
-the client writing unstably: `scripts/kill-durability.sh` wrote 8 MiB with
-`conv=fsync`, killed the machine as soon as fsync returned, and opened the
-drive again, and the file was byte-identical. A Finder copy of 500 files of
-4 KiB took 14.0 s, against 11.0 s onto a native exFAT stick.
+On the BitLocker test stick, booted with that Image, exported async, the
+guest writing back every second (its log reads `dirty_writeback_centisecs 100`
+and `dirty_expire_centisecs 100`) and the client writing unstably:
+`scripts/kill-durability.sh` wrote 8 MiB with `conv=fsync`, killed the machine
+as soon as fsync returned, and opened the drive again, and the file was
+byte-identical. A Finder copy of 500 files of 4 KiB took 14.5 s, against
+11.0 s onto a native exFAT stick.
 
 Built without this patch and named as the fork names it, the result is not the
 shipped Image byte for byte, and one thing accounts for all of it: the kernel
