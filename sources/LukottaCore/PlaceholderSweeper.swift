@@ -20,8 +20,9 @@ public final class PlaceholderSweeper: @unchecked Sendable {
     /// that Finder finishes with the file first.
     static let settle: TimeInterval = 1
     /// How long a placeholder nobody publishes must stay unchanged before it
-    /// counts as one a stopped copy abandoned.
-    static let abandoned: TimeInterval = 5
+    /// counts as one a stopped copy abandoned: long enough that publications
+    /// delivered late through the app's main thread have arrived.
+    static let abandoned: TimeInterval = 10
     /// The most entries of one folder looked at for those.
     static let scanLimit = 10_000
 
@@ -38,10 +39,13 @@ public final class PlaceholderSweeper: @unchecked Sendable {
     private let queue = DispatchQueue(label: "com.lukotta.placeholder-sweeper")
     private var stream: FSEventStreamRef?
     private var stopped = false
-    /// Subscribed folders, the most recently written last.
-    private var folders: [(path: String, token: Any)] = []
-    /// Files whose progress is published now, which nothing here touches.
-    private var published: Set<String> = []
+    /// Subscribed folders, the most recently written last, each with the
+    /// serial of its subscription.
+    private var folders: [(path: String, token: Any, serial: Int)] = []
+    private var serials = 0
+    /// Files whose progress is published now, with the serial of the
+    /// subscription that saw it; nothing here touches them.
+    private var published: [String: Int] = [:]
     /// Bumped each time a file's progress is published, so that a file a new
     /// copy has taken up is left to it.
     private var generation: [String: Int] = [:]
@@ -109,20 +113,22 @@ public final class PlaceholderSweeper: @unchecked Sendable {
             folders.append(folders.remove(at: index))
             return
         }
+        serials += 1
+        let serial = serials
         let url = URL(fileURLWithPath: folder, isDirectory: true)
         let token = Progress.addSubscriber(forFileURL: url) { [weak self] progress in
             guard let self, let path = progress.fileURL?.path else { return nil }
             self.queue.async {
                 self.generation[path, default: 0] += 1
-                self.published.insert(path)
+                self.published[path] = serial
             }
             return { [weak self] in
                 // Read as it is withdrawn: a file the copy reached says so.
                 let reached = progress.completedUnitCount > 0
-                self?.withdrawn(path, reached: reached)
+                self?.withdrawn(path, reached: reached, serial: serial)
             }
         }
-        folders.append((folder, token))
+        folders.append((folder, token, serial))
         evictIdleFolder()
         queue.asyncAfter(deadline: .now() + Self.settle) { [weak self] in
             self?.lookForAbandoned(in: folder, earlier: [:], looksLeft: 3)
@@ -135,23 +141,28 @@ public final class PlaceholderSweeper: @unchecked Sendable {
     private func evictIdleFolder() {
         guard folders.count > Self.folderLimit,
             let index = folders.firstIndex(where: { folder in
-                !published.contains { ($0 as NSString).deletingLastPathComponent == folder.path }
+                !published.keys.contains {
+                    ($0 as NSString).deletingLastPathComponent == folder.path
+                }
             })
         else { return }
         Progress.removeSubscriber(folders.remove(at: index).token)
     }
 
-    private func withdrawn(_ path: String, reached: Bool) {
+    /// A withdrawal counts only from the subscription that is current for
+    /// its folder: one that was removed, even if the folder is watched again
+    /// since, withdraws everything it saw and says nothing about a copy.
+    private func withdrawn(_ path: String, reached: Bool, serial: Int) {
         queue.async {
-            self.published.remove(path)
             let folder = (path as NSString).deletingLastPathComponent
-            guard !self.stopped, !reached, self.folders.contains(where: { $0.path == folder }),
-                let stamp = Self.changeStamp(path)
+            guard self.folders.contains(where: { $0.path == folder && $0.serial == serial })
             else { return }
+            if self.published[path] == serial { self.published[path] = nil }
+            guard !self.stopped, !reached, let stamp = Self.changeStamp(path) else { return }
             let seen = self.generation[path, default: 0]
             self.queue.asyncAfter(deadline: .now() + Self.settle) {
                 guard !self.stopped, self.generation[path, default: 0] == seen,
-                    !self.published.contains(path)
+                    self.published[path] == nil
                 else { return }
                 self.generation[path] = nil
                 if Self.removeIfPlaceholder(path, unchangedSince: stamp) {
@@ -171,7 +182,7 @@ public final class PlaceholderSweeper: @unchecked Sendable {
         guard !stopped else { return }
         var unsure: [String: ChangeStamp] = [:]
         for path in Self.emptyFiles(in: folder)
-        where !published.contains(path) && Self.isPlaceholder(atPath: path) {
+        where published[path] == nil && Self.isPlaceholder(atPath: path) {
             guard let stamp = Self.changeStamp(path) else { continue }
             if earlier[path] == stamp {
                 if Self.removeIfPlaceholder(path, unchangedSince: stamp) {
