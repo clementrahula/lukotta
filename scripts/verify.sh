@@ -50,6 +50,10 @@ LIST="${CHECKS:-scripts/checks.tsv}"
 LOGDIR=".verify-logs"
 rm -rf "$LOGDIR"; mkdir -p "$LOGDIR"
 LOG="$(mktemp)"; TALLY="$(mktemp)"
+# Engines already running when this run began serve somebody's drive. On
+# 2026-09-10 the pattern kill below took one serving the BitLocker test drive,
+# because the Stop hook runs this whenever a script has changed.
+BEFORE_ENGINES=" $(/usr/bin/pgrep -f 'anylinuxfs|krun|vmnet-helper' | tr '\n' ' ') "
 # Stopped by hand, and the tree goes too.
 #
 # Without this, killing verify.sh left the running row -- and its harnesses, and
@@ -69,8 +73,11 @@ cleanup_run() {
   # row's group takes the shell and the harness and leaves the engine serving.
   # Measured on 2026-09-05: a stopped gate, its whole tree gone, and three engine
   # processes still holding a device. The harnesses kill by pattern for the same
-  # reason; this does what they do, once, on the way out.
-  /usr/bin/pkill -9 -f 'anylinuxfs|krun|vmnet-helper' >/dev/null 2>&1
+  # reason; this takes the ones this run started, once, on the way out.
+  for __pid in $(/usr/bin/pgrep -f 'anylinuxfs|krun|vmnet-helper'); do
+    case "$BEFORE_ENGINES" in *" $__pid "*) continue ;; esac
+    kill -9 "$__pid" 2>/dev/null
+  done
   if [ -n "${ROW_PID:-}" ] && kill -0 "$ROW_PID" 2>/dev/null; then
     kill -TERM -- "-$ROW_PID" 2>/dev/null || kill -TERM "$ROW_PID" 2>/dev/null
     sleep 2
