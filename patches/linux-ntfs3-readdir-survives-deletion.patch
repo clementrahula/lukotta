@@ -1,0 +1,188 @@
+Keep a directory listing whole while its entries are being deleted.
+
+ntfs3 hands out readdir positions that are byte offsets inside an index
+block. Deleting an entry moves the ones after it down, so a position handed
+out before the deletion points past entries nobody has seen, and they are
+skipped. Finder deletes as it lists, and ends with "some items had to be
+skipped". Positions now carry the directory's deletion count, and a stale
+one starts the listing again after the dots.
+
+--- a/fs/ntfs3/dir.c	2026-09-10 22:51:40
++++ b/fs/ntfs3/dir.c	2026-09-10 22:57:45
+@@ -1,4 +1,5 @@
+ // SPDX-License-Identifier: GPL-2.0
++// Modified on 2026-09-10 by Clement Rahula <lukotta@rahula.dev>: readdir positions survive deletion of entries already returned.
+ /*
+  *
+  * Copyright (C) 2019-2021 Paragon Software GmbH, All rights reserved.
+@@ -343,8 +344,30 @@
+ 	}
+ 
+ 	return dir_emit(ctx, (s8 *)name, name_len, ino, dt_type);
++}
++
++/*
++ * A position is a byte offset inside an index block, and deleting an entry
++ * moves the ones after it down, so a position handed out before a deletion
++ * can point past entries nobody has seen. Every position therefore carries
++ * the directory's deletion count above the offset, and a stale one starts
++ * the listing again after the dots.
++ */
++#define NTFS_DIR_POS_BITS 40
++#define NTFS_DIR_POS_MASK ((1ULL << NTFS_DIR_POS_BITS) - 1)
++#define NTFS_DIR_TAG_MASK 0x7FFFFFULL
++
++static inline u64 ntfs_dir_tag(const struct ntfs_inode *ni)
++{
++	return READ_ONCE(ni->dir.deletions) & NTFS_DIR_TAG_MASK;
+ }
+ 
++static inline loff_t ntfs_dir_pos(const struct ntfs_inode *ni, u64 pos)
++{
++	return (loff_t)((ntfs_dir_tag(ni) << NTFS_DIR_POS_BITS) |
++			(pos & NTFS_DIR_POS_MASK));
++}
++
+ /*
+  * ntfs_read_hdr - Helper function for ntfs_readdir().
+  *
+@@ -380,7 +403,7 @@
+ 		if (le16_to_cpu(e->key_size) < SIZEOF_ATTRIBUTE_FILENAME)
+ 			return -EINVAL;
+ 
+-		ctx->pos = vbo + off;
++		ctx->pos = ntfs_dir_pos(ni, vbo + off);
+ 
+ 		/* Submit the name to the filldir callback. */
+ 		if (!ntfs_dir_emit(sbi, ni, e, name, ctx)) {
+@@ -409,7 +432,8 @@
+ 	struct super_block *sb = dir->i_sb;
+ 	struct ntfs_sb_info *sbi = sb->s_fs_info;
+ 	loff_t i_size = i_size_read(dir);
+-	u32 pos = ctx->pos;
++	u64 cookie = ctx->pos;
++	u32 pos = cookie & NTFS_DIR_POS_MASK;
+ 	u8 *name = NULL;
+ 	struct indx_node *node = NULL;
+ 	u8 index_bits = ni->dir.index_bits;
+@@ -422,6 +446,10 @@
+ 	if (pos >= eod)
+ 		return 0;
+ 
++	/* Handed out before a deletion: it may point past live entries. */
++	if (pos > 2 && (cookie >> NTFS_DIR_POS_BITS) != ntfs_dir_tag(ni))
++		pos = 2;
++
+ 	if (!dir_emit_dots(file, ctx))
+ 		return 0;
+ 
+@@ -463,14 +491,14 @@
+ 	}
+ 
+ 	if (!i_size) {
+-		ctx->pos = eod;
++		ctx->pos = ntfs_dir_pos(ni, eod);
+ 		goto out;
+ 	}
+ 
+ 	for (;;) {
+ 		vbo = (u64)bit << index_bits;
+ 		if (vbo >= i_size) {
+-			ctx->pos = eod;
++			ctx->pos = ntfs_dir_pos(ni, eod);
+ 			goto out;
+ 		}
+ 
+@@ -479,7 +507,7 @@
+ 			goto out;
+ 
+ 		if (bit == MINUS_ONE_T) {
+-			ctx->pos = eod;
++			ctx->pos = ntfs_dir_pos(ni, eod);
+ 			goto out;
+ 		}
+ 
+@@ -512,11 +540,11 @@
+ 		err = 0;
+ 	} else if (err == -ENOENT) {
+ 		err = 0;
+-		ctx->pos = pos;
++		ctx->pos = ntfs_dir_pos(ni, pos);
+ 	} else if (err < 0) {
+ 		if (err == -EINVAL)
+ 			_ntfs_bad_inode(dir);
+-		ctx->pos = eod;
++		ctx->pos = ntfs_dir_pos(ni, eod);
+ 	}
+ 
+ 	return err;
+@@ -621,9 +649,16 @@
+ 	return is_empty;
+ }
+ 
++/* Positions carry the tag above the offset, past the volume's s_maxbytes. */
++static loff_t ntfs_dir_llseek(struct file *file, loff_t offset, int whence)
++{
++	return generic_file_llseek_size(file, offset, whence, LLONG_MAX,
++					i_size_read(file_inode(file)));
++}
++
+ // clang-format off
+ const struct file_operations ntfs_dir_operations = {
+-	.llseek		= generic_file_llseek,
++	.llseek		= ntfs_dir_llseek,
+ 	.read		= generic_read_dir,
+ 	.iterate_shared	= ntfs_readdir,
+ 	.fsync		= generic_file_fsync,
+@@ -636,7 +671,7 @@
+ 
+ #if IS_ENABLED(CONFIG_NTFS_FS)
+ const struct file_operations ntfs_legacy_dir_operations = {
+-	.llseek		= generic_file_llseek,
++	.llseek		= ntfs_dir_llseek,
+ 	.read		= generic_read_dir,
+ 	.iterate_shared	= ntfs_readdir,
+ 	.open		= ntfs_file_open,
+--- a/fs/ntfs3/index.c	2026-09-10 22:51:40
++++ b/fs/ntfs3/index.c	2026-09-10 22:57:45
+@@ -1,4 +1,5 @@
+ // SPDX-License-Identifier: GPL-2.0
++// Modified on 2026-09-10 by Clement Rahula <lukotta@rahula.dev>: readdir positions survive deletion of entries already returned.
+ /*
+  *
+  * Copyright (C) 2019-2021 Paragon Software GmbH, All rights reserved.
+@@ -889,6 +890,7 @@
+ 		goto out;
+ 
+ 	indx->type = type;
++	indx->deletions = 0;
+ 	indx->idx2vbn_bits = __ffs(root->index_block_clst);
+ 
+ 	t32 = le32_to_cpu(root->index_block_size);
+@@ -2288,6 +2290,9 @@
+ 	size_t trim_bit;
+ 	const struct INDEX_NAMES *in;
+ 
++	/* Entries after this one move down; see ntfs_dir_pos(). */
++	indx->deletions++;
++
+ 	fnd = fnd_get();
+ 	if (!fnd) {
+ 		err = -ENOMEM;
+--- a/fs/ntfs3/ntfs_fs.h	2026-09-10 22:51:41
++++ b/fs/ntfs3/ntfs_fs.h	2026-09-10 22:58:51
+@@ -1,4 +1,5 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
++/* Modified on 2026-09-10 by Clement Rahula <lukotta@rahula.dev>: readdir positions survive deletion of entries already returned. */
+ /*
+  *
+  * Copyright (C) 2019-2021 Paragon Software GmbH, All rights reserved.
+@@ -199,6 +200,8 @@
+ 	u8 idx2vbn_bits; // log2(root->index_block_clst)
+ 	u8 vbn2vbo_bits; // index_block_size < cluster? 9 : cluster_bits
+ 	u8 type; // index_mutex_classed
++	/* Deletions so far; stamped into readdir positions. */
++	u32 deletions;
+ };
+ 
+ /* Minimum MFT zone. */
