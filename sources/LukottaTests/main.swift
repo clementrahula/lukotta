@@ -6680,6 +6680,22 @@ group("aStoppedCopyLeavesNoEmptyFiles") {
         PlaceholderSweeper.removeIfPlaceholder(lookalike),
         "a placeholder beside a lookalike is removed")
     expect(fm.fileExists(atPath: notAppleDouble), "and the file that is not AppleDouble stays")
+
+    // One that changed after it was looked at -- a new copy took the name, or
+    // Finder finished it -- is left; one unchanged since is removed.
+    let changing = make("changing.bin", finderInfo: "brokMACS")
+    let before = PlaceholderSweeper.changeStamp(changing)
+    usleep(20_000)
+    var info = Array("brokMACS".utf8) + [UInt8](repeating: 0, count: 24)
+    setxattr(changing, "com.apple.FinderInfo", &info, info.count, 0, 0)
+    expect(
+        !PlaceholderSweeper.removeIfPlaceholder(changing, unchangedSince: before),
+        "a placeholder that changed since it was looked at is left")
+    expect(fm.fileExists(atPath: changing), "and is still there")
+    let now = PlaceholderSweeper.changeStamp(changing)
+    expect(
+        PlaceholderSweeper.removeIfPlaceholder(changing, unchangedSince: now),
+        "one unchanged since it was looked at is removed")
 }
 
 print("\n\(checks - failures)/\(checks) checks passed")

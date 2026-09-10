@@ -11,25 +11,28 @@ in the guest; an fsync of the file cleared 208 kB of it, and syncfs of the
 volume the other 256 kB.
 
 COMMIT now syncs the file's filesystem as syncfs(2) does, with s_umount held
-for reading, then flushes the device, so the metadata the sync wrote is behind
-the flush, and reports a writeback error the filesystem met on the way.
+for reading, then flushes the device, so what the sync wrote is behind the
+flush. A writeback error, the file's and then the filesystem's, is told to the
+open file once, as fsync(2) and syncfs(2) tell it, and not again at every
+COMMIT after it.
 
 An async export spares every create and remove a sync of its own (29 ms and
-10 ms each on the test drive, against none), but nfsd also makes a stable write
-unstable there while telling the client it is stable, and skips a rename's
-metadata commit. A stable write is now written through on any export, and a
-rename on an async export syncs the filesystem, once its locks are dropped,
-before it is answered: renaming over a file is how applications save safely. A
-create, remove or attribute change is still answered before it is on the drive,
-as a journalling filesystem answers them before its journal is written, and is
-on it by the next COMMIT or rename.
+10 ms each on the test drive, against none), but nfsd also made a stable write
+unstable there while telling the client it was stable, and skipped a rename's
+metadata commit. On an async export a stable write is now followed by the same
+sync as a COMMIT, because the client sends no COMMIT after it and the create
+before it was not synced either; on a sync export it stays the range fsync it
+was. A rename on an async export syncs the filesystem, once its locks are
+dropped, before it is answered, and fails only on an error that sync met. A
+create, remove or attribute change is still answered before it is on the
+drive, and is on it by the next COMMIT, stable write or rename.
 
 The read-only nfsd parameter commit_is_durable says a kernel has this, and
 vmproxy exports async only where it finds it.
 
 diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
 --- a/fs/nfsd/vfs.c	2026-09-11 00:15:11
-+++ b/fs/nfsd/vfs.c	2026-09-11 00:24:54
++++ b/fs/nfsd/vfs.c	2026-09-11 01:29:23
 @@ -1,4 +1,5 @@
  // SPDX-License-Identifier: GPL-2.0
 +// Modified on 2026-09-11 by Clement Rahula <lukotta@rahula.dev>: COMMIT and rename sync the filesystem, and stable writes stay stable, whatever the export says.
@@ -45,7 +48,7 @@ diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
  
  #include "xdr3.h"
  
-@@ -48,6 +51,31 @@
+@@ -48,6 +51,30 @@
  
  #define NFSDDBG_FACILITY		NFSDDBG_FILEOP
  
@@ -58,12 +61,11 @@ diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
 +module_param(commit_is_durable, bool, 0444);
 +
 +/*
-+ * Write a filesystem out as syncfs(2) does, then flush the device, and report
-+ * a writeback error met on the way.
++ * Write a filesystem out as syncfs(2) does, then flush the device. A writeback
++ * error is for the caller to check, against a cursor of its own.
 + */
 +static int nfsd_sync_fs(struct super_block *sb)
 +{
-+	errseq_t since = errseq_sample(&sb->s_wb_err);
 +	int err;
 +
 +	down_read(&sb->s_umount);
@@ -71,27 +73,62 @@ diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
 +	up_read(&sb->s_umount);
 +	if (!err && sb->s_bdev)
 +		err = blkdev_issue_flush(sb->s_bdev);
-+	return err ?: errseq_check(&sb->s_wb_err, since);
++	return err;
 +}
 +
  /**
   * nfserrno - Map Linux errnos to NFS errnos
   * @errno: POSIX(-ish) error code to be mapped
-@@ -1184,9 +1212,10 @@
+@@ -1163,6 +1190,7 @@
+ 	unsigned int		pflags = current->flags;
+ 	rwf_t			flags = 0;
+ 	bool			restore_flags = false;
++	bool			sync_after;
+ 
+ 	trace_nfsd_write_opened(rqstp, fhp, offset, *cnt);
+ 
+@@ -1184,10 +1212,14 @@
  
  	exp = fhp->fh_export;
  
 -	if (!EX_ISSYNC(exp))
 -		stable = NFS_UNSTABLE;
 -
+-	if (stable && !fhp->fh_use_wgather)
 +	/*
 +	 * Kept stable on an async export too: the reply tells the client the
-+	 * write is stable, and the client sends no COMMIT for it.
++	 * write is stable, and the client sends no COMMIT for it. There the
++	 * create before it was not synced either, so the whole filesystem is,
++	 * after the write, as a COMMIT syncs it.
 +	 */
- 	if (stable && !fhp->fh_use_wgather)
++	sync_after = stable && !EX_ISSYNC(exp);
++	if (stable && !sync_after && !fhp->fh_use_wgather)
  		flags |= RWF_SYNC;
  
-@@ -1340,48 +1369,30 @@
+ 	iov_iter_kvec(&iter, ITER_SOURCE, vec, vlen, *cnt);
+@@ -1206,12 +1238,20 @@
+ 	if (host_err < 0)
+ 		goto out_nfserr;
+ 
+-	if (stable && fhp->fh_use_wgather) {
++	if (stable && !sync_after && fhp->fh_use_wgather) {
+ 		host_err = wait_for_concurrent_writes(file);
+ 		if (host_err < 0)
+ 			commit_reset_write_verifier(nn, rqstp, host_err);
+ 	}
+ 
++	if (sync_after) {
++		host_err = nfsd_sync_fs(sb);
++		if (!host_err)
++			host_err = filemap_check_wb_err(file->f_mapping, since);
++		if (host_err < 0)
++			commit_reset_write_verifier(nn, rqstp, host_err);
++	}
++
+ out_nfserr:
+ 	if (host_err >= 0) {
+ 		trace_nfsd_write_io_done(rqstp, fhp, offset, *cnt);
+@@ -1340,48 +1380,38 @@
  	    u64 offset, u32 count, __be32 *verf)
  {
  	__be32			err = nfs_ok;
@@ -99,7 +136,8 @@ diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
 -	loff_t			start, end;
 -	struct nfsd_net		*nn;
 +	struct nfsd_net		*nn = net_generic(nf->nf_net, nfsd_net_id);
-+	errseq_t		since = READ_ONCE(nf->nf_file->f_wb_err);
++	struct file		*file = nf->nf_file;
++	struct super_block	*sb = file->f_path.dentry->d_sb;
 +	int			err2;
  
  	/*
@@ -118,11 +156,18 @@ diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
 -		start = offset;
 -		if (count && (offset + count - 1 < maxbytes))
 -			end = offset + count - 1;
-+	err2 = nfsd_sync_fs(nf->nf_file->f_path.dentry->d_sb);
++	err2 = nfsd_sync_fs(sb);
 +	switch (err2) {
 +	case 0:
 +		nfsd_copy_write_verifier(verf, nn);
-+		err2 = filemap_check_wb_err(nf->nf_file->f_mapping, since);
++		/*
++		 * A writeback error, the file's and then the filesystem's, told
++		 * to this open file once, as fsync(2) and syncfs(2) tell it, and
++		 * not again at every COMMIT after.
++		 */
++		err2 = file_check_and_advance_wb_err(file);
++		if (!err2)
++			err2 = errseq_check_and_advance(&sb->s_wb_err, &file->f_sb_err);
 +		err = nfserrno(err2);
 +		break;
 +	case -EINVAL:
@@ -159,7 +204,7 @@ diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
  	return err;
  }
  
-@@ -1930,6 +1941,17 @@
+@@ -1930,6 +1960,21 @@
  		nfsd_close_cached_files(ndentry);
  		dput(ndentry);
  		goto retry;
@@ -168,10 +213,14 @@ diff -ruN a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
 +	/*
 +	 * A rename is how an application saves a file safely, and on an async
 +	 * export commit_metadata() does nothing, so the filesystem is synced
-+	 * here, with no lock held.
++	 * here, with no lock held. An error is one this sync met.
 +	 */
 +	if (err == nfs_ok && !EX_ISSYNC(tfhp->fh_export)) {
++		errseq_t since = READ_ONCE(tdir->i_sb->s_wb_err);
++
 +		host_err = nfsd_sync_fs(tdir->i_sb);
++		if (!host_err)
++			host_err = errseq_check(&tdir->i_sb->s_wb_err, since);
 +		if (host_err)
 +			err = nfserrno(host_err);
  	}

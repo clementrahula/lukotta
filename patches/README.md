@@ -415,23 +415,26 @@ before it answers.
 **Change.** `nfsd_commit()` syncs the file's filesystem whatever the export
 asks for, exactly as `syncfs(2)` does: `sync_filesystem()` with `s_umount` held
 for reading. It then flushes the device, so what the sync wrote is behind the
-barrier and not only in the drive's cache, and checks the superblock's
-writeback error as `syncfs(2)` does. A failure goes through the switch that was
-already there, so it still resets the write verifier and the client writes
-again. The clamp of the client's range to `s_maxbytes` goes, with nothing left
-to feed.
+barrier and not only in the drive's cache. A writeback error, the file's and
+then the filesystem's, is told to the open file once, as `fsync(2)` and
+`syncfs(2)` tell it, and not again at every COMMIT after it. A failure goes
+through the switch that was already there, so it still resets the write
+verifier and the client writes again. The clamp of the client's range to
+`s_maxbytes` goes, with nothing left to feed.
 
-Two more changes keep an async export as durable as a sync one wherever an
-application could tell. nfsd turned a stable write unstable on an async export
-and told the client it was stable, so a client writing synchronously sent no
-COMMIT at all; a stable write is now written through on any export. And
-`commit_metadata()` does nothing on an async export, which answered a rename
-before it was on the drive; a rename on an async export now syncs the
-filesystem the same way, once its locks are dropped. A create, remove or
-attribute change is still answered first, and is on the drive by the next
-COMMIT or rename. The read-only parameter `nfsd.commit_is_durable` says a
-kernel has all of this, and `vmproxy-writes-commit-at-commit.patch` exports
-async only where it finds it.
+On an async export nfsd also turned a stable write unstable while telling the
+client it was stable, so a client writing synchronously sent no COMMIT at all,
+and `commit_metadata()` did nothing, which answered a rename before it was on
+the drive. A stable write on an async export is now followed by the same sync
+as a COMMIT, because no COMMIT follows it and the create before it was not
+synced either; on a sync export it stays the range fsync it was. A rename on an
+async export syncs the filesystem the same way, once its locks are dropped, and
+fails only on an error that sync met. A create, remove or attribute change is
+still answered before it is on the drive, and is on it by the next COMMIT,
+stable write or rename; a remove can therefore come back if the drive loses
+power first. The read-only parameter `nfsd.commit_is_durable` says a kernel has
+all of this, and `vmproxy-writes-commit-at-commit.patch` exports async only
+where it finds it.
 
 **The kernel it applies to.** Not libkrunfw's own. anylinuxfs 0.19.0 takes
 its `libexec/Image` from the `v6.12.62-rev1` release of `nohajc/libkrunfw`, a
