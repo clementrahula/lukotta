@@ -1,0 +1,4 @@
+- Brisanje mape na pogonu BitLocker se ne ustavi več z obvestilom, da je bilo treba nekatere elemente preskočiti: izgine vsaka datoteka, ne glede na to, koliko jih je.
+- Preklic kopiranja na pogon ne pušča več praznih datotek.
+- Kopiranje in brisanje veliko majhnih datotek na pogonu je hitrejše in vsaka kopirana datoteka je na pogonu, takoj ko Finder sporoči, da je končano.
+- Kopiranje na pogon BitLocker ne čaka več, da vsak zapis doseže pogon, preden pošlje naslednjega.

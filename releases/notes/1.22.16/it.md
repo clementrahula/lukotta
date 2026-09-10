@@ -1,0 +1,4 @@
+- L'eliminazione di una cartella su un'unità BitLocker non si interrompe più dicendo che alcuni elementi sono stati saltati: ogni file viene eliminato, per quanti siano.
+- Annullare una copia su un'unità non lascia più file vuoti.
+- Copiare ed eliminare molti file piccoli su un'unità è più veloce, e ogni file copiato è sull'unità non appena il Finder dice che ha finito.
+- Le copie su un'unità BitLocker non aspettano più che ogni scrittura raggiunga l'unità prima di inviare la successiva.

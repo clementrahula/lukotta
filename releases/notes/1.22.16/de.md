@@ -1,0 +1,4 @@
+- Das Löschen eines Ordners auf einem BitLocker-Laufwerk bricht nicht mehr mit der Meldung ab, einige Objekte hätten übersprungen werden müssen: Jede Datei wird gelöscht, egal wie viele es sind.
+- Wird eine Kopie auf ein Laufwerk abgebrochen, bleiben keine leeren Dateien mehr zurück.
+- Viele kleine Dateien lassen sich auf einem Laufwerk schneller kopieren und löschen, und jede kopierte Datei ist auf dem Laufwerk, sobald der Finder sie als fertig meldet.
+- Kopien auf ein BitLocker-Laufwerk warten nicht mehr darauf, dass jeder Schreibvorgang das Laufwerk erreicht, bevor der nächste gesendet wird.

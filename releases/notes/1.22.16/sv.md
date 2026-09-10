@@ -1,0 +1,4 @@
+- Att radera en mapp på en BitLocker-enhet avbryts inte längre med meddelandet att vissa objekt måste hoppas över: varje fil försvinner, hur många de än är.
+- Att avbryta en kopiering till en enhet lämnar inte längre tomma filer kvar.
+- Att kopiera och radera många små filer på en enhet går snabbare, och varje kopierad fil finns på enheten så snart Finder säger att den är klar.
+- Kopiering till en BitLocker-enhet väntar inte längre på att varje skrivning når enheten innan nästa skickas.

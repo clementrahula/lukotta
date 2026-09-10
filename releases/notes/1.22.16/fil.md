@@ -1,0 +1,4 @@
+- Hindi na humihinto ang pagbura ng folder sa BitLocker drive na may mensaheng kinailangang laktawan ang ilang item: nabubura ang bawat file, gaano man karami.
+- Hindi na nag-iiwan ng mga walang lamang file ang pagkansela ng pagkopya sa isang drive.
+- Mas mabilis na ang pagkopya at pagbura ng maraming maliliit na file sa isang drive, at nasa drive na ang bawat nakopyang file sa sandaling sabihin ng Finder na tapos na ito.
+- Hindi na hinihintay ng pagkopya sa BitLocker drive na maabot ng bawat pagsulat ang drive bago ipadala ang susunod.
