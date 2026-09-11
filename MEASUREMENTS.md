@@ -5706,3 +5706,12 @@ ejected:
 
 Neither loses anything, so the suspicion does not hold, and what kept the
 two folders on drive8 is not established.
+
+firstwrite was then run again through verify.sh, on the same tree and build,
+starting with the leftover first-write folder still on drive8:
+
+    firstwrite   holds: 20 of 20 cycles clean, cycle 1 included
+
+crowdafter was stopped in its second round to make room for these, so its
+result on this build is the first round's: 11 of 12 byte-identical, and the
+twelfth refused for want of room on drive8 as above.
