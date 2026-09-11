@@ -5545,8 +5545,38 @@ answer. Both queues of the client's connection to the server were empty
 (`netstat`: Recv-Q 0, Send-Q 0), so the guest had taken in every byte the
 client sent. The guest's log shows no error and macOS logged no reset of the
 stick. Whether the 570.8 s write ended with an error is not known: dd's
-errors were discarded. What the guest was doing in those seconds is the next
-measurement.
+errors were discarded.
+
+What the guest was doing in those seconds, sampled from inside it once a
+second through a stall:
+
+    Dirty and Writeback             0 kB throughout
+    in flight at the disk           0, and at the dm-crypt layer 0
+    nfsd threads                    all eight idle, waiting for work
+    nfsd's WRITE count              208, not moving
+    its socket to the client        nothing queued either way
+    its duplicate-request cache     0 hits: no resent request ever arrived
+
+Every request the guest received it had answered, and the client had read
+every answer. The client was holding its writes itself, and a synchronous
+request from another process on the same mount, a small file written and
+renamed, set it going where a single lookup did not.
+
+Written unstably, the client holds each block until it commits it, and here
+it stopped committing. Written stably there is nothing to commit. Six 256 MiB
+writes on the same stick in one session, alternating, the client otherwise
+the same:
+
+    unstable, as 1.22.16 ships      55.9 s   one stall of 31 s
+                                    23.4 s
+                                    34.7 s   quiet for 15 s
+    stable                          28.5 s   9.41 MB/s, never quiet over 6 s
+                                    27.5 s   9.76 MB/s
+                                    31.6 s   8.51 MB/s
+
+Writes of 128 KiB stalled as 1 MiB ones did, three times in one run.
+BitLocker was the one format writing unstably, since every volume without an
+ext journal already wrote stably, and it now writes stably too.
 
 And where a Finder delete's time goes, once more: with nothing sampling, a
 native APFS image deleted 5,000 files in place in 358 ms. On the stick, 3,000
