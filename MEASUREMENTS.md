@@ -5711,7 +5711,23 @@ firstwrite was then run again through verify.sh, on the same tree and build,
 starting with the leftover first-write folder still on drive8:
 
     firstwrite   holds: 20 of 20 cycles clean, cycle 1 included
+    nowindow     holds
 
 crowdafter was stopped in its second round to make room for these, so its
 result on this build is the first round's: 11 of 12 byte-identical, and the
 twelfth refused for want of room on drive8 as above.
+
+Nor is it a delete on a full volume, the other thing both harnesses have in
+common with the leftovers. On another clone of the spare image, with every
+error kept rather than sent to /dev/null:
+
+    filled a megabyte at a time      60 MB, then "No space left on device"
+    60 files of 100 kB on top        0 arrived, 1 MB still shown free
+    rm -rf of both, straight after   exit 0, nothing left
+    firstwrite's copy, read, delete  5 of 5 times exit 0, nothing left
+    after an eject, opened again     nothing of any of it; 61 MB free
+
+A delete straight after the volume said it was full works and reaches the
+disk. Why a megabyte shown free took none of 60 files of 100 kB was not
+looked into. The two folders on drive8 remain unexplained; nothing measured
+today reproduces them.
