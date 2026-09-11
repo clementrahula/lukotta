@@ -1575,19 +1575,12 @@ final class AppModel: ObservableObject {
 
     // MARK: Lifecycle
 
-    /// Finder's own eject reaches the app through this.
-    private var unmountWatch: NSObjectProtocol?
-
     func start() {
         guard !didStart else { return }
         didStart = true
         watcher.start()
         sleepWatch.start()
-        unmountWatch = NSWorkspace.shared.notificationCenter.addObserver(
-            forName: NSWorkspace.didUnmountNotification, object: nil, queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in self?.noticeOutsideEjects() }
-        }
+        startGoneMountWatch()
         // Everything this app can leave behind, taken away in one place: the
         // scratch directory of a mount that never finished, the empty folder an
         // ejected drive leaves in ~/Volumes, and the settings' memory of files
@@ -3769,32 +3762,39 @@ final class AppModel: ObservableObject {
         Task.detached(priority: .utility) { Housekeeping.sweep() }
     }
 
-    /// A drive whose volume went away outside this app -- ejected in Finder -- is closed here too.
-    private func noticeOutsideEjects() {
+    /// Drives whose volume went away outside this app -- ejected in Finder -- are closed here too.
+    private func startGoneMountWatch() {
         Task { @MainActor [weak self] in
-            // Time for the helper to take the hidden mount down behind Finder's.
-            try? await Task.sleep(nanoseconds: 5_000_000_000)
-            guard let self, self.ejectingPath == nil else { return }
-            let table = LukottaCore.mountTable()
-            let entries = MountTableEntry.all(in: table)
-            let mounted = Set(entries.map(\.mountPoint))
-            let hidden = Set(entries.filter(AfpShare.isHidden).map(\.mountPoint))
-            let gone = Set(
-                self.openMounts.values.filter { point in
-                    !mounted.contains(point)
-                        || (hidden.contains(point)
-                            && AfpShare.finderPoint(forEngineMount: point, in: table) == nil)
-                })
-            guard !gone.isEmpty else { return }
-            Log.mount.notice("\(gone.count, privacy: .public) drives were ejected outside the app")
-            let devices = self.openMounts.filter { gone.contains($0.value) }.map(\.key)
-            var onScreen = false
-            if case .mounted(let drive, _) = self.phase {
-                onScreen = devices.contains(drive.devicePath)
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                guard let self else { return }
+                await self.closeWhatWentAway()
             }
-            if case .chooseDrive = self.phase { onScreen = true }
-            self.finishEjecting(paths: Array(gone), devices: devices, showList: onScreen)
         }
+    }
+
+    private func closeWhatWentAway() async {
+        var open = openMounts
+        // A scan rebuilds openMounts from the engine: the drive on screen can be missing from it.
+        if case .mounted(let drive, let point) = phase { open[drive.devicePath] = point }
+        guard !open.isEmpty, ejectingPath == nil else { return }
+        let table = await Task.detached(priority: .utility) { LukottaCore.mountTable() }.value
+        guard ejectingPath == nil else { return }
+        let entries = MountTableEntry.all(in: table)
+        let mounted = Set(entries.map(\.mountPoint))
+        let hidden = Set(entries.filter(AfpShare.isHidden).map(\.mountPoint))
+        let gone = open.filter { _, point in
+            !mounted.contains(point)
+                || (hidden.contains(point)
+                    && AfpShare.finderPoint(forEngineMount: point, in: table) == nil)
+        }
+        guard !gone.isEmpty else { return }
+        Log.mount.notice("\(gone.count, privacy: .public) drives were ejected outside the app")
+        var onScreen = false
+        if case .mounted(let drive, _) = phase { onScreen = gone[drive.devicePath] != nil }
+        if case .chooseDrive = phase { onScreen = true }
+        finishEjecting(
+            paths: Array(Set(gone.values)), devices: Array(gone.keys), showList: onScreen)
     }
 
     /// Eject everything, then run the completion. Used on quit.
