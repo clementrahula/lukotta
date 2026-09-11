@@ -3283,8 +3283,7 @@ final class AppModel: ObservableObject {
         } else {
             readOnlyMounts.remove(mountPoint)
         }
-        let shown = AfpShare.finderPoint(forEngineMount: mountPoint) ?? mountPoint
-        DriveMemory.remember(mountPoint: shown, for: drive.uuid)
+        DriveMemory.remember(mountPoint: mountPoint, for: drive.uuid)
         rememberForRestore(drive, readOnly: mountedReadOnly)
         restoreKeys[mountPoint] = drive.uuid
         // And in the settings, so that after a restart this app can still say

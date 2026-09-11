@@ -57,11 +57,6 @@ public enum AfpShare {
         return afpPoints(forHost: pair.host, in: table).first
     }
 
-    /// Where the engine mounts a volume Finder is not shown: out of Finder's way, so its own takes the label.
-    public static func hiddenPoint(forDevice device: String) -> String {
-        "/Volumes/.lukotta-" + (device as NSString).lastPathComponent
-    }
-
     public static func hiddenMountExists(forDevice device: String) -> Bool {
         let node = (device as NSString).lastPathComponent + "."
         return MountTableEntry.all(in: mountTable()).contains {

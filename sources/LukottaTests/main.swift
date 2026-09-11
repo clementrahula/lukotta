@@ -6827,9 +6827,6 @@ group("anNTFSVolumeReachesFinderOverAFP") {
     inputs.hiddenFromFinder = true
     let script = MountScript.build(inputs)
     expect(script.contains(",nobrowse"), "the NFS mount is kept out of Finder")
-    expect(
-        script.contains("mkdir -p") && script.contains("/Volumes/.lukotta-"),
-        "the hidden mount point exists before the engine is asked to use it")
     expect(MountScript.shareServe.contains("netatalk -F"), "the guest serves the volume over AFP")
 }
 

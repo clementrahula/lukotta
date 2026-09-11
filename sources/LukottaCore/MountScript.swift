@@ -599,11 +599,6 @@ public enum MountScript {
             lines.append("export SUDO_UID=\(i.uid)")
             lines.append("export SUDO_GID=\(i.gid)")
         }
-        // The engine mounts only on a directory that is already there.
-        if i.hiddenFromFinder {
-            let point = shellQuoted(AfpShare.hiddenPoint(forDevice: i.devicePath))
-            lines.append("mkdir -p \(point) && chown \(i.uid):\(i.gid) \(point)")
-        }
 
         // Read the credential from the pipe into a variable. A FIFO can be
         // consumed once, and prompting again per attempt would defeat the single
@@ -957,8 +952,7 @@ public enum MountScript {
                     options: nfsOptions(i), readOnly: i.readOnly,
                     ownership: ownershipFlags(i), netHelper: netHelperFlag(i),
                     logQ: logQ, durability: i.durability, action: chosen,
-                    hiddenPoint: i.hiddenFromFinder
-                        ? AfpShare.hiddenPoint(forDevice: i.devicePath) : nil)
+                    hidden: i.hiddenFromFinder)
             }
         }
         if i.kind == .linux {
@@ -2712,12 +2706,11 @@ public enum MountScript {
         logQ: String,
         durability: String? = nil,
         action: String? = tunedActionName,
-        hiddenPoint: String? = nil
+        hidden: Bool = false
     ) -> String {
         let typeFlag = driver.map { " -t \($0)" } ?? ""
         let actionFlag = action.map { " -a \($0)" } ?? ""
-        let client = hiddenPoint == nil ? options : options + ",nobrowse"
-        let point = hiddenPoint.map { " " + shellQuoted($0) } ?? ""
+        let client = hidden ? options + ",nobrowse" : options
         // --nfs-options must use the joined form. The flag is variadic, and the
         // separated form consumes the target that follows it.
         return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount\(ownership)"
@@ -2726,7 +2719,7 @@ public enum MountScript {
             + "\(actionFlag) -w false"
             + "\(netHelper)"
             + " --nfs-options=\(shellQuoted(client))"
-            + " \(target)\(point) >> \(logQ) 2>&1 && "
+            + " \(target) >> \(logQ) 2>&1 && "
             + (readOnly ? mountedCheck : writableCheck)
     }
 

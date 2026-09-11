@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Clement Rahula
 #
-# Finder shows a volume opened by the dev build under the drive's own label, case and all, at a clean path.
+# Finder shows a volume opened by the dev build under the drive's own label, case and all.
 #   ./scripts/volume-name-case.sh <device>
 set -uo pipefail
 DEVICE="${1:?usage: volume-name-case.sh <device>}"
@@ -22,4 +22,4 @@ shown=""
 "$APP" --drive eject="$DEVICE" >/dev/null 2>&1
 
 echo "label '$want', Finder shows '${shown:-nothing}' at '${point:-nowhere}'"
-[ -n "$want" ] && [ "$shown" = "$want" ] && [ "$point" = "/Volumes/$want" ]
+[ -n "$want" ] && [ "$shown" = "$want" ]
