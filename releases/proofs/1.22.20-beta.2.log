@@ -1,0 +1,27 @@
+prover b134230d71ec, 2026-09-11T18:10:32Z
+PASS published: v1.22.20-beta.2 at 00cf189, not a draft, newest in the beta feed
+PASS update: 1.22.20-beta.1 -> 1.22.20-beta.2 in 43 s, signed and notarised
+PASS bitlocker open: 12 s at /Volumes/BACKUP2_TS 1
+    big  copy     134.2s     8.0 MB/s  osascript 0  4 identical, 0 differing, 0 missing
+    big  finder  progress window: Copy; zero-length seen at once: 3; ._ seen: 0, left: 0
+    tree copy       9.0s     0.9 MB/s  osascript 0  2000 identical, 0 differing, 0 missing
+    tree finder  progress window: Copy; zero-length seen at once: 0; ._ seen: 0, left: 0
+    tree delete     0.93s  osascript 0  gone from its folder
+    0 failures
+PASS bitlocker write: 1024 MB at 8.0 MB/s and 2000 small files in 9.0 s, every byte identical
+PASS bitlocker delete: 2000 small files in 0.93 s
+PASS bitlocker eject: 7 s
+PASS bitlocker reopen: 17 s at /Volumes/BACKUP2_TS 1
+PASS bitlocker read: 512 MB at 37.0 MB/s, every byte identical
+PASS bitlocker speed: write 8.0 was none read 37.0 was none tree 9.0 was none on 
+PASS bitlocker eject: 3 s
+PASS keys: Lukotta Beta offered the saved key for /dev/disk4s1 on both opens
+PASS ntfs open: 9 s at /Volumes/SANDISK 1
+    big  copy      15.6s    68.8 MB/s  osascript 0  4 identical, 0 differing, 0 missing
+    big  finder  progress window: Copy; zero-length seen at once: 3; ._ seen: 0, left: 0
+    tree copy       4.4s     1.9 MB/s  osascript 0  2000 identical, 0 differing, 0 missing
+    tree finder  progress window: Copy; zero-length seen at once: 0; ._ seen: 0, left: 0
+    tree delete   1702.12s  osascript 1 (66:126: execution error: Finder got an error: The operation can’t be completed because some items had to be skipped. (-8081))  still there
+    1 failures
+FAIL ntfs write: Finder's copy or its check failed
+VERDICT 1.22.20-beta.2: not proven
