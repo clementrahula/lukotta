@@ -30,10 +30,26 @@ struct WorkingView: View {
     /// A check reads the whole MFT, so the usual estimate stops being true the
     /// moment one starts -- and a minute of apparent nothing is what makes
     /// somebody pull the drive out.
-    private var estimate: Text {
-        MountStage.isChecking(model.stageLines + model.statusLines)
-            ? Text("This drive needs repairing, so it will take a few minutes.")
-            : Text("This usually takes under a minute.")
+    private func estimate(at now: Date) -> Text {
+        if MountStage.isChecking(model.stageLines + model.statusLines) {
+            return Text("This drive needs repairing, so it will take a few minutes.")
+        }
+        guard let started = model.openStartedAt else {
+            return Text("This usually takes under a minute.")
+        }
+        let elapsed = now.timeIntervalSince(started)
+        let expected = OpenTimes.expected ?? 60
+        if elapsed < expected {
+            return Text("About \(Self.duration(expected - elapsed)) left")
+        }
+        return Text("Taking longer than usual: \(Self.duration(elapsed)) so far")
+    }
+
+    private static func duration(_ seconds: TimeInterval) -> String {
+        let format = DateComponentsFormatter()
+        format.allowedUnits = seconds >= 60 ? [.minute, .second] : [.second]
+        format.unitsStyle = .full
+        return format.string(from: max(1, seconds.rounded(.up))) ?? ""
     }
 
     var body: some View {
@@ -41,8 +57,10 @@ struct WorkingView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text("Opening “\(isolated(drive.name))”").font(.title3.weight(.semibold))
                     .accessibilityAddTraits(.isHeader)
-                estimate
-                    .font(.caption).foregroundStyle(.secondary)
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                    estimate(at: context.date)
+                        .font(.caption).foregroundStyle(.secondary)
+                }
             }
 
             if let unpackProgress {

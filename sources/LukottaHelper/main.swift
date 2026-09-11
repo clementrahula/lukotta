@@ -476,6 +476,13 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         do {
             let workspace = try Workspace()
             defer { workspace.destroy() }
+            // Registered before anything slow, so the app shows every step from the start.
+            let token = workspace.root.lastPathComponent
+            progressQueue.sync { running[token] = Running(credential: credential) }
+            defer { progressQueue.sync { running[token] = nil } }
+            func say(_ line: String) {
+                progressQueue.sync { running[token]?.transcript += line + "\n" }
+            }
 
             // Into the invoking user's directory, not root's. This process is
             // root, so anything it resolves from its own home lands in
@@ -498,7 +505,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             try EngineEnvironment.prepare(
                 into: URL(fileURLWithPath: stateHome).appendingPathComponent(
                     ".anylinuxfs/alpine", isDirectory: true)
-            ) { _ in }
+            ) { say($0) }
             // Left belonging to the person whose directory it is.
             //
             // This runs as root, so everything it made here is root's, in a
@@ -594,7 +601,9 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 // filesystem rather than by the family it belongs to.
                 format: probed)
             if durability.stableWrites { inputs.askForStableWrites() }
-            if kind == .microsoft, volume == nil, !readOnly, probed != .exfat {
+            if kind == .microsoft, volume == nil, !readOnly, probed != .exfat,
+                AfpShare.clientExists
+            {
                 inputs.hiddenFromFinder = true
             }
             let script = MountScript.build(inputs)
@@ -602,11 +611,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")
             try script.write(to: scriptURL, atomically: true, encoding: .utf8)
 
-            // This mount's own slot, named by the workspace that serves it, so
-            // two mounts cannot write over each other's output or credential.
-            let token = workspace.root.lastPathComponent
-            progressQueue.sync { running[token] = Running(credential: credential) }
-            defer { progressQueue.sync { running[token] = nil } }
+            let prepared = progressQueue.sync { running[token]?.transcript ?? "" }
             let streamer = LogStreamer(path: log.path) { [weak self] line in
                 self?.progressQueue.sync { self?.running[token]?.transcript += line + "\n" }
             }
@@ -657,7 +662,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             if ranOut {
                 EngineProcesses.stopWhatStartedSince(helpersBefore)
                 Log.helper.error("the mount did not finish inside the deadline")
-                let sofar = (try? String(contentsOf: log, encoding: .utf8)) ?? ""
+                let sofar = prepared + ((try? String(contentsOf: log, encoding: .utf8)) ?? "")
                 reply(
                     75,
                     Diagnostics.scrubbed(
@@ -667,7 +672,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 return
             }
 
-            var output = (try? String(contentsOf: log, encoding: .utf8)) ?? ""
+            var output = prepared + ((try? String(contentsOf: log, encoding: .utf8)) ?? "")
             // Always leave a trace. A failure whose log is empty gives the user
             // nothing to report and us nothing to read; the exit status alone
             // says whether the script ran at all and how far it got.

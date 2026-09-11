@@ -254,6 +254,7 @@ struct UnlockView: View {
                 }
                 Button(openButtonTitle) { model.unlock(drive, readOnly: !model.chosenIsWritable) }
                     .keyboardShortcut(.defaultAction)
+                    .accessibilityIdentifier("unlock")
                     .disabled(nothingToOpenWith)
             }
         }

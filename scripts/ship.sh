@@ -188,6 +188,12 @@ if [ "$CHANNEL" = "release" ]; then
   esac
 fi
 
+# A release ships only code a published beta already carried and prove-beta.sh proved.
+if [ "$CHANNEL" = "release" ]; then
+  bash scripts/beta-proven.sh "$VERSION" \
+    || die "$VERSION has no proven beta: ship a beta, then ./scripts/prove-beta.sh <beta> <bitlocker> <ntfs>"
+fi
+
 # What the checks said about what is being shipped.
 #
 # A dozen runs went red and stayed red without anybody noticing, because

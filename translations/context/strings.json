@@ -294,6 +294,19 @@
         "menus"
       ]
     },
+    "About %@ left": {
+      "audit": false,
+      "context": "Under the opening steps, counting down to when the drive should be ready.",
+      "placeholders": [
+        {
+          "is": "a spelled-out duration such as \"12 seconds\"",
+          "token": "%@"
+        }
+      ],
+      "screens": [
+        "working"
+      ]
+    },
     "About & Help": {
       "context": "The name of that menu item's group.",
       "placeholders": [],
@@ -1596,6 +1609,19 @@
       "placeholders": [],
       "screens": [
         "settings"
+      ]
+    },
+    "Taking longer than usual: %@ so far": {
+      "audit": false,
+      "context": "Replaces the countdown once an open runs past its usual time.",
+      "placeholders": [
+        {
+          "is": "a spelled-out duration such as \"1 minute, 5 seconds\"",
+          "token": "%@"
+        }
+      ],
+      "screens": [
+        "working"
       ]
     },
     "That looks like a recovery key, but it has %lld of the 48 digits. Check for a missing or repeated group.": {

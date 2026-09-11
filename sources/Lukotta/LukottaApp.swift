@@ -535,6 +535,10 @@ struct LukottaApp: App {
 @MainActor
 enum QuitProgress {
     private static var window: NSWindow?
+    private static var line: NSTextField?
+
+    /// What quitting is doing now, in the panel already up.
+    static func say(_ what: String) { line?.stringValue = what }
 
     static func show(_ what: String) {
         guard window == nil else { return }
@@ -546,6 +550,7 @@ enum QuitProgress {
 
         let label = NSTextField(labelWithString: what)
         label.translatesAutoresizingMaskIntoConstraints = false
+        line = label
 
         // The word first, the spinner under it. Side by side the spinner reads
         // as an icon belonging to the sentence; below, it is plainly the thing
@@ -618,6 +623,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Again, harmlessly: it is set before the first window is made, and
         // this covers anything AppKit creates for itself afterwards.
         Appearance.current.apply()
+        EnvironmentWarmup.start()
 
         // Started at login the window goes away again: the drives come back by
         // themselves, the way a disk mounted by macOS does, and nobody asked to

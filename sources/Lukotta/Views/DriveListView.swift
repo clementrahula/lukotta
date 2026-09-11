@@ -261,6 +261,7 @@ struct DriveRow: View {
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityAddTraits(.isButton)
+                .accessibilityIdentifier("drive \(drive.devicePath)")
                 .accessibilityLabel("\(drive.name), \(shutWord), \(details)")
                 .accessibilityHint("Unlock this drive")
                 .accessibilityAction(.default, action)

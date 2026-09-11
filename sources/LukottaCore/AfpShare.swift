@@ -7,6 +7,11 @@ import Foundation
 public enum AfpShare {
     static let guestLogin = ";AUTH=No%20User%20Authent@"
 
+    /// macOS 27 removes the AFP client; there the volume reaches Finder over NFS.
+    public static var clientExists: Bool {
+        FileManager.default.isExecutableFile(atPath: "/sbin/mount_afp")
+    }
+
     public static func isHidden(_ entry: MountTableEntry) -> Bool {
         entry.isEngineMount && entry.options.contains("nobrowse")
     }

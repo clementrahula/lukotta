@@ -2170,6 +2170,26 @@ group("uninstallingTakesEverythingWithIt") {
     }
 }
 
+group("aSavedPasswordIsNeverTakenByTheApp") {
+    let model =
+        (try? String(contentsOfFile: "sources/Lukotta/AppModel.swift", encoding: .utf8)) ?? ""
+    let store =
+        (try? String(contentsOfFile: "sources/LukottaCore/CredentialStore.swift", encoding: .utf8))
+        ?? ""
+    expect(!model.isEmpty && !store.isEmpty, "the model and the store are where this expects them")
+    expect(
+        model.components(separatedBy: "CredentialStore.delete(").count == 2,
+        "the app deletes a saved key in one place only")
+    let forget = model.components(separatedBy: "func forgetSavedCredential").last ?? ""
+    expect(
+        (forget.components(separatedBy: "\n    }").first ?? "").contains("CredentialStore.delete("),
+        "and that place is Forget")
+    let save = store.components(separatedBy: "func save(").last ?? ""
+    expect(
+        !(save.components(separatedBy: "\n    }").first ?? "").contains("delete("),
+        "saving overwrites and never deletes first")
+}
+
 group("aRefusedPermissionSaysWhichOneAndOffersTheWayToIt") {
     // The one failure that cannot be produced in an end-to-end run: Full Disk
     // Access is granted by hand and cannot be taken away by a program. What can

@@ -34,7 +34,6 @@ public enum CredentialStore {
 
     public static func save(_ credential: String, for uuid: String) -> Bool {
         guard !uuid.isEmpty, let data = credential.data(using: .utf8) else { return false }
-        delete(for: uuid)
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -49,14 +48,7 @@ public enum CredentialStore {
         let added = SecItemAdd(query as CFDictionary, nil)
         if added == errSecSuccess { return true }
 
-        // Something is already filed under this service and account, and the
-        // delete above did not shift it. That is what a Keychain entry left by
-        // a build signed differently looks like: it is there, it is ours by
-        // service, and removing it needs a permission this process was not
-        // given. Writing over the value is a smaller ask than deleting the
-        // entry, and it is the one that keeps a saved passphrase working
-        // across an update rather than failing in front of somebody who has
-        // just typed one.
+        // Already saved: overwritten in place, never deleted first.
         if added == errSecDuplicateItem {
             let identity: [String: Any] = [
                 kSecClass as String: kSecClassGenericPassword,

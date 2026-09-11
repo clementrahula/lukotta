@@ -1919,8 +1919,9 @@ final class AppModel: ObservableObject {
         if let saved = CredentialStore.load(for: name), !saved.isEmpty { return saved }
         for older in names.dropFirst() {
             guard let saved = CredentialStore.load(for: older), !saved.isEmpty else { continue }
-            Log.mount.notice("moving a saved passphrase to the name the volume gives itself")
-            if CredentialStore.save(saved, for: name) { CredentialStore.delete(for: older) }
+            // The old entry stays: a saved password is never taken away by the app.
+            Log.mount.notice("copying a saved passphrase to the name the volume gives itself")
+            _ = CredentialStore.save(saved, for: name)
             return saved
         }
         // Nothing under any name this drive has. That is not the same as
@@ -1982,6 +1983,7 @@ final class AppModel: ObservableObject {
     func cancelMount(_ drive: Drive) {
         mountTask?.cancel()
         mountTask = nil
+        openStartedAt = nil
         helperLinesShown = 0
         activeCredential = nil
         failedStage = nil
@@ -2754,6 +2756,7 @@ final class AppModel: ObservableObject {
         // Somebody asked; the slips this app absorbed on their behalf last time
         // are spent.
         mountSlips = 0
+        openStartedAt = Date()
         // A format that cannot be written is opened read-only whatever was
         // asked for. Mounting it writable appears to work and then refuses
         // every write, which is worse than saying so at the start.
@@ -2801,6 +2804,8 @@ final class AppModel: ObservableObject {
     /// How much of the helper's transcript has already been shown, so the
     /// final reply can append the remainder instead of repeating all of it.
     private var helperLinesShown = 0
+    /// When the open in flight began, for the estimate on the opening screen.
+    var openStartedAt: Date?
     /// The mount in flight, so waiting on it can be given up.
     private var mountTask: Task<Void, Never>?
     /// The credential of the mount in flight, so its output can be scrubbed of
@@ -2915,6 +2920,24 @@ final class AppModel: ObservableObject {
     }
 
     private func runMount(drive: Drive, credential: String) {
+        // The launch-time update of the Linux environment is waited for, never raced.
+        if EnvironmentWarmup.progress.state.running {
+            mountTask = Task { @MainActor [weak self] in
+                var shown = ""
+                while !Task.isCancelled {
+                    let now = EnvironmentWarmup.progress.state
+                    if !now.line.isEmpty, now.line != shown {
+                        self?.appendStatus(now.line)
+                        shown = now.line
+                    }
+                    if !now.running { break }
+                    try? await Task.sleep(nanoseconds: 300_000_000)
+                }
+                guard !Task.isCancelled else { return }
+                self?.runMount(drive: drive, credential: credential)
+            }
+            return
+        }
         noteWhetherTheGuestExists()
         // The ceiling is hard. Every way of reaching this is shut while the
         // machine is full -- the rows, both File menu items, the Open Drive
@@ -3201,6 +3224,8 @@ final class AppModel: ObservableObject {
         drive: Drive, credential: String, mountPoint: String, transcript: String = "",
         route: MountRoute
     ) {
+        if let started = openStartedAt { OpenTimes.record(Date().timeIntervalSince(started)) }
+        openStartedAt = nil
         // The script is spent and its log has been read into the transcript.
         tidyUpAfterMounting()
         // Read-only either because it was asked for, or because the drive
@@ -3245,12 +3270,9 @@ final class AppModel: ObservableObject {
         // What was chosen here is what the next drive starts with, so a person
         // who turns this off is not asked to turn it off again.
         UserDefaults.standard.set(rememberCredential, forKey: AppModel.rememberKey)
-        if rememberCredential {
-            if !CredentialStore.save(credential, for: identity(of: drive)) {
-                ejectProblem = "The drive opened, but the key could not be saved to your Keychain."
-            }
-        } else {
-            for name in identities(of: drive) { CredentialStore.delete(for: name) }
+        // Unticked saves nothing and removes nothing; only Forget removes a saved key.
+        if rememberCredential, !CredentialStore.save(credential, for: identity(of: drive)) {
+            ejectProblem = "The drive opened, but the key could not be saved to your Keychain."
         }
         if mountedReadOnly {
             readOnlyMounts.insert(mountPoint)
@@ -3421,6 +3443,7 @@ final class AppModel: ObservableObject {
     /// stopped on is recorded in one place instead of at each of the four
     /// sites that can fail.
     private func fail(_ drive: Drive?, _ summary: String, _ detail: String?) {
+        openStartedAt = nil
         // A failure is when somebody reaches for the report, so the log is
         // fetched again here rather than when the sheet is opened.
         refreshRecentLog()
@@ -3702,7 +3725,11 @@ final class AppModel: ObservableObject {
         // quitting one application does not expect another's drives to close.
         let mine = Array(Set(openMounts.values)).sorted()
         Task.detached(priority: .userInitiated) {
-            for point in mine { _ = EngineStatus.unmount(mountPoint: point) }
+            for point in mine {
+                let name = (point as NSString).lastPathComponent
+                await MainActor.run { QuitProgress.say(String(localized: "Ejecting \(name)")) }
+                _ = EngineStatus.unmount(mountPoint: point)
+            }
             EngineConfig.removeGeneratedAction()
             await MainActor.run { completion() }
         }
