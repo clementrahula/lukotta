@@ -5603,3 +5603,17 @@ And where a Finder delete's time goes, once more: with nothing sampling, a
 native APFS image deleted 5,000 files in place in 358 ms. On the stick, 3,000
 files took 5.59 s, and the process whose processor time rose by 1.85 s was the
 engine's virtual machine, Finder's barely at all.
+
+## 1.22.17, shipped with the goal rows still running — 2026-09-11
+
+1.22.17 went to the beta channel as 1.22.17-beta.1 at 05:24 and to the
+release channel at 05:29. Each was checked after publishing against the
+bundle built: the version, the guest kernel, the three engine patches, the
+signature, notarisation, the GitHub asset and the feed. Neither ship touched
+the Beta or release app installed on this Mac.
+
+On the dev build of the same sources, the BitLocker stick answered every row
+about it. finderparity held, three stable writes ran at 11.5 to 16.1 MB/s with
+no pause, and both kill tests above kept everything. Of the goal rows, goal1
+to goal4 held when it went out. The rest were still running, the LUKS sweep on
+its sixth of seven images, and every row after it had not started.
