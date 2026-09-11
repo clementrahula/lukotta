@@ -1,6 +1,6 @@
 # Notes for Coding Agents
 
-<!-- covers: sources/**, scripts/**, tests/** checked: 2026-09-08 -->
+<!-- covers: sources/**, scripts/**, tests/**, patches/** checked: 2026-09-11 -->
 
 This file lists the things about Lukotta that mislead: commands that report the
 wrong thing, conventions that differ from the default, and rules that look like
@@ -582,6 +582,12 @@ states what it can do rather than assuming it. Keep it that way.
 Needs `brew install llvm lld util-linux` and the
 `aarch64-unknown-linux-musl` Rust target.
 
+The guest kernel is built here too, by `scripts/build-guest-kernel.sh` in
+Docker, with the `patches/linux-*.patch` it names. `vendor-engine.sh` takes it
+from `vendor/kernel-built/` and refuses to package
+`vmproxy-writes-commit-at-commit.patch` without it, so a run of
+`build-engine.sh` needs one of `build-guest-kernel.sh` after it.
+
 **The image drivers write now, except VHDX.** VDI, VHD and VMDK (flat and
 sparse) are read and written; VHDX and the stream-optimized form of VMDK are
 read only. `krun-devices` marks the guest device read-only whenever the driver
@@ -609,6 +615,8 @@ the code alone. Changing one needs the evidence that established it.
   counts, on every route.
 - **A mount of this app's own is `.local:/mnt/…` or `.local:/run/…`.** A volume
   group is served as a tmpfs under `/run` with the volumes bound inside it.
+  An AFP volume of its own is served from `disk<N>.local`, the host named after
+  the device (`AfpShare.afpHost`).
   Recognising only the first shape meant the sweep for engines serving nothing
   would have taken down the machine serving somebody's root and home.
 - **The kept-aside copy is filed under the identifier.** The app writes it and
@@ -1102,8 +1110,8 @@ the mechanism; use it.
 
 That pattern matches the machine serving somebody's real drive exactly as
 readily as one serving a fixture. Killing a machine mid-write is not tidy-up:
-the engine's disk backend makes writes durable when it shuts down, not when a
-write is acknowledged, so what it was holding is lost. On NTFS it leaves
+a create, remove or attribute change is answered before it is on the drive,
+and what the guest has not yet written back is lost. On NTFS it leaves
 `$MFTMirr` behind `$MFT` and the volume comes up read-only until something
 repairs it.
 

@@ -1,6 +1,6 @@
 # Building Lukotta from Source
 
-<!-- covers: scripts/** checked: 2026-09-09 -->
+<!-- covers: build-app.sh, scripts/fetch-engine.sh, scripts/vendor-engine.sh, scripts/build-engine.sh, scripts/build-guest-kernel.sh, scripts/build-ntfsck.sh, scripts/trim-image.py, scripts/collect-sources.sh, scripts/guest-sbom.py, scripts/lowest-macos.py, scripts/release.sh, scripts/ship.sh, scripts/release-notes.py, scripts/notary-status.sh, scripts/preflight.sh, scripts/e2e.sh, scripts/run-tests.sh, scripts/lint.sh, scripts/make-test-volumes.sh checked: 2026-09-11 -->
 
 Lukotta is GPL-3.0-or-later. Anyone who receives the app is entitled to its
 source and to the scripts that build it. This covers the whole path, from a
@@ -14,6 +14,7 @@ clean machine to a signed application.
   for a newer release and the floor rises with it; `build-app.sh` reads the floor
   from `vendor/engine.lock`, not from a number typed into the plist.
 - Xcode's command line tools, with a Swift 6 toolchain.
+- Docker, for `scripts/build-guest-kernel.sh` only.
 - `shellcheck` and `swift-format`, for the linter only. `gitleaks` too, if you
   want the pre-commit hook's second pass; without it the hook runs the rest.
 
@@ -85,6 +86,21 @@ checksummed bottle.
 and refuses VMDK, VDI, VHD, VHDX and encryption inside an image by name.
 `vendor-engine.sh` records which patches were applied and the app reads that
 record, so it states what it can open either way. A release runs this step.
+
+### The guest kernel
+
+`build-engine.sh` applies every patch in `patches/` except the `linux-*` ones,
+which belong to the guest kernel. `scripts/build-guest-kernel.sh` builds that
+kernel in Docker, from the pins the engine's own `libexec/Image` came from,
+with those patches applied:
+
+    ./scripts/build-guest-kernel.sh vendor/kernel-built/Image
+
+It writes `Image`, `Image.sha256` and `Image.patches`. `vendor-engine.sh` uses
+that Image when all three are there and the sha256 matches, and adds the patch
+names to the record. **After `build-engine.sh` this step is required:** its
+vmproxy exports async only on this kernel, and `vendor-engine.sh` refuses to
+package that vmproxy without it.
 
 ## The Guest Image
 

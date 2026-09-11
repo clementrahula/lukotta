@@ -1,6 +1,6 @@
 # designer, in this project
 
-<!-- covers: build-app.sh, scripts/vendor-engine.sh checked: 2026-09-09 -->
+<!-- covers: build-app.sh, scripts/vendor-engine.sh checked: 2026-09-11 -->
 
 This project's half of the `designer` brief. The role itself lives outside this
 repository; if you have cloned this project it will not be here, and nothing below
@@ -14,9 +14,8 @@ launch:           ./scripts/vendor-engine.sh   (first run only, downloads the
 screen:           a macOS window. The app is called Drive Unlocker, not Lukotta:
                   builds are unbranded by default, so the name and icon on
                   screen are the unbranded ones unless the build was made with
-                  LUKOTTA_BRANDING=official.
-product document: docs/ - the design decisions this project has already made
-notepads:         docs/notepads/
+                  LUKOTTA_BRANDING=official, beta or dev.
+product document: SPECS.md - what the app opens, how, and what it refuses
 ```
 
 **On the `v2-coverage` branch**, which is the same repository in another

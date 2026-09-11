@@ -1,6 +1,6 @@
 # Specifications
 
-<!-- covers: sources/** checked: 2026-09-09 -->
+<!-- covers: sources/**, patches/** checked: 2026-09-11 -->
 
 What Lukotta opens, how it opens it, and what it does not.
 
@@ -99,6 +99,11 @@ Two paths lead to a mounted volume:
 
 **A physical drive** is unlocked and mounted in the guest, then re-exported over
 NFS. Reading a raw disk device requires the privileged helper.
+
+A writable NTFS drive, BitLocker included, is also served over AFP by netatalk
+in the guest. Finder is given the AFP volume, under `/Volumes`, and the NFS
+mount it is served from is hidden. A drive opened read-only, and every other
+filesystem, reaches Finder over NFS alone.
 
 **A disk image** is opened without privilege. A raw image is attached by macOS
 first; every other format is handed to the engine as a path, which the engine
@@ -427,7 +432,7 @@ pass**, including the one XFS fails:
 
 That is an image, which is a regular file, where `fsync` has always worked. It
 is not evidence about a physical drive, where the flush is the ioctl in §8 and
-the outcome is still unproven. What it does show is that ntfs3 and the export
+the outcome is measured there. What it does show is that ntfs3 and the export
 above it lose nothing across a killed machine once the flush underneath them is
 real.
 
@@ -524,6 +529,15 @@ as it does on NTFS. No mount option reaches it. `scripts/xattr-forks.sh`.
 
 ### fsync does not survive a killed machine
 
+**On a physical drive this is fixed by the guest kernel built with
+`patches/linux-nfsd-commit-is-durable.patch`.** nfsd answered a COMMIT with
+`vfs_fsync_range()` alone, which on ntfs3 does not reach the volume metadata;
+the patch makes a COMMIT sync the filesystem and flush the device. Measured on
+2026-09-11 on the BitLocker test stick, exported async, the client writing
+unstably: `scripts/kill-durability.sh` wrote 8 MiB with `conv=fsync`, killed
+the machine as soon as fsync returned, and the file came back byte-identical.
+The image results below predate that kernel and have not been measured again.
+
 Data an application was told had been committed is lost if the microVM is killed
 outright. On an image: 4 MB written with `dd conv=fsync`, machine killed,
 returns full length with exactly 32768 bytes of holes at offset 0, identically
@@ -597,7 +611,7 @@ attached device:
     unpatched   sync FAILED: Inappropriate ioctl for device (os error 25)
     patched     sync ok
 
-**Durability across a kill is not proven.** `scripts/kill-durability.sh` is
+**The imago patch alone did not prove durability across a kill.** `scripts/kill-durability.sh` is
 written, and the only target that reproduces the loss is a physical drive:
 against an unpatched engine the same test on an attached image returned the
 8 MB byte-identical, because writes to an image reach its backing file through
@@ -615,9 +629,9 @@ Ruled out along the way, each by measurement:
   Patched (`patches/krun-devices-raw-device-flush.patch`) so every path gets
   `Writeback`. The symptom was unchanged, because the flush it now performs was
   the `fsync` above.
-- **The NFS export.** vmproxy builds
-  `{rw|ro},no_subtree_check,no_root_squash,insecure` with no `async`, so nfsd is
-  in its default `sync` mode.
+- **The NFS export.** It was exported `sync` then, so nfsd was not holding
+  writes back. It is `async` now only on a kernel whose COMMIT is durable
+  (`patches/vmproxy-writes-commit-at-commit.patch`), and `sync` otherwise.
 - **The guest mount options.** `dirsync` was applied, confirmed in the
   transcript, and changed nothing. Reverted, because synchronous directory
   updates cost every many-small-file copy something.
