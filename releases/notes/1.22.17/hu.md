@@ -1,0 +1,2 @@
+- A BitLocker-meghajtóra történő másolás már nem áll meg perceken át menet közben.
+- A BitLocker-meghajtóra irányuló nagy másolások ismét megvárják, hogy minden írás elérje a meghajtót.

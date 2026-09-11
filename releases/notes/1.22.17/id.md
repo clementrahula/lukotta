@@ -1,0 +1,2 @@
+- Menyalin ke drive BitLocker tidak lagi terhenti selama beberapa menit di tengah jalan.
+- Salinan besar ke drive BitLocker kembali menunggu setiap penulisan mencapai drive.

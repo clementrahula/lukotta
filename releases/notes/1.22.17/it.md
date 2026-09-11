@@ -1,0 +1,2 @@
+- La copia su un'unità BitLocker non si ferma più per minuti a metà strada.
+- Le copie di grandi dimensioni su un'unità BitLocker attendono di nuovo che ogni scrittura raggiunga l'unità.

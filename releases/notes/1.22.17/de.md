@@ -1,0 +1,2 @@
+- Das Kopieren auf ein BitLocker-Laufwerk hält nicht mehr mittendrin minutenlang an.
+- Große Kopien auf ein BitLocker-Laufwerk warten wieder darauf, dass jeder Schreibvorgang das Laufwerk erreicht.

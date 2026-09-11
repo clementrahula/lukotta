@@ -1,0 +1,2 @@
+- Kopiointi BitLocker-asemalle ei enää pysähdy minuuteiksi kesken kaiken.
+- Suuret kopioinnit BitLocker-asemalle odottavat taas, että jokainen kirjoitus päätyy asemalle.

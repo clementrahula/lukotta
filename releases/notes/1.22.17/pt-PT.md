@@ -1,0 +1,2 @@
+- A cópia para uma unidade BitLocker já não para durante minutos a meio.
+- As cópias grandes para uma unidade BitLocker voltam a esperar que cada escrita chegue à unidade.

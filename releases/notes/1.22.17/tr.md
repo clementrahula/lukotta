@@ -1,0 +1,2 @@
+- BitLocker sürücüsüne kopyalama artık yarı yolda dakikalarca durmuyor.
+- BitLocker sürücüsüne yapılan büyük kopyalamalar yine her yazmanın sürücüye ulaşmasını bekliyor.

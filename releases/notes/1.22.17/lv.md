@@ -1,0 +1,2 @@
+- Kopēšana uz BitLocker disku vairs neapstājas uz vairākām minūtēm pusceļā.
+- Lielas kopijas uz BitLocker disku atkal gaida, līdz katrs ieraksts sasniedz disku.

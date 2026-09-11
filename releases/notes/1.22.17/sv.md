@@ -1,0 +1,2 @@
+- Kopiering till en BitLocker-enhet stannar inte längre i flera minuter på vägen.
+- Stora kopieringar till en BitLocker-enhet väntar åter på att varje skrivning når enheten.

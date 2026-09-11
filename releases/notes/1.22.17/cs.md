@@ -1,0 +1,2 @@
+- Kopírování na jednotku BitLocker se už uprostřed nezastavuje na několik minut.
+- Velké kopie na jednotku BitLocker opět čekají, až každý zápis dorazí na jednotku.

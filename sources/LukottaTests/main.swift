@@ -6518,20 +6518,20 @@ group("aDirtyVolumeIsRepairedRatherThanDemoted") {
         "a drive opened read-only is not written to, not even to repair it")
 }
 
-group("aBitLockerVolumeWritesSynchronouslyUntilCommitsAreDurable") {
+group("everyVolumeWithoutAJournalWritesStably") {
+    // BitLocker once wrote unstably, and the Mac's client then held a copy for
+    // minutes waiting to commit. Every volume without an ext journal to lean on
+    // writes stably, BitLocker among them.
     let nowhere = "/nonexistent/lukotta-durability-test"
-    let today = Durability.choice(forDevice: nowhere, format: .bitlocker, commitsAreDurable: false)
+    let unread = Durability.choice(forDevice: nowhere)
     expect(
-        today.stableWrites && today.guestOption == nil,
-        "without the kernel fix a BitLocker volume still writes stably")
-    let fixed = Durability.choice(forDevice: nowhere, format: .bitlocker, commitsAreDurable: true)
+        unread.stableWrites && unread.guestOption == nil,
+        "a volume that is not ext with a journal writes stably, and nothing else")
+    var stable = sampleInputs(kind: .microsoft)
+    stable.askForStableWrites()
     expect(
-        !fixed.stableWrites && fixed.guestOption == nil,
-        "with it, a BitLocker volume writes at the drive's speed")
-    let luks = Durability.choice(forDevice: nowhere, format: .luks, commitsAreDurable: true)
-    expect(luks.stableWrites, "and nothing else changes: a LUKS container still writes stably")
-    let unread = Durability.choice(forDevice: nowhere, commitsAreDurable: true)
-    expect(unread.stableWrites, "nor does a volume whose first sector was not read")
+        MountScript.build(stable).contains(",mutejukebox,noowners,sync'"),
+        "and the client is asked for it in the options it mounts with")
 }
 
 group("readOnlyIsBothSidesOfTheConnection") {

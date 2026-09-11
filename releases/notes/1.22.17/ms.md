@@ -1,0 +1,2 @@
+- Menyalin ke pemacu BitLocker tidak lagi terhenti selama beberapa minit di pertengahan.
+- Salinan besar ke pemacu BitLocker kembali menunggu setiap penulisan sampai ke pemacu.

@@ -1,0 +1,2 @@
+- Việc sao chép vào ổ BitLocker không còn dừng lại nhiều phút giữa chừng.
+- Các bản sao lớn vào ổ BitLocker lại chờ từng lần ghi đến được ổ đĩa.

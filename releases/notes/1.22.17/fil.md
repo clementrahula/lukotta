@@ -1,0 +1,2 @@
+- Hindi na humihinto nang ilang minuto sa kalagitnaan ang pagkopya sa BitLocker drive.
+- Muling hinihintay ng malalaking kopya sa BitLocker drive na maabot ng bawat pagsulat ang drive.

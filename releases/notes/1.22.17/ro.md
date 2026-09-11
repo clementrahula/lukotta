@@ -1,0 +1,2 @@
+- Copierea pe o unitate BitLocker nu se mai oprește minute întregi la jumătatea drumului.
+- Copiile mari pe o unitate BitLocker așteaptă din nou ca fiecare scriere să ajungă pe unitate.

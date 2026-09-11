@@ -1,0 +1,2 @@
+- Kopiering til en BitLocker-disk stopper ikke lenger opp i flere minutter underveis.
+- Store kopieringer til en BitLocker-disk venter igjen på at hver skriving når disken.

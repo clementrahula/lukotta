@@ -1,0 +1,2 @@
+- Kopeerimine BitLockeri kettale ei peatu enam poole pealt minutiteks.
+- Suured koopiad BitLockeri kettale ootavad taas, kuni iga kirjutus jõuab kettale.

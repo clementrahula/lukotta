@@ -97,13 +97,6 @@ public enum EnginePaths {
         enginePatches.contains("imago-sparse-vmdk")
     }
 
-    /// Whether the guest's nfsd answers a COMMIT only once the data is on the
-    /// drive. Without it a BitLocker volume has to be written synchronously,
-    /// every write waiting for the device.
-    public static var commitsAreDurable: Bool {
-        enginePatches.contains("linux-nfsd-commit-is-durable")
-    }
-
     /// Directories holding the bundled dylibs. The engine loads its one external
     /// dependency through @executable_path, so this is a second line of
     /// defence.
