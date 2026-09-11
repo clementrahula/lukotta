@@ -165,7 +165,7 @@ if [ -z "${LUKOTTA_ENGINE:-}" ]; then
 fi
 if [ -z "${LUKOTTA_ENGINE:-}" ]; then
   echo "no installed app answers to --drive; build one:" >&2
-  echo "  LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
+  echo "  LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
   exit 2
 fi
 echo "driving ${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
@@ -345,11 +345,9 @@ STALE_BUILD="$(stale_build)"
 if [ -n "${STALE_BUILD:-}" ]; then
   echo "$STALE_BUILD is older than the sources, so this measured code that is"
   echo "no longer in the tree; rebuild and run it again." >&2
-  echo "  LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
-  # And installed. build-app.sh writes into dist/ and stops there; every check
-  # here drives what is in /Applications. Saying only the first half is how a
-  # run came back green about a build that was never replaced.
-  echo "  ditto \"dist/$(basename "$STALE_BUILD")\" \"$STALE_BUILD\"" >&2
+  # A dev build installs itself into /Applications, which is what every check
+  # here drives, so this one command is the whole of the answer.
+  echo "  LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
   exit 2
 fi
 if [ "$(fingerprint)" != "$BEFORE" ]; then
