@@ -280,6 +280,12 @@ nothing had ever opened one.
   step in build-engine.sh, since that program comes prebuilt from the bottle
   today. Go 1.27 is already on this machine.
 
+## What 1.22.18 leaves open
+
+- [ ] Finder shows an NTFS volume's name in lower case: netatalk's config reader lowercases it.
+- [ ] A folder delete is per item over AFP, 1.4 ms a file; no Trash move yet.
+- [ ] macOS warns the AFP client will be removed in a future version.
+
 ## Two things 1.22.17 leaves open
 
 - [ ] **A fast drive is held near one flush a megabyte.** Since 1.22.17
