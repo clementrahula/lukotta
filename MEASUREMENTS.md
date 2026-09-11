@@ -5714,9 +5714,13 @@ starting with the leftover first-write folder still on drive8:
     nowindow     holds
     lvmlock      holds
 
-crowdafter was stopped in its second round to make room for these, so its
-result on this build is the first round's: 11 of 12 byte-identical, and the
-twelfth refused for want of room on drive8 as above.
+crowdafter was stopped in its second round to make room for these; its first
+round was 11 of 12 byte-identical, the twelfth refused for want of room on
+drive8 as above. With drive8's room back, one round of the same script on the
+same build, run directly with ROUNDS=1 rather than through verify.sh:
+
+    crowdafter   twelve pulled with writes in the air, then all 12 opened
+                 through the app and 12 byte-identical
 
 Nor is it a delete on a full volume, the other thing both harnesses have in
 common with the leftovers. On another clone of the spare image, with every
