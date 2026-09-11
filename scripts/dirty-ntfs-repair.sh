@@ -134,8 +134,15 @@ prepare_actions() {
   # the dirty volume is the one that cannot be mounted without that action. So
   # asking the app to open the dirty image installs nothing and the harness then
   # reports that the app could not open a dirty volume -- which it never tried.
+  # With no clean fixture, one is made here: the dirty image was the fallback,
+  # and the attachment below then held it, so every reopen said "already locked".
   local clean="$OUT/sweep/base.img"
-  [ -f "$clean" ] || clean="$IMG"
+  if [ ! -f "$clean" ]; then
+    clean="$WORK/prime.img"
+    dd if=/dev/zero of="$clean" bs=1048576 count=0 seek=64 2>/dev/null
+    "$ENGINE" shell "$clean" -c 'mkfs.ntfs -Q -L PRIME /dev/vda >/dev/null 2>&1 && echo made' \
+      2>/dev/null | grep -q made || return 1
+  fi
   local dev
   dev="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$clean" \
     2>/dev/null | head -1 | awk '{print $1}')"
@@ -165,7 +172,7 @@ prepare_actions() {
     '$1 ~ want {for(i=1;i<=NF;i++) if($i=="on") {print $(i+1); exit}}')"
   [ -n "$point" ] && { umount "$point" >/dev/null 2>&1 \
     || diskutil unmount force "$point" >/dev/null 2>&1; }
-  hdiutil detach "$dev" -quiet 2>/dev/null
+  for _ in 1 2 3 4 5; do hdiutil detach "$dev" -quiet 2>/dev/null && break; sleep 2; done
   # The engine keeps its configuration one directory further down. Looking in
   # the wrong place here made this report that the app had left no actions,
   # every time, whether it had or not.
