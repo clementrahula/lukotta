@@ -21,8 +21,8 @@ public enum AfpShare {
 
     /// The engine host an AFP volume of ours is served from; nil for anything else.
     public static func afpHost(of source: String) -> String? {
-        guard let login = source.range(of: guestLogin) else { return nil }
-        let rest = source[login.upperBound...]
+        guard let at = source.range(of: "@", options: .backwards) else { return nil }
+        let rest = source[at.upperBound...]
         guard let slash = rest.firstIndex(of: "/") else { return nil }
         let host = String(rest[..<slash])
         return host.hasPrefix("disk") && host.hasSuffix(".local") ? host : nil

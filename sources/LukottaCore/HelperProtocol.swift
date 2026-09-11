@@ -126,7 +126,9 @@ public enum HelperInfo {
     /// 67: diagnostic build.
     /// 68: diagnostic build.
     /// 69: the share is asked for in the case netatalk gives it.
-    public static let contract = 69
+    /// 70: diagnostic build.
+    /// 71: the diagnostic login is gone again.
+    public static let contract = 71
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"
