@@ -118,7 +118,8 @@ daemon_is_there() {
 prepare_actions() {
   if ! can_be_driven; then
     echo "error: $APP_BUNDLE has no --drive; it was not built with devtools" >&2
-    echo "       build one with LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
+    echo "       build one with LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
+    echo "       and point LUKOTTA_ENGINE at /Applications/Lukotta Dev.app's engine" >&2
     return 2
   fi
   if ! daemon_is_there; then

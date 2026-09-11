@@ -60,7 +60,8 @@ can_be_driven() {
 
 can_be_driven || {
   echo "error: $APP_BUNDLE has no --drive; it was not built with devtools" >&2
-  echo "       build one with LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
+  echo "       build one with LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
+  echo "       and point LUKOTTA_ENGINE at /Applications/Lukotta Dev.app's engine" >&2
   exit 2
 }
 # A daemon registered the other way is still a daemon.
