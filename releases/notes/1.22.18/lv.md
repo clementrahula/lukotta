@@ -1,0 +1,3 @@
+- BitLocker disks tiek atvērts programmā Finder, izmantojot AFP: mazi faili tiek kopēti un dzēsti vairākas reizes ātrāk.
+- Finder vairs neatstāj ._ failus BitLocker diskā.
+- Finder rāda diska nosaukumu ar mazajiem burtiem.

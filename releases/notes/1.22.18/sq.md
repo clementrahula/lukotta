@@ -1,0 +1,3 @@
+- Një disk BitLocker hapet në Finder përmes AFP: skedarët e vegjël kopjohen dhe fshihen disa herë më shpejt.
+- Finder nuk lë më skedarë ._ në një disk BitLocker.
+- Finder e shfaq emrin e diskut me shkronja të vogla.

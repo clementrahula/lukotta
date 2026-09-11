@@ -1,0 +1,3 @@
+- Een BitLocker-schijf opent in de Finder via AFP: kleine bestanden worden meerdere keren sneller gekopieerd en verwijderd.
+- De Finder laat geen ._-bestanden meer achter op een BitLocker-schijf.
+- De Finder toont de naam van de schijf in kleine letters.

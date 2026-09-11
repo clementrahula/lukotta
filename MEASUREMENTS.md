@@ -98,3 +98,4 @@ As shipped in 1.22.16:
     delete of those 200     0.28 s              2000 in 4.53 s
     ._ files seen           0                   seen
     eject to engine gone    5 s
+    1 GiB in 4 files        142.6 s, 7.5 MB/s, identical, Copy window shown, no ._ files

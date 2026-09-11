@@ -1,0 +1,3 @@
+- BitLocker pogon otvara se u Finderu putem AFP-a: male datoteke kopiraju se i brišu nekoliko puta brže.
+- Finder više ne ostavlja datoteke ._ na BitLocker pogonu.
+- Finder prikazuje naziv pogona malim slovima.

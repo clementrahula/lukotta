@@ -1,0 +1,3 @@
+- BitLocker diskas Finder atveriamas per AFP: maži failai kopijuojami ir trinami kelis kartus greičiau.
+- Finder nebepalieka ._ failų BitLocker diske.
+- Finder rodo disko pavadinimą mažosiomis raidėmis.

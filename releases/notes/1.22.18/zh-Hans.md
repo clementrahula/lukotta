@@ -1,0 +1,3 @@
+- BitLocker 驱动器现在通过 AFP 在 Finder 中打开：小文件的复制和删除速度快了数倍。
+- Finder 不再在 BitLocker 驱动器上留下 ._ 文件。
+- Finder 以小写字母显示驱动器名称。

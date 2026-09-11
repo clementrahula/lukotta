@@ -1,0 +1,3 @@
+- Ein BitLocker-Laufwerk öffnet sich im Finder über AFP: Kleine Dateien werden um ein Mehrfaches schneller kopiert und gelöscht.
+- Der Finder hinterlässt auf einem BitLocker-Laufwerk keine ._-Dateien mehr.
+- Der Finder zeigt den Namen des Laufwerks in Kleinbuchstaben.

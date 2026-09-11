@@ -1,0 +1,3 @@
+- BitLockeri ketas avaneb Finderis AFP kaudu: väikeste failide kopeerimine ja kustutamine on mitu korda kiirem.
+- Finder ei jäta enam BitLockeri kettale ._-faile.
+- Finder näitab ketta nime väiketähtedega.

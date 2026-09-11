@@ -1,0 +1,3 @@
+- Un disque BitLocker s'ouvre dans le Finder via AFP : les petits fichiers se copient et se suppriment plusieurs fois plus vite.
+- Le Finder ne laisse plus de fichiers ._ sur un disque BitLocker.
+- Le Finder affiche le nom du disque en minuscules.

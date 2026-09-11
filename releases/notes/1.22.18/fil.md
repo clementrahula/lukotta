@@ -1,0 +1,3 @@
+- Nabubuksan ang BitLocker drive sa Finder sa pamamagitan ng AFP: ilang ulit na mas mabilis ang pagkopya at pagbura ng maliliit na file.
+- Hindi na nag-iiwan ang Finder ng mga ._ file sa BitLocker drive.
+- Ipinapakita ng Finder ang pangalan ng drive sa maliliit na titik.

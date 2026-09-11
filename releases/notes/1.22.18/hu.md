@@ -1,0 +1,3 @@
+- A BitLocker-meghajtó AFP-n keresztül nyílik meg a Finderben: a kis fájlok másolása és törlése többszörösen gyorsabb.
+- A Finder már nem hagy ._ fájlokat a BitLocker-meghajtón.
+- A Finder kisbetűvel mutatja a meghajtó nevét.

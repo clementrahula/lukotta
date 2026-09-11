@@ -1,0 +1,3 @@
+- Ổ BitLocker mở trong Finder qua AFP: tệp nhỏ được sao chép và xóa nhanh hơn nhiều lần.
+- Finder không còn để lại tệp ._ trên ổ BitLocker.
+- Finder hiển thị tên ổ bằng chữ thường.

@@ -1,0 +1,3 @@
+- O unitate BitLocker se deschide în Finder prin AFP: fișierele mici se copiază și se șterg de câteva ori mai repede.
+- Finder nu mai lasă fișiere ._ pe o unitate BitLocker.
+- Finder afișează numele unității cu litere mici.

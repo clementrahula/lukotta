@@ -1,0 +1,3 @@
+- Drive BitLocker terbuka di Finder melalui AFP: file kecil disalin dan dihapus beberapa kali lebih cepat.
+- Finder tidak lagi meninggalkan file ._ di drive BitLocker.
+- Finder menampilkan nama drive dengan huruf kecil.

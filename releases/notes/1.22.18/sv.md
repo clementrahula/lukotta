@@ -1,0 +1,3 @@
+- En BitLocker-enhet öppnas i Finder via AFP: små filer kopieras och raderas flera gånger snabbare.
+- Finder lämnar inte längre ._-filer på en BitLocker-enhet.
+- Finder visar enhetens namn med små bokstäver.

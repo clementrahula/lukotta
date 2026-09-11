@@ -1,0 +1,3 @@
+- BitLocker sürücüsü Finder'da AFP üzerinden açılıyor: küçük dosyalar birkaç kat daha hızlı kopyalanıp siliniyor.
+- Finder artık BitLocker sürücüsünde ._ dosyaları bırakmıyor.
+- Finder sürücünün adını küçük harflerle gösteriyor.

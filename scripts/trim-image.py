@@ -44,8 +44,8 @@ ROOTS = [
     # image already carries, and the anylinuxfs image carries neither e2fsprogs
     # nor xfsprogs -- see the note in vendor-engine.sh for putting them in.
     "e2fsprogs", "btrfs-progs", "xfsprogs",
-    # export back to macOS
-    "nfs-utils", "rpcbind",
+    # export back to macOS: NFS for the engine, AFP for Finder
+    "nfs-utils", "rpcbind", "netatalk",
     # mounting and block-device identification
     "mount", "blkid", "lsblk",
     # base system

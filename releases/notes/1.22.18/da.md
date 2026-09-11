@@ -1,0 +1,3 @@
+- Et BitLocker-drev åbnes i Finder via AFP: små filer kopieres og slettes flere gange hurtigere.
+- Finder efterlader ikke længere ._-filer på et BitLocker-drev.
+- Finder viser drevets navn med små bogstaver.

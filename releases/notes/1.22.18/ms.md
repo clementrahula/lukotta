@@ -1,0 +1,3 @@
+- Pemacu BitLocker dibuka dalam Finder melalui AFP: fail kecil disalin dan dipadam beberapa kali lebih pantas.
+- Finder tidak lagi meninggalkan fail ._ pada pemacu BitLocker.
+- Finder memaparkan nama pemacu dalam huruf kecil.

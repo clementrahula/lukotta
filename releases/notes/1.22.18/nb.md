@@ -1,0 +1,3 @@
+- En BitLocker-disk åpnes i Finder via AFP: små filer kopieres og slettes flere ganger raskere.
+- Finder etterlater ikke lenger ._-filer på en BitLocker-disk.
+- Finder viser navnet på disken med små bokstaver.

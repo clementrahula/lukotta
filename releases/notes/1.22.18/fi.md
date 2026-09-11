@@ -1,0 +1,3 @@
+- BitLocker-asema avautuu Finderissa AFP:n kautta: pienten tiedostojen kopiointi ja poistaminen on moninkertaisesti nopeampaa.
+- Finder ei enää jätä ._-tiedostoja BitLocker-asemalle.
+- Finder näyttää aseman nimen pienillä kirjaimilla.
