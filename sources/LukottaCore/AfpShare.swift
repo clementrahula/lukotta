@@ -55,6 +55,22 @@ public enum AfpShare {
             .map(\.mountPoint)
     }
 
+    /// Where Finder shows the drive whose engine mount is at `point`; nil when Finder has it there itself.
+    public static func finderPoint(forEngineMount point: String, in table: String = mountTable())
+        -> String?
+    {
+        guard
+            let nfs = MountTableEntry.all(in: table).first(where: { $0.mountPoint == point }),
+            isHidden(nfs), let pair = hostAndShare(ofNFSSource: nfs.source)
+        else { return nil }
+        return afpPoints(forHost: pair.host, in: table).first
+    }
+
+    /// Where the engine mounts a volume Finder is not shown: out of Finder's way, so its own takes the label.
+    public static func hiddenPoint(forDevice device: String) -> String {
+        "/Volumes/.lukotta-" + (device as NSString).lastPathComponent
+    }
+
     public static func hiddenMountExists(forDevice device: String) -> Bool {
         let node = (device as NSString).lastPathComponent + "."
         return MountTableEntry.all(in: mountTable()).contains {

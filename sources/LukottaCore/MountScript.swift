@@ -952,7 +952,8 @@ public enum MountScript {
                     options: nfsOptions(i), readOnly: i.readOnly,
                     ownership: ownershipFlags(i), netHelper: netHelperFlag(i),
                     logQ: logQ, durability: i.durability, action: chosen,
-                    hidden: i.hiddenFromFinder)
+                    hiddenPoint: i.hiddenFromFinder
+                        ? AfpShare.hiddenPoint(forDevice: i.devicePath) : nil)
             }
         }
         if i.kind == .linux {
@@ -2706,11 +2707,12 @@ public enum MountScript {
         logQ: String,
         durability: String? = nil,
         action: String? = tunedActionName,
-        hidden: Bool = false
+        hiddenPoint: String? = nil
     ) -> String {
         let typeFlag = driver.map { " -t \($0)" } ?? ""
         let actionFlag = action.map { " -a \($0)" } ?? ""
-        let client = hidden ? options + ",nobrowse" : options
+        let client = hiddenPoint == nil ? options : options + ",nobrowse"
+        let point = hiddenPoint.map { " " + shellQuoted($0) } ?? ""
         // --nfs-options must use the joined form. The flag is variadic, and the
         // separated form consumes the target that follows it.
         return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount\(ownership)"
@@ -2719,7 +2721,7 @@ public enum MountScript {
             + "\(actionFlag) -w false"
             + "\(netHelper)"
             + " --nfs-options=\(shellQuoted(client))"
-            + " \(target) >> \(logQ) 2>&1 && "
+            + " \(target)\(point) >> \(logQ) 2>&1 && "
             + (readOnly ? mountedCheck : writableCheck)
     }
 

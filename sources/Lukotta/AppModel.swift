@@ -3283,7 +3283,8 @@ final class AppModel: ObservableObject {
         } else {
             readOnlyMounts.remove(mountPoint)
         }
-        DriveMemory.remember(mountPoint: mountPoint, for: drive.uuid)
+        let shown = AfpShare.finderPoint(forEngineMount: mountPoint) ?? mountPoint
+        DriveMemory.remember(mountPoint: shown, for: drive.uuid)
         rememberForRestore(drive, readOnly: mountedReadOnly)
         restoreKeys[mountPoint] = drive.uuid
         // And in the settings, so that after a restart this app can still say
@@ -3596,7 +3597,8 @@ final class AppModel: ObservableObject {
     // MARK: Post-mount
 
     func revealInFinder(_ path: String) {
-        NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: path)
+        let shown = AfpShare.finderPoint(forEngineMount: path) ?? path
+        NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: shown)
     }
 
     /// Eject through the engine, not diskutil: diskutil drops the NFS mount but
