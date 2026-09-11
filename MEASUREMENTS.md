@@ -5539,9 +5539,13 @@ and the client's calls logged every second:
 During the silence the server answered a lookup in 0.02 s and a listing of
 the root in 0.18 s, and the machine's processor was idle. A second run showed
 the client resending 16 requests in one second, nine seconds after its last
-WRITE went out, with no timeout counted: sixteen writes the client had in
-flight got no answer. The guest's log shows no error and macOS logged no
-reset of the stick. What the guest was doing in those seconds is the next
+WRITE went out, and then counting about 89 RPC timeouts a second, 17,506 by
+04:05:44, while it sent nothing: sixteen writes it had in flight got no
+answer. Both queues of the client's connection to the server were empty
+(`netstat`: Recv-Q 0, Send-Q 0), so the guest had taken in every byte the
+client sent. The guest's log shows no error and macOS logged no reset of the
+stick. Whether the 570.8 s write ended with an error is not known: dd's
+errors were discarded. What the guest was doing in those seconds is the next
 measurement.
 
 And where a Finder delete's time goes, once more: with nothing sampling, a
