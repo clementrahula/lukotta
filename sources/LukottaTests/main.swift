@@ -6364,7 +6364,7 @@ group("aPoisonedNameIsFreedAfterTheVolumeIsServing") {
         MountScript.reclaimUnreadable.contains(".lukotta-unreadable-"),
         "and what it does is move the unreadable entry aside, under a hidden name")
     expect(
-        script.contains("nohup") && script.contains("&\'"),
+        script.contains("nohup sh \(MountScript.reclaimScriptPath) >/dev/null 2>&1 &"),
         "detached, so the drive appears at once and the names are freed behind it")
 
     // Run from a file the guest writes, not handed to sh -c as a quoted string.
@@ -6823,6 +6823,11 @@ group("anNTFSVolumeReachesFinderOverAFP") {
         "the share is asked for under the volume's own name")
     expect(
         MountScript.shareServe.contains("volume name = $V"), "netatalk keeps the name's case")
+    expect(
+        MountScript.shareServe.contains("grep -q ':548 '")
+            && MountScript.microsoftActionsTOML.contains(
+                "& sh \(MountScript.shareScriptPath) >/dev/null 2>&1'"),
+        "AFP is listening before the engine exports NFS, so Finder's volume follows at once")
     let served =
         "disk5.local:/mnt/FIELD on /Volumes/FIELD (nfs, nodev, nosuid, nobrowse, mounted by someone)"
     expect(
