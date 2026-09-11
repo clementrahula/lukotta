@@ -1886,6 +1886,27 @@ final class AppModel: ObservableObject {
     /// screen.
     static func cachedFingerprints() -> [String: String] { SharedMemory.read().fingerprints }
 
+    /// What this drive was found to hold before, by any name it goes by, in any Lukotta app.
+    func rememberedFormat(of drive: Drive) -> VolumeFormat? {
+        let formats = SharedMemory.read().formats
+        for name in identities(of: drive) + [drive.id] {
+            if let raw = formats[name], let format = VolumeFormat(rawValue: raw),
+                format != .unknown
+            {
+                return format
+            }
+        }
+        return nil
+    }
+
+    func rememberFormat(_ format: VolumeFormat, of drive: Drive) {
+        guard format != .unknown else { return }
+        let names = identities(of: drive) + [drive.id]
+        SharedMemory.change { contents in
+            for name in names where !name.isEmpty { contents.formats[name] = format.rawValue }
+        }
+    }
+
     /// Filed under both names macOS offers, in the file every Lukotta app shares.
     func rememberFingerprint(_ print: String, of drive: Drive) {
         SharedMemory.change { contents in
@@ -2279,7 +2300,7 @@ final class AppModel: ObservableObject {
     /// only way to find out has been to type a password and watch it fail.
     /// Linux partitions are left alone, LUKS announcing itself in its own header
     /// and the engine's probe already reporting it.
-    private func identify(_ drive: Drive) {
+    private func identify(_ drive: Drive, attempt: Int = 0) {
         let devicePath = drive.devicePath
         let identifier = drive.id
         let ours = openedImages[DriveScanner.wholeDisk(of: drive.id)] != nil
@@ -2298,12 +2319,13 @@ final class AppModel: ObservableObject {
             try? await Task.sleep(nanoseconds: 1_500_000_000)
             guard let self, self.chosenFormat == nil, self.choiceGeneration == choice
             else { return }
+            if let remembered = self.rememberedFormat(of: drive) { self.chosenFormat = remembered }
             if case .chooseDrive = self.phase { self.phase = .unlock(drive) }
         }
 
         Task { [weak self] in
             guard let self else { return }
-            let format: VolumeFormat
+            let probed: VolumeFormat
             var read: Data?
             if ours {
                 read = await Task.detached(priority: .userInitiated) {
@@ -2311,7 +2333,7 @@ final class AppModel: ObservableObject {
                 }.value
             }
             if let sector = read {
-                format = BootSector.identify(sector)
+                probed = BootSector.identify(sector)
             } else if ours {
                 // Nothing was read, which is not the same as nothing being
                 // recognised, and the difference decides what the screen does:
@@ -2356,9 +2378,9 @@ final class AppModel: ObservableObject {
                             "still nothing from \(path, privacy: .public) after a second reading")
                     }
                 }
-                format = answer
+                probed = answer
             } else {
-                format = await self.helper.identify(devicePath: devicePath)
+                probed = await self.helper.identify(devicePath: devicePath)
             }
             // The screen may have moved on while the helper read a sector.
             // Answering about a drive nobody is looking at would put a sentence
@@ -2377,6 +2399,18 @@ final class AppModel: ObservableObject {
                 stillWanted = false
             }
             guard stillWanted else { return }
+
+            // A busy or unreadable drive is not one that needs a password: what it held before stands.
+            let format =
+                probed == .unknown ? (self.rememberedFormat(of: drive) ?? .unknown) : probed
+            if probed != .unknown { self.rememberFormat(probed, of: drive) }
+            if format == .unknown, attempt < 10 {
+                Task { [weak self] in
+                    try? await Task.sleep(nanoseconds: 2_000_000_000)
+                    guard let self, self.choiceGeneration == choice else { return }
+                    self.identify(drive, attempt: attempt + 1)
+                }
+            }
 
             Log.drives.notice("identified as \(format.rawValue, privacy: .public)")
             self.chosenFormat = format == .unknown ? nil : format

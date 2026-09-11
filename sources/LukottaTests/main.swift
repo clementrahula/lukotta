@@ -2248,6 +2248,25 @@ group("aDriveIsRememberedByEveryApp") {
     expect(comesBack, "a drive set to come back still comes back")
     SharedMemory.change { $0.fingerprints[drive] = "fp" }
     expect(SharedMemory.read().fingerprints[drive] == "fp", "the drive's fingerprint is kept")
+    SharedMemory.change { $0.formats[drive] = "ntfs" }
+    expect(SharedMemory.read().formats[drive] == "ntfs", "what the drive holds is kept")
+
+    // A file from another version, missing fields this one has, still reads.
+    try? Data(#"{"names":{"older":"Field"}}"#.utf8).write(to: file)
+    expect(SharedMemory.read().names["older"] == "Field", "an older file's names survive")
+    // One that cannot be read at all is kept aside, never written over.
+    try? Data("not json".utf8).write(to: file)
+    SharedMemory.change { $0.names["after"] = "New" }
+    let folder = file.deletingLastPathComponent().path
+    let kept = (try? FileManager.default.contentsOfDirectory(atPath: folder)) ?? []
+    let aside = kept.filter {
+        $0.hasPrefix(file.deletingPathExtension().lastPathComponent + ".unreadable-")
+    }
+    expect(!aside.isEmpty, "an unreadable memory is moved aside, not overwritten")
+    for name in aside {
+        try? FileManager.default.removeItem(
+            at: file.deletingLastPathComponent().appendingPathComponent(name))
+    }
     expect(
         SharedMemory.defaultFile.path.hasSuffix("Application Support/Lukotta/memory.json"),
         "one file for every version")

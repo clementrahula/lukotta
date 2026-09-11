@@ -8,9 +8,26 @@ public enum SharedMemory {
     public struct Contents: Codable, Equatable, Sendable {
         public var names: [String: String] = [:]
         public var fingerprints: [String: String] = [:]
+        /// What each drive holds, by every name it goes by, as `VolumeFormat` raw values.
+        public var formats: [String: String] = [:]
         /// Each app's own list of drives to open again, so two apps never open the same one.
         public var restorable: [String: [MountMemory.Entry]] = [:]
         public var carried: [String] = []
+
+        public init() {}
+
+        /// Every field optional: a file written by an older or newer version is read, never dropped.
+        public init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            names = (try? c.decodeIfPresent([String: String].self, forKey: .names)) ?? [:]
+            fingerprints =
+                (try? c.decodeIfPresent([String: String].self, forKey: .fingerprints)) ?? [:]
+            formats = (try? c.decodeIfPresent([String: String].self, forKey: .formats)) ?? [:]
+            restorable =
+                (try? c.decodeIfPresent([String: [MountMemory.Entry]].self, forKey: .restorable))
+                ?? [:]
+            carried = (try? c.decodeIfPresent([String].self, forKey: .carried)) ?? []
+        }
     }
 
     /// The same file for the release, the beta, a local build and whatever comes after them.
@@ -58,10 +75,13 @@ public enum SharedMemory {
     public static var restorableHere: [MountMemory.Entry] { read().restorable[app] ?? [] }
 
     static func load() -> Contents {
-        guard let data = try? Data(contentsOf: file), !data.isEmpty,
-            let contents = try? JSONDecoder().decode(Contents.self, from: data)
-        else { return Contents() }
-        return contents
+        guard let data = try? Data(contentsOf: file), !data.isEmpty else { return Contents() }
+        if let contents = try? JSONDecoder().decode(Contents.self, from: data) { return contents }
+        // Unreadable: moved aside and kept, never written over.
+        let aside = file.deletingPathExtension()
+            .appendingPathExtension("unreadable-\(Int(Date().timeIntervalSince1970)).json")
+        try? FileManager.default.moveItem(at: file, to: aside)
+        return Contents()
     }
 
     /// What this app kept in its own settings before the file existed, merged in and left in place.
