@@ -130,7 +130,9 @@ public enum HelperInfo {
     /// 71: the diagnostic login is gone again.
     /// 72: file IDs kept in SQLite rather than by a separate daemon.
     /// 73: netatalk logs only warnings.
-    public static let contract = 73
+    /// 74: spent on a login that gave Finder no Trash.
+    /// 75: the guest login again.
+    public static let contract = 75
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"

@@ -103,3 +103,4 @@ As shipped in 1.22.16:
       file IDs in SQLite    0.91 s
     delete of 10,538 files  4.2 s, nothing skipped (NFS: 14.1 s)
     idle 3 minutes          still mounted; an 8 MiB copy after it 0.3 s, identical
+    delete, logged in       2000 files 0.78 s, in place: no Trash on AFP with a login either
