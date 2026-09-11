@@ -630,7 +630,8 @@
                 let servedNow = MountTableEntry.all(in: LukottaCore.mountTable())
                     .filter(\.isEngineMount)
                     .count
-                serving = servedNow > servedBefore
+                // Something new, or this drive's own mount: a drive already open is open.
+                serving = servedNow > servedBefore || !servedBy(drive.devicePath).isEmpty
                 if serving { break }
                 RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.5))
             } while Date() < appears
