@@ -2,6 +2,14 @@
 
 <!-- covers: scripts/** checked: 2026-09-09 -->
 
+**Void unless Finder took it.** Since 2026-09-11 a performance or stability
+number counts only if Finder's own copy or delete produced it, driven
+headlessly. Every number below that was taken with `dd`, `cp`, `ditto`,
+`rsync`, a test program or the engine's shell is thrown out: it is not
+quoted and decides nothing, whatever the text around it concludes. That
+includes the BitLocker copy rates of 2026-09-11. They are left in place as a
+record of what was run, not of what is true.
+
 MET: items 1 through 10, proven again on this Mac on 2026-09-07, driving
 `/Applications/Lukotta Dev.app` -- a bundle built from this tree with
 `LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1`, so nothing a harness does can touch

@@ -50,6 +50,34 @@ check that tested the guest directly and so could never have seen the fix it was
 registered for; and a claim passing on a fixture that cannot produce the fault
 it is about. All three read as green before it existed.
 
+## Every Measurement Is Finder's, Taken Headlessly
+
+A measurement of performance or stability (how fast a copy or delete goes,
+whether it stalls, errors, skips or loses the mount) counts only if Finder
+produced it. There are no exceptions. `dd`, `cp`, `ditto`, `rsync`, a test
+program, the engine's shell, or anything else that is not Finder moving or
+deleting the files never produces such a measurement in this project: not as a
+quick look, not as a proxy, not as a baseline to compare against. The tools
+themselves are not banned; only this use of them is.
+
+Finder is always driven headlessly. osascript drives Finder's own copy and
+delete with nobody clicking, as `scripts/finder-parity.sh` does. Nobody is ever
+asked to click, drag or watch anything.
+
+Those tools are still used for everything that is not a measurement: making
+test images and source files, building fixtures, and checking that what was
+written reads back identical. `finder-parity.sh` makes its own source files
+with `dd`.
+
+A number taken any other way is thrown out, not caveated. It is not quoted, not
+compared against, and not used to decide anything. That includes every number
+in MEASUREMENTS.md that was not taken through Finder.
+
+**Why:** on 2026-09-11 a whole night reported BitLocker copy speed from single
+`dd` streams at 8.5 to 16.1 MB/s and called copies faster. A `ditto` copy of one
+large file and 200 small ones through the same build then ran at 3.2 MB/s, and
+even that was not Finder. The number that matters had never been taken.
+
 ## Commands That Report the Wrong Thing
 
 `swift test` prints `no tests found`. The checks are a plain executable target,
