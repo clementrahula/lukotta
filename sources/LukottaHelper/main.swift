@@ -126,7 +126,8 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         }
         RunLoop.main.add(timer, forMode: .common)
         let pairs = Timer(timeInterval: 2, repeats: true) { [weak self] _ in
-            AfpShare.takeDownOrphans(mounting: self?.mounting ?? true)
+            AfpShare.takeDownOrphans(
+                mounting: self?.mounting ?? true, engine: EnginePaths.anylinuxfs?.path)
         }
         RunLoop.main.add(pairs, forMode: .common)
     }

@@ -136,7 +136,8 @@ public enum HelperInfo {
     /// 77: the share named after the volume again.
     /// 78: spent on a name the guest could not be given.
     /// 79: as 77.
-    public static let contract = 79
+    /// 80: the daemon only takes down hidden mounts its own engine serves.
+    public static let contract = 80
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"

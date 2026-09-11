@@ -1770,6 +1770,10 @@ group("aStickThatIsStillAnInstallerSaysSo") {
     expect(
         Diagnosis.summarise(transcript, fallback: "").contains("disc image"),
         "and the sentence says so")
+    expect(
+        Diagnosis.rule(for: "Running before_mount action: `echo SGVsbG8udfZm | base64 -d`")?.name
+            != "holds-a-disc-image",
+        "letters in a script's base64 are not a disc image")
     // The generic rule still answers for everything else it was written for.
     expect(
         Diagnosis.rule(for: "unknown filesystem type 'befs'")?.name
@@ -6711,17 +6715,26 @@ group("anNTFSVolumeReachesFinderOverAFP") {
     let afp =
         "//;AUTH=No%20User%20Authent@disk4s1.local/ORCHARD"
         + " on /Volumes/ORCHARD 1 (afpfs, nodev)"
-    let once = AfpShare.orphans(in: nfs, lonelyBefore: [])
+    let ours: Set<String> = ["disk4s1.local"]
+    let once = AfpShare.orphans(in: nfs, lonelyBefore: [], ours: ours)
     expect(once.points.isEmpty, "alone once, a hidden mount stays")
     expect(once.lonely == [hidden], "and is noted")
-    let twice = AfpShare.orphans(in: nfs, lonelyBefore: once.lonely)
+    let twice = AfpShare.orphans(in: nfs, lonelyBefore: once.lonely, ours: ours)
     expect(twice.points == [hidden], "alone twice running, it goes")
-    let both = AfpShare.orphans(in: nfs + "\n" + afp, lonelyBefore: [hidden])
+    let theirs = AfpShare.orphans(in: nfs, lonelyBefore: [hidden], ours: [])
+    expect(theirs.points.isEmpty, "another copy of the app's mount is never taken")
+    let both = AfpShare.orphans(in: nfs + "\n" + afp, lonelyBefore: [hidden], ours: ours)
     expect(both.points.isEmpty && both.lonely.isEmpty, "with its AFP volume it stays")
-    let alone = AfpShare.orphans(in: afp, lonelyBefore: [])
+    let alone = AfpShare.orphans(in: afp, lonelyBefore: [], ours: [])
     expect(alone.points == ["/Volumes/ORCHARD 1"], "an AFP volume whose engine went goes")
     let nas = "//;AUTH=No%20User%20Authent@nas.local/share on /Volumes/share (afpfs, nodev)"
-    expect(AfpShare.orphans(in: nas, lonelyBefore: []).points.isEmpty, "a NAS is never touched")
+    let nasOrphans = AfpShare.orphans(in: nas, lonelyBefore: [], ours: [])
+    expect(nasOrphans.points.isEmpty, "a NAS is never touched")
+    let ps =
+        "/A/engine/bin/anylinuxfs mount -t ntfs3 /dev/disk4s1\n"
+        + "/B/engine/bin/anylinuxfs mount /dev/disk5s1"
+    let mine = AfpShare.ownHosts(engine: "/A/engine/bin/anylinuxfs", processes: ps)
+    expect(mine == ours, "only our engine's drives")
     expect(AfpShare.servedName("Field Notes Ä"), "field notes Ä", "only A to Z is lowercased")
     var inputs = sampleInputs(kind: .microsoft)
     inputs.hiddenFromFinder = true

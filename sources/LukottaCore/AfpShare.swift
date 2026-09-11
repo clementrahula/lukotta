@@ -93,15 +93,31 @@ public enum AfpShare {
         return items.isEmpty
     }
 
-    /// Hidden NFS mounts alone on this sweep and the last, and AFP volumes whose engine went.
-    public static func orphans(in table: String, lonelyBefore: Set<String>) -> (
+    /// The hosts this app's own engine is serving: another copy of the app's mounts are not ours.
+    public static func ownHosts(engine: String?, processes: String) -> Set<String> {
+        guard let engine else { return [] }
+        var hosts = Set<String>()
+        let lines = processes.split(separator: "\n")
+        for line in lines where line.hasPrefix(engine) && line.contains(" mount ") {
+            if let dev = line.split(separator: " ").last(where: { $0.hasPrefix("/dev/disk") }) {
+                hosts.insert((String(dev) as NSString).lastPathComponent + ".local")
+            }
+        }
+        return hosts
+    }
+
+    /// Our hidden NFS mounts alone on this sweep and the last, and AFP volumes whose engine went.
+    public static func orphans(in table: String, lonelyBefore: Set<String>, ours: Set<String>) -> (
         points: [String], lonely: Set<String>
     ) {
         let entries = MountTableEntry.all(in: table)
-        let nfs = entries.filter(isHidden)
+        let nfs = entries.filter {
+            isHidden($0) && ours.contains(hostAndShare(ofNFSSource: $0.source)?.host ?? "")
+        }
+        let every = entries.filter(isHidden)
         let afp = entries.filter(\.isAFP)
         let afpHosts = Set(afp.compactMap { afpHost(of: $0.source) })
-        let nfsHosts = Set(nfs.compactMap { hostAndShare(ofNFSSource: $0.source)?.host })
+        let nfsHosts = Set(every.compactMap { hostAndShare(ofNFSSource: $0.source)?.host })
         let lonely = Set(
             nfs.filter {
                 guard let host = hostAndShare(ofNFSSource: $0.source)?.host else { return false }
@@ -121,10 +137,12 @@ public enum AfpShare {
     static let state = State()
 
     /// Nothing is taken while a drive is being opened: its NFS mount is alone until its AFP volume comes.
-    public static func takeDownOrphans(mounting: Bool) {
+    public static func takeDownOrphans(mounting: Bool, engine: String?) {
         state.lock.lock()
         let table = mountTable()
-        var found = orphans(in: table, lonelyBefore: mounting ? [] : state.lonely)
+        let processes = run("/bin/ps", ["-axww", "-o", "command="])?.out ?? ""
+        let ours = ownHosts(engine: engine, processes: processes)
+        var found = orphans(in: table, lonelyBefore: mounting ? [] : state.lonely, ours: ours)
         if mounting { found.lonely = [] }
         state.lonely = found.lonely
         state.lock.unlock()

@@ -133,7 +133,7 @@ public enum Diagnosis {
         // -- so the sentence says it, and says the one thing that clears it.
         Rule(
             name: "holds-a-disc-image", source: .linuxTooling,
-            patterns: ["iso9660", "udf"],
+            patterns: ["'iso9660'", "'udf'", "\"iso9660\"", "\"udf\""],
             message: {
                 appString(
                     "This drive holds an installer disc image rather than a filesystem. Erasing it in Disk Utility, or `clean` in Windows diskpart, clears the image; a quick format leaves it in place."
