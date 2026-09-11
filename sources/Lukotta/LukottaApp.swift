@@ -845,7 +845,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let names = MainActor.assumeIsolated {
-            model.openMounts.values.sorted().map { ($0 as NSString).lastPathComponent }
+            model.openMounts.values.sorted().map(AppModel.finderName(ofMount:))
         }
         let one = names.count == 1
 

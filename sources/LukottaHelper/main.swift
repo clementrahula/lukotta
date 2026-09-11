@@ -666,13 +666,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             task.arguments = [scriptURL.path]
             try task.run()
 
-            // Hand the credential over once the script opens the pipe.
-            DispatchQueue.global().async {
-                if let handle = FileHandle(forWritingAtPath: fifo.path) {
-                    handle.write(Data(credential.utf8))
-                    try? handle.close()
-                }
-            }
+            CredentialPipe.handOver(credential, to: fifo, whileRunning: task.processIdentifier)
             let pairing = FinderPairing()
             defer { pairing.finish() }
             if inputs.hiddenFromFinder {

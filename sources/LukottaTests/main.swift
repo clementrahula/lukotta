@@ -6881,6 +6881,38 @@ group("anNTFSVolumeReachesFinderOverAFP") {
     expect(MountScript.shareServe.contains("netatalk -F"), "the guest serves the volume over AFP")
 }
 
+group("theCredentialReachesTheScriptAndNothingWaitsForever") {
+    let dir = FileManager.default.temporaryDirectory
+        .appendingPathComponent("pipe-\(UUID().uuidString)", isDirectory: true)
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: dir) }
+    let fifo = dir.appendingPathComponent("credential.fifo")
+    let out = dir.appendingPathComponent("out")
+    mkfifo(fifo.path, 0o600)
+    let reader = Process()
+    reader.executableURL = URL(fileURLWithPath: "/bin/sh")
+    reader.arguments = [
+        "-c", "sleep 0.3; IFS= read -r -d '' c < '\(fifo.path)'; printf %s \"$c\" > '\(out.path)'",
+    ]
+    try? reader.run()
+    CredentialPipe.handOver("correct horse\n", to: fifo, whileRunning: reader.processIdentifier)
+    reader.waitUntilExit()
+    expect(
+        (try? String(contentsOf: out, encoding: .utf8)) == "correct horse\n",
+        "a password ending in a newline arrives byte for byte, the reader coming late")
+
+    let quitter = Process()
+    quitter.executableURL = URL(fileURLWithPath: "/bin/sh")
+    quitter.arguments = ["-c", "sleep 0.2"]
+    try? quitter.run()
+    let writer = CredentialPipe.handOver(
+        "unread", to: fifo, whileRunning: quitter.processIdentifier)
+    quitter.waitUntilExit()
+    let until = Date().addingTimeInterval(3)
+    while !writer.isFinished, Date() < until { Thread.sleep(forTimeInterval: 0.05) }
+    expect(writer.isFinished, "a script that never reads leaves no writer waiting behind it")
+}
+
 group("failureDetailsNeverShowTheScript") {
     let transcript = """
         Linux: Running before_mount action: `modprobe nfsd > /dev/null 2>&1; mount -t nfsd nfsd /proc/fs/nfsd`

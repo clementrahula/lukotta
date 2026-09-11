@@ -162,14 +162,7 @@ public enum Mounter {
         if elevated { progress("Waiting for your administrator approval…") }
         try osa.run()
 
-        // Hand the credential over once the elevated shell opens the FIFO. This
-        // blocks until the reader arrives, so it is done off the main thread.
-        DispatchQueue.global(qos: .userInitiated).async {
-            if let fh = FileHandle(forWritingAtPath: fifo.path) {
-                fh.write(Data(credential.utf8))
-                try? fh.close()
-            }
-        }
+        CredentialPipe.handOver(credential, to: fifo, whileRunning: osa.processIdentifier)
 
         // Stream the engine's own output while it works.
         let streamer = LogStreamer(path: log.path, onLine: progress)

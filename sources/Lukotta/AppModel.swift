@@ -3797,6 +3797,11 @@ final class AppModel: ObservableObject {
             paths: Array(Set(gone.values)), devices: Array(gone.keys), showList: onScreen)
     }
 
+    /// A mount as Finder names it: the hidden engine mount's directory is not the drive's name.
+    nonisolated static func finderName(ofMount point: String) -> String {
+        ((AfpShare.finderPoint(forEngineMount: point) ?? point) as NSString).lastPathComponent
+    }
+
     /// Eject everything, then run the completion. Used on quit.
     func ejectAll(completion: @escaping @MainActor @Sendable () -> Void) {
         // What this app opened, not what the engine is serving.
@@ -3808,7 +3813,7 @@ final class AppModel: ObservableObject {
         let mine = Array(Set(openMounts.values)).sorted()
         Task.detached(priority: .userInitiated) {
             for point in mine {
-                let name = (point as NSString).lastPathComponent
+                let name = AppModel.finderName(ofMount: point)
                 await MainActor.run { QuitProgress.say(String(localized: "Ejecting \(name)")) }
                 _ = EngineStatus.unmount(mountPoint: point)
             }
