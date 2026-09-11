@@ -5,6 +5,7 @@
 # A drive opened in the dev build's window and ejected in Finder: the window goes back to the list and the row opens again.
 #   ./scripts/finder-eject-closes.sh <device>
 set -uo pipefail
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 DEVICE="${1:?usage: finder-eject-closes.sh <device>}"
 APP="/Applications/Lukotta Dev.app"
 BUNDLE="com.lukotta.dev"
