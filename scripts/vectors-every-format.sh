@@ -19,7 +19,8 @@
 #   FIXTURES="ntfs-vectors ext4-vectors" ./scripts/vectors-every-format.sh
 #
 # The bundle must carry --drive and have a daemon; see dirty-ntfs-repair.sh.
-# Build one with LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh
+# Build one with LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1 ./build-app.sh and
+# point LUKOTTA_ENGINE at /Applications/Lukotta Dev.app's engine.
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

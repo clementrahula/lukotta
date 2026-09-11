@@ -352,9 +352,9 @@ open_image() {
   # the mount, the options it picks, the identity it mounts under, the ladder
   # it walks. Faults have been found in all four of those in one morning.
   #
-  # The bundle needs both halves -- LUKOTTA_BRANDING=beta with
+  # The bundle needs both halves -- LUKOTTA_BRANDING=dev with
   # LUKOTTA_DEVTOOLS=1 -- or --drive is not compiled in and the app sits in
-  # its run loop saying nothing. See dirty-ntfs-repair.sh.
+  # its run loop saying nothing.
   #
   # OPTS is deliberately not passed. The engine route hands over
   # --ignore-permissions and whatever LUKOTTA_NFS_OPTIONS says; the app decides
@@ -367,7 +367,8 @@ open_image() {
     app="$APP_BUNDLE/Contents/MacOS/$(basename "$APP_BUNDLE" .app)"
     if [ "$(strings -a "$app" 2>/dev/null | /usr/bin/grep -c -- "--drive")" -eq 0 ]; then
       echo "error: $APP_BUNDLE has no --drive; it was not built with devtools" >&2
-      echo "       LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
+      echo "       LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1 ./build-app.sh, and point" >&2
+      echo "       LUKOTTA_ENGINE at /Applications/Lukotta Dev.app's engine" >&2
       return 1
     fi
     # Give the previous one back first. This is called again for every reopen
