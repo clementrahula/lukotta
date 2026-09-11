@@ -5584,7 +5584,8 @@ What that costs where the drive is fast: 1 GiB onto an NTFS image on the
 Mac's own SSD, through a second mount of its export, each timed through the
 fsync that follows, took 1.0 s unstably and 10.3 s stably, 104.6 MB/s. An
 image's writes land in the Mac's own cache, so the unstable figure is not the
-SSD's.
+SSD's. A stable write waits for its own flush, one megabyte at a time; a fast
+physical drive was not measured.
 
 And whether a stable write keeps what an fsync promised, now that no COMMIT
 follows it: the dev build writing stably to the stick, the machine serving it
@@ -5594,9 +5595,9 @@ again:
     8 MiB in one file, conv=fsync           survived, byte-identical
     50 new files of 4 KiB, each fsynced     50 of 50 present, 50 identical
 
-A new file's name is on the drive with its data, not waiting for writeback. A stable write waits for its own flush, one
-megabyte at a time, so a fast drive is held near a hundred megabytes a
-second: ten times what the stick takes, and short of what a fast SSD could.
+The fifty were not timed and the guest writes back every second, so whether
+their names reached the drive with the fsync or with that writeback, this run
+cannot tell.
 
 And where a Finder delete's time goes, once more: with nothing sampling, a
 native APFS image deleted 5,000 files in place in 358 ms. On the stick, 3,000
