@@ -5738,6 +5738,10 @@ stable-write runs on this stick measured, and not far above the 2 MB/s the
 goal rules out. What this copy did differently from those six is not
 established. It is the latest number, and it stands as measured.
 
+Run again at once, the same way: open 43 s, 138 MB in 42.8 s = 3.2 MB/s, all
+201 identical, delete 0.1 s, eject clean. So it repeats rather than being one
+slow run.
+
 Nor is it a delete on a full volume, the other thing both harnesses have in
 common with the leftovers. On another clone of the spare image, with every
 error kept rather than sent to /dev/null:
