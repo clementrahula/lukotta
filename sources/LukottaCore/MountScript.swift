@@ -2134,7 +2134,7 @@ public enum MountScript {
           path = $ALFS_VM_MOUNT_POINT
           appledouble = ea
           ea = sys
-          cnid scheme = dbd
+          cnid scheme = sqlite
           force user = root
           force group = root
           file perm = 0644

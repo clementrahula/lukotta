@@ -128,7 +128,8 @@ public enum HelperInfo {
     /// 69: the share is asked for in the case netatalk gives it.
     /// 70: diagnostic build.
     /// 71: the diagnostic login is gone again.
-    public static let contract = 71
+    /// 72: file IDs kept in SQLite rather than by a separate daemon.
+    public static let contract = 72
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"

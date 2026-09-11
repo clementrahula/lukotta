@@ -100,3 +100,4 @@ As shipped in 1.22.16:
     eject to engine gone    5 s
     1 GiB in 4 files        142.6 s, 7.5 MB/s, identical, Copy window shown, no ._ files
     delete of 2000 files    1.06 s, in place, no Trash on a guest login
+      file IDs in SQLite    0.91 s
