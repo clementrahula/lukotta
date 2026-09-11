@@ -1,10 +1,11 @@
 Mount the host side of a volume under ALFS_MOUNT_BASE when it is set.
 
 The export keeps the volume's label, so a second volume can take /Volumes/<label>.
+The base is sticky and open to all, so each mount point is removed by the user it was made for.
 
 --- a/anylinuxfs/src/cmd_mount.rs	2026-09-11 22:45:52
-+++ b/anylinuxfs/src/cmd_mount.rs	2026-09-11 22:45:52
-@@ -1041,12 +1041,16 @@
++++ b/anylinuxfs/src/cmd_mount.rs	2026-09-11 23:04:54
+@@ -1041,12 +1041,25 @@
              Some(mount_point) => mount_point.into(),
              None => {
                  // default mount point will be created
@@ -16,7 +17,16 @@ The export keeps the volume's label, so a second volume can take /Volumes/<label
 -                .join(MOUNT_BASE);
 +                // ALFS_MOUNT_BASE moves it without renaming the export, which keeps the volume's label
 +                let volume_base_dir = match std::env::var_os("ALFS_MOUNT_BASE") {
-+                    Some(base) if !base.is_empty() => PathBuf::from(base),
++                    Some(base) if !base.is_empty() => {
++                        let base = PathBuf::from(base);
++                        // Sticky and open to all, like /tmp: each mount point is removed by whoever it was made for
++                        fs::create_dir_all(&base).with_context(|| {
++                            format!("Failed to create mount base directory {}", base.display())
++                        })?;
++                        fs::set_permissions(&base, std::os::unix::fs::PermissionsExt::from_mode(0o1777))
++                            .with_context(|| format!("Failed to open up {}", base.display()))?;
++                        base
++                    }
 +                    _ => if self.config.common.privilege.sudo_uid.is_some() {
 +                        PathBuf::from("/")
 +                    } else {

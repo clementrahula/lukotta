@@ -2859,10 +2859,21 @@ group("nothingIsLeftLyingAboutOnSomebodysMac") {
     let idle = volumes.appendingPathComponent("IDLE", isDirectory: true)
     try? FileManager.default.createDirectory(at: busy, withIntermediateDirectories: true)
     try? FileManager.default.createDirectory(at: idle, withIntermediateDirectories: true)
-    let table = "x.local:/mnt/BUSY on \(busy.path) (nfs, nodev)"
-    let points = Housekeeping.removeEmptyMountPoints(in: table, home: home)
-    expect(points == 1, "the empty one is taken away")
+    let hidden = base.appendingPathComponent("hidden", isDirectory: true)
+    let hiddenBusy = hidden.appendingPathComponent("FIELD", isDirectory: true)
+    let hiddenIdle = hidden.appendingPathComponent("FIELD-1", isDirectory: true)
+    try? FileManager.default.createDirectory(at: hiddenBusy, withIntermediateDirectories: true)
+    try? FileManager.default.createDirectory(at: hiddenIdle, withIntermediateDirectories: true)
+    let table =
+        "x.local:/mnt/BUSY on \(busy.path) (nfs, nodev)\n"
+        + "y.local:/mnt/FIELD on \(hiddenBusy.path) (nfs, nodev, nobrowse)"
+    let points = Housekeeping.removeEmptyMountPoints(in: table, home: home, hidden: hidden)
+    expect(points == 2, "the empty ones are taken away, the hidden mount's included")
     expect(FileManager.default.fileExists(atPath: busy.path), "and the mounted one is not")
+    expect(
+        FileManager.default.fileExists(atPath: hiddenBusy.path)
+            && !FileManager.default.fileExists(atPath: hiddenIdle.path),
+        "a hidden mount's directory stays while it is mounted and goes once it is not")
 }
 
 group("howManyDrivesThisMacCanServeAtOnce") {
@@ -3369,7 +3380,8 @@ group("aMountPointLeftWithFilesInItIsReported") {
     expect(stranded.first?.path == full.path, "and it is the right one")
     expect(stranded.first?.files == 2, "with how much is in it")
 
-    let removed = Housekeeping.removeEmptyMountPoints(in: table, home: base)
+    let removed = Housekeeping.removeEmptyMountPoints(
+        in: table, home: base, hidden: base.appendingPathComponent("no-hidden-mounts"))
     expect(removed == 1, "the empty one is swept")
     expect(
         FileManager.default.fileExists(atPath: full.path),

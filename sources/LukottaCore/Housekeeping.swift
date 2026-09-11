@@ -147,26 +147,34 @@ public enum Housekeeping {
 
     // MARK: The place a drive was mounted
 
-    /// The empty directory an ejected drive leaves in ~/Volumes.
+    /// The empty directory an ejected drive leaves in ~/Volumes, and the one a
+    /// hidden mount leaves in /Volumes/.lukotta when the engine could not take it back.
     ///
     /// The engine makes one per mount and does not take it back, so a year of
     /// opening drives is a year of empty folders in a directory Finder shows.
     /// Removed only when nothing is mounted there and it holds nothing: an
     /// rmdir, which refuses anything else, rather than a delete.
-    public static func removeEmptyMountPoints(in mountTable: String, home: URL? = nil) -> Int {
-        let base = (home ?? FileManager.default.homeDirectoryForCurrentUser)
+    public static func removeEmptyMountPoints(
+        in mountTable: String, home: URL? = nil, hidden: URL? = nil
+    ) -> Int {
+        let user = (home ?? FileManager.default.homeDirectoryForCurrentUser)
             .appendingPathComponent("Volumes", isDirectory: true)
+        let engine = hidden ?? URL(fileURLWithPath: AfpShare.hiddenBase, isDirectory: true)
         let manager = FileManager.default
-        guard let entries = try? manager.contentsOfDirectory(atPath: base.path) else { return 0 }
         let mounted = Set(MountTableEntry.all(in: mountTable).map(\.mountPoint))
         var removed = 0
-        for name in entries {
-            let point = base.appendingPathComponent(name, isDirectory: true)
-            guard !mounted.contains(point.path) else { continue }
-            guard let inside = try? manager.contentsOfDirectory(atPath: point.path),
-                inside.isEmpty
-            else { continue }
-            if rmdir(point.path) == 0 { removed += 1 }
+        for base in [user, engine] {
+            guard let entries = try? manager.contentsOfDirectory(atPath: base.path) else {
+                continue
+            }
+            for name in entries {
+                let point = base.appendingPathComponent(name, isDirectory: true)
+                guard !mounted.contains(point.path) else { continue }
+                guard let inside = try? manager.contentsOfDirectory(atPath: point.path),
+                    inside.isEmpty
+                else { continue }
+                if rmdir(point.path) == 0 { removed += 1 }
+            }
         }
         return removed
     }
