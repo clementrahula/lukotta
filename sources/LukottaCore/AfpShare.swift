@@ -55,6 +55,13 @@ public enum AfpShare {
             .map(\.mountPoint)
     }
 
+    public static func hiddenMountExists(forDevice device: String) -> Bool {
+        let node = (device as NSString).lastPathComponent + "."
+        return MountTableEntry.all(in: mountTable()).contains {
+            isHidden($0) && $0.source.hasPrefix(node)
+        }
+    }
+
     /// Mount a device's AFP share as the user, for Finder; on failure its hidden NFS goes too.
     public static func mountForFinder(device: String, uid: UInt32, gid: UInt32) -> Bool {
         let node = (device as NSString).lastPathComponent + "."

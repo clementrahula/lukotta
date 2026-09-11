@@ -2766,7 +2766,8 @@ final class AppModel: ObservableObject {
         // Nothing to unlock: the first sector reports it as unencrypted, so the
         // engine mounts it without a credential and whatever is in the field,
         // usually a remembered passphrase, does not apply.
-        if chosenDriveIsOpenAlready {
+        if chosenDriveIsOpenAlready || openedUnencrypted.contains(drive.id) {
+            openedUnencrypted.insert(drive.id)
             Log.mount.notice("opening an unencrypted drive, no credential needed")
             statusLines = []
             phase = .working(drive)
@@ -2795,11 +2796,16 @@ final class AppModel: ObservableObject {
             Log.mount.notice(
                 "unlock requested: kind \(String(describing: drive.kind), privacy: .public), helper \(self.helper.isReady, privacy: .public)"
             )
+            // Kept the moment it is typed: an open that fails later never costs the key.
+            if rememberCredential { _ = CredentialStore.save(normalised, for: identity(of: drive)) }
             statusLines = []
             phase = .working(drive)
             runMount(drive: drive, credential: normalised)
         }
     }
+
+    /// Drives found unencrypted, so Try Again after a failure opens them without asking for anything.
+    private var openedUnencrypted: Set<String> = []
 
     /// How much of the helper's transcript has already been shown, so the
     /// final reply can append the remainder instead of repeating all of it.

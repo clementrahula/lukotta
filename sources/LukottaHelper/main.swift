@@ -31,6 +31,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     /// The running mount's output, so the app can show progress rather than
     /// sit on one step until everything is over.
     private let progressQueue = DispatchQueue(label: "com.lukotta.helper.progress")
+    private let mountQueue = DispatchQueue(label: "com.lukotta.helper.mount")
 
     /// One mount's output and the credential to keep out of it.
     ///
@@ -414,6 +415,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             readOnly: false, reply: reply)
     }
 
+    /// Off the connection's queue, so progress is answered while a mount runs.
     func mount(
         devicePath: String,
         aliasPath: String?,
@@ -421,6 +423,26 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         volumeIdentifier: String?,
         credential: String,
         readOnly: Bool,
+        reply: @escaping (Int32, String) -> Void
+    ) {
+        // The caller is only known on the connection's own thread.
+        let job = Unchecked((self, reply, NSXPCConnection.current()))
+        mountQueue.async {
+            job.value.0.mountNow(
+                devicePath: devicePath, aliasPath: aliasPath, isLinux: isLinux,
+                volumeIdentifier: volumeIdentifier, credential: credential, readOnly: readOnly,
+                caller: job.value.2, reply: job.value.1)
+        }
+    }
+
+    private func mountNow(
+        devicePath: String,
+        aliasPath: String?,
+        isLinux: Bool,
+        volumeIdentifier: String?,
+        credential: String,
+        readOnly: Bool,
+        caller: NSXPCConnection?,
         reply: @escaping (Int32, String) -> Void
     ) {
         Log.helper.notice(
@@ -435,7 +457,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         }
         guard
             let engine = engineOfMine
-                ?? NSXPCConnection.current().flatMap({ self.engineOfTheCaller($0) })
+                ?? caller.flatMap({ self.engineOfTheCaller($0) })
         else {
             Log.helper.error("the mounting engine is missing")
             reply(70, "The mounting engine is missing.")
@@ -637,6 +659,11 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     try? handle.close()
                 }
             }
+            let pairing = FinderPairing()
+            defer { pairing.finish() }
+            if inputs.hiddenFromFinder {
+                pairing.start(device: devicePath, uid: invokingUID(), gid: invokingGID())
+            }
 
             // Waited for, but not for ever -- the same deadline the app applies
             // to the routes it runs itself. This is the route a physical drive
@@ -725,6 +752,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     status = 74
                 }
             }
+            pairing.finish()
             if status == 0, inputs.hiddenFromFinder,
                 !AfpShare.mountForFinder(device: devicePath, uid: invokingUID(), gid: invokingGID())
             {
@@ -1219,3 +1247,32 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
 }
 
 HelperService().run()
+
+private struct Unchecked<T>: @unchecked Sendable {
+    let value: T
+    init(_ value: T) { self.value = value }
+}
+
+/// Finder's volume the moment the engine's hidden one appears: an older helper takes a lone one down.
+private final class FinderPairing: @unchecked Sendable {
+    private let lock = NSLock()
+    private var over = false
+    private let group = DispatchGroup()
+
+    func start(device: String, uid: UInt32, gid: UInt32) {
+        DispatchQueue.global(qos: .userInitiated).async(group: group) { [self] in
+            while !lock.withLock({ over }) {
+                if AfpShare.hiddenMountExists(forDevice: device) {
+                    _ = AfpShare.mountForFinder(device: device, uid: uid, gid: gid)
+                    return
+                }
+                Thread.sleep(forTimeInterval: 0.1)
+            }
+        }
+    }
+
+    func finish() {
+        lock.withLock { over = true }
+        group.wait()
+    }
+}

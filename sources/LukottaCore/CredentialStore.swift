@@ -4,179 +4,173 @@
 import Foundation
 import Security
 
-/// Optional storage for a drive's password or recovery key.
+/// A drive's password or recovery key, in the Keychain, found by every Lukotta app of every version.
 ///
-/// Off by default and always the user's choice. The argument for making people
-/// retype a 48-digit recovery key every time is weaker than it looks: the
-/// realistic alternative is a text file on the desktop, which is worse in every
-/// respect. The Keychain is the right place for this.
-///
-/// Entries are keyed by the partition's UUID rather than its device path, so
-/// they survive the drive being replugged as a different diskNsM.
+/// Keyed by the volume's identity rather than its device path, so a key survives the drive coming
+/// back as a different diskNsM.
 public enum CredentialStore {
-    /// Where these are kept in the Keychain.
-    ///
-    /// The released app's name is left exactly as it was: changing it would
-    /// lose every passphrase anybody has saved. A pre-release adds its own
-    /// suffix, so it cannot read or overwrite them -- it is a different app,
-    /// and somebody testing one should not find the other's keys in it.
-    /// Named after the application, whichever application this is.
-    ///
-    /// It used to be one name with a suffix for the pre-release, so every other
-    /// build -- an unbranded one, a fork, anything built from this source with
-    /// its own identifier -- read and wrote the release's saved passphrases.
-    /// Keying it to the identifier gives each of them its own, and keeps the
-    /// two channels apart as before.
-    private static let service: String = {
-        let identifier = Bundle.main.bundleIdentifier ?? "com.example.driveunlocker"
-        return "\(identifier).drive-credential"
+    static let lukotta = "com.lukotta"
+
+    static let identifier = Bundle.main.bundleIdentifier ?? "com.example.driveunlocker"
+
+    /// Written by every Lukotta app, readable by any app without a prompt. Never renamed.
+    static let store: String = {
+        identifier.hasPrefix(lukotta) ? "\(lukotta).keys" : "\(identifier).keys"
     }()
+
+    /// Where keys were kept before: read, copied into the store, never written or removed.
+    static let earlier: [String] = {
+        guard identifier.hasPrefix(lukotta) else { return ["\(identifier).drive-credential"] }
+        return [lukotta, "\(lukotta).beta", "\(lukotta).dev", "\(lukotta).v2"]
+            .map { "\($0).drive-credential" }
+    }()
+
+    static var everywhere: [String] { [store] + earlier }
+
+    /// No Keychain call ever puts a prompt in front of anybody.
+    static func quietly<T>(_ body: () -> T) -> T {
+        SecKeychainSetUserInteractionAllowed(false)
+        defer { SecKeychainSetUserInteractionAllowed(true) }
+        return body()
+    }
+
+    /// Any application may read the entry: a future build, name or signature is never locked out.
+    static func openAccess() -> SecAccess? {
+        let label = "Lukotta drive credential" as CFString
+        var access: SecAccess?
+        guard SecAccessCreate(label, [] as CFArray, &access) == errSecSuccess, let access else {
+            return nil
+        }
+        let acls = SecAccessCopyMatchingACLList(access, kSecACLAuthorizationDecrypt) as? [SecACL]
+        for acl in acls ?? [] {
+            SecACLSetContents(acl, nil, label, [])
+        }
+        return access
+    }
 
     public static func save(_ credential: String, for uuid: String) -> Bool {
         guard !uuid.isEmpty, let data = credential.data(using: .utf8) else { return false }
-        let query: [String: Any] = [
+        var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
+            kSecAttrService as String: store,
             kSecAttrAccount as String: uuid,
             kSecValueData as String: data,
             kSecAttrLabel as String: "Lukotta drive credential",
-            // Available only while the Mac is unlocked, and never synced to
-            // other devices: this is a local disk's key.
-            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked,
             kSecAttrSynchronizable as String: false,
         ]
-        let added = SecItemAdd(query as CFDictionary, nil)
+        if let access = openAccess() { query[kSecAttrAccess as String] = access }
+        let added = quietly { SecItemAdd(query as CFDictionary, nil) }
         if added == errSecSuccess { return true }
 
         // Already saved: overwritten in place, never deleted first.
         if added == errSecDuplicateItem {
             let identity: [String: Any] = [
                 kSecClass as String: kSecClassGenericPassword,
-                kSecAttrService as String: service,
+                kSecAttrService as String: store,
                 kSecAttrAccount as String: uuid,
             ]
-            let updated = SecItemUpdate(
-                identity as CFDictionary, [kSecValueData as String: data] as CFDictionary)
+            let change = [kSecValueData as String: data] as CFDictionary
+            let updated = quietly { SecItemUpdate(identity as CFDictionary, change) }
             if updated == errSecSuccess { return true }
-            Log.app.error(
-                "the Keychain already holds this drive's entry and would not take a new value (\(updated, privacy: .public))"
-            )
+            Log.app.error("the saved key would not take a new value (\(updated, privacy: .public))")
             return false
         }
-
-        // Said with the number. Without it this is an apology with nothing
-        // behind it, and the difference between a locked Keychain, a refused
-        // permission and a full disk is the whole of what to do next.
         Log.app.error("the drive's key could not be saved (\(added, privacy: .public))")
         return false
     }
 
+    /// The saved key, wherever any Lukotta app saved it.
     public static func load(for uuid: String) -> String? {
         guard !uuid.isEmpty else { return nil }
+        for place in everywhere {
+            guard let found = read(service: place, account: uuid) else { continue }
+            if place != store { _ = save(found, for: uuid) }
+            return found
+        }
+        return nil
+    }
+
+    static func read(service place: String, account: String) -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: uuid,
+            kSecAttrService as String: place,
+            kSecAttrAccount as String: account,
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne,
         ]
         var item: CFTypeRef?
-        let found = SecItemCopyMatching(query as CFDictionary, &item)
-        guard found == errSecSuccess, let data = item as? Data else {
-            // Nothing stored is the ordinary answer and not worth a line.
-            // Anything else means a passphrase that is there and cannot be
-            // read, which is what somebody being asked to type it again is
-            // actually looking at.
-            if found != errSecItemNotFound {
-                Log.app.error(
-                    "a saved key could not be read back (\(found, privacy: .public))")
+        let found = quietly { SecItemCopyMatching(query as CFDictionary, &item) }
+        guard found == errSecSuccess, let data = item as? Data,
+            let text = String(data: data, encoding: .utf8), !text.isEmpty
+        else {
+            if found != errSecItemNotFound, found != errSecSuccess {
+                Log.app.error("a saved key could not be read back (\(found, privacy: .public))")
             }
             return nil
         }
-        return String(data: data, encoding: .utf8)
+        return text
     }
 
+    /// Forget: the drive's key goes from every place a Lukotta app filed it.
     @discardableResult
     public static func delete(for uuid: String) -> Bool {
         guard !uuid.isEmpty else { return false }
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: uuid,
-        ]
-        let removed = SecItemDelete(query as CFDictionary)
-        if removed != errSecSuccess, removed != errSecItemNotFound {
-            Log.app.error("a saved key could not be removed (\(removed, privacy: .public))")
+        var removedAny = false
+        for place in everywhere {
+            let query: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrService as String: place,
+                kSecAttrAccount as String: uuid,
+            ]
+            let removed = quietly { SecItemDelete(query as CFDictionary) }
+            if removed == errSecSuccess { removedAny = true }
+            if removed != errSecSuccess, removed != errSecItemNotFound {
+                Log.app.error("a saved key could not be removed (\(removed, privacy: .public))")
+            }
         }
-        return removed == errSecSuccess
+        return removedAny
     }
 
     public static func has(for uuid: String) -> Bool { load(for: uuid) != nil }
 
-    /// Every drive a passphrase is stored for.
-    ///
-    /// Uninstalling offers to remove them, and an offer to delete "some
-    /// passphrases" is not one anybody can weigh. This is what lets the
-    /// question name the drives.
+    /// Every drive a key is saved for, named so an uninstall can say which.
     public static func savedDrives() -> [String] {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecReturnAttributes as String: true,
-            kSecMatchLimit as String: kSecMatchLimitAll,
-        ]
-        var items: CFTypeRef?
-        guard SecItemCopyMatching(query as CFDictionary, &items) == errSecSuccess,
-            let entries = items as? [[String: Any]]
-        else { return [] }
-        return entries.compactMap { $0[kSecAttrAccount as String] as? String }
+        var names: [String] = []
+        for entry in entries(withData: false) where !names.contains(entry.account) {
+            names.append(entry.account)
+        }
+        return names
     }
 
-    /// Every key this app has saved, newest first.
-    ///
-    /// A drive whose name does not match anything saved is not the same as a
-    /// drive nobody has a key for. Names have changed as this app learned to
-    /// read them, drives arrive with no name of their own, and a key saved
-    /// while a volume was unlocked is filed under what it called itself then.
-    /// Asking somebody to type a 48-digit recovery key that is already in
-    /// their Keychain, because the label on it no longer matches, is the
-    /// failure this exists to prevent.
-    ///
-    /// A key that turns out to belong to another drive costs one silent
-    /// attempt and nothing else: a wrong key does not open a volume and does
-    /// not damage one.
+    /// Every saved key, tried before anybody is asked to type one that is already in the Keychain.
     public static func allSaved() -> [(name: String, credential: String)] {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecReturnAttributes as String: true,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitAll,
-        ]
-        var items: CFTypeRef?
-        guard SecItemCopyMatching(query as CFDictionary, &items) == errSecSuccess,
-            let entries = items as? [[String: Any]]
-        else { return [] }
-        return entries.compactMap { entry in
-            guard let name = entry[kSecAttrAccount as String] as? String,
-                let data = entry[kSecValueData as String] as? Data,
-                let credential = String(data: data, encoding: .utf8),
-                !credential.isEmpty
-            else { return nil }
-            return (name, credential)
+        entries(withData: true).compactMap { entry in
+            guard let credential = entry.credential, !credential.isEmpty else { return nil }
+            return (entry.account, credential)
         }
     }
 
-    /// Whether any drive credential is stored at all.
-    ///
-    /// Used when uninstalling, to say that passphrases are being left behind
-    /// rather than removing them without asking.
-    public static var hasAny: Bool {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-        ]
-        return SecItemCopyMatching(query as CFDictionary, nil) == errSecSuccess
+    public static var hasAny: Bool { !entries(withData: false).isEmpty }
+
+    static func entries(withData: Bool) -> [(account: String, credential: String?)] {
+        everywhere.flatMap { place -> [(account: String, credential: String?)] in
+            var query: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrService as String: place,
+                kSecReturnAttributes as String: true,
+                kSecMatchLimit as String: kSecMatchLimitAll,
+            ]
+            if withData { query[kSecReturnData as String] = true }
+            var items: CFTypeRef?
+            let found = quietly { SecItemCopyMatching(query as CFDictionary, &items) }
+            guard found == errSecSuccess, let list = items as? [[String: Any]] else { return [] }
+            return list.compactMap { entry in
+                guard let account = entry[kSecAttrAccount as String] as? String else { return nil }
+                let credential = (entry[kSecValueData as String] as? Data).flatMap {
+                    String(data: $0, encoding: .utf8)
+                }
+                return (account, credential)
+            }
+        }
     }
 }

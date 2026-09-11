@@ -139,7 +139,8 @@ public enum HelperInfo {
     /// 80: the daemon only takes down hidden mounts its own engine serves.
     /// 81: progress is reported from the start of a mount, the unpack included.
     /// 82: AFP only where macOS still has its client; NFS on macOS 27.
-    public static let contract = 82
+    /// 83: mounts run off the connection's queue; Finder's volume follows the hidden one at once.
+    public static let contract = 83
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"
