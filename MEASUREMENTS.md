@@ -5687,10 +5687,22 @@ detach the image at once; fullvolume detaches with `-force`. Both deletes
 are missing from the disk. fullvolume also fills the volume under `fill`
 before it writes `spill`. That is the only thing large enough to leave less
 than 6 MB free, and crowdafter's own cleanup removes `fill`, which is why the
-second look found room. So the change made last before the image went is the
-change that did not reach it.
+second look found room.
 
 The guest's `stop` shuts down nfsd, mountd, exportfs and rpcbind, and
 unmounts nfsd's own pseudo-filesystems. It never unmounts or syncs the volume
-it serves. Whether a Finder eject, where the engine is left to end by itself,
-loses the same thing is measured next, on a clone of the spare image.
+it serves. So the suspicion was that a change made just before the disk goes
+never reaches it. It was measured through the dev app on a clone of the spare
+crowd image. A folder was written and left 45 s, then deleted, a new folder
+of 20 files was written, and one of those was renamed; then the volume was
+ejected:
+
+    ejected as Finder does, engine left   engine ended 1.2 s later; deleted
+    to end by itself                      folder gone, 20 of 20 identical,
+                                          rename kept
+    ejected, and the disk forced out      engine ended 1.2 s later; deleted
+    at once                               folder gone, 20 of 20 identical,
+                                          rename kept, nothing to repair
+
+Neither loses anything, so the suspicion does not hold, and what kept the
+two folders on drive8 is not established.
