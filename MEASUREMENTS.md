@@ -5712,6 +5712,7 @@ starting with the leftover first-write folder still on drive8:
 
     firstwrite   holds: 20 of 20 cycles clean, cycle 1 included
     nowindow     holds
+    lvmlock      holds
 
 crowdafter was stopped in its second round to make room for these, so its
 result on this build is the first round's: 11 of 12 byte-identical, and the
