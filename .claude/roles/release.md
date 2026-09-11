@@ -1,6 +1,6 @@
 # release, in this project
 
-<!-- covers: scripts/ship.sh, scripts/release.sh, build-app.sh checked: 2026-09-09 -->
+<!-- covers: scripts/ship.sh, scripts/release.sh, scripts/prove-beta.sh, scripts/beta-proven.sh, build-app.sh checked: 2026-09-11 -->
 
 This project's half of the `release` brief. The role itself lives outside this
 repository; if you have cloned this project it will not be here, and nothing below
@@ -27,6 +27,8 @@ gate:                 ./scripts/run-tests.sh, then ./scripts/lint.sh.
                       ./scripts/preflight.sh is what a release actually needs -
                       install, open, write, eject, update, roll back, both
                       channels - and takes about half an hour.
+release gate:         ./scripts/prove-beta.sh <beta> <bitlocker partition> <ntfs volume>
+                      on the published beta; ship.sh release refuses without it
 ```
 
 ## One command, and running it is the decision
@@ -67,7 +69,12 @@ how to see what a release would say.
   twice in one hour, both times after the GitHub release was published and
   before the appcast was committed - a version that existed and nobody was
   offered. The script now runs from a copy of itself for that reason.
-- **The beta channel is not gated.** Publish to it freely.
+- **A beta is not gated; a release is.** Publish betas freely. `ship.sh release`
+  runs `beta-proven.sh`, which refuses unless `prove-beta.sh` proved a beta of
+  that version, its log is the one recorded, every step passed, no speed fell
+  more than a quarter, and nothing outside `releases/` changed since.
+  `prove-beta.sh` is the only writer of `releases/proofs/` and
+  `releases/BETA-PROVEN`; it commits and pushes them itself.
 - **Branding is opt-in.** Builds are unbranded by default because the name and
   logo are trademarks the GPL does not cover; the release path uses
   `LUKOTTA_BRANDING=official`, and nothing else should.
