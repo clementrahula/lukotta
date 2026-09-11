@@ -57,6 +57,15 @@ public enum AfpShare {
         return afpPoints(forHost: pair.host, in: table).first
     }
 
+    /// Where an engine already serves this host, hidden or not.
+    public static func servedPoint(forHost host: String, in table: String = mountTable())
+        -> String?
+    {
+        MountTableEntry.all(in: table).first {
+            $0.isEngineMount && hostAndShare(ofNFSSource: $0.source)?.host == host
+        }?.mountPoint
+    }
+
     public static func hiddenMountExists(forDevice device: String) -> Bool {
         let node = (device as NSString).lastPathComponent + "."
         return MountTableEntry.all(in: mountTable()).contains {

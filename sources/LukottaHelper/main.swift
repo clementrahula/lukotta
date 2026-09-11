@@ -495,6 +495,20 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         // app headlessly, which has no failure screen and no button on it.
         letGoOfTheDisk(behind: devicePath)
 
+        // Already served by this engine: the drive is open, not refused to a second engine.
+        let host = (devicePath as NSString).lastPathComponent + ".local"
+        let processes = LukottaCore.run("/bin/ps", ["-axww", "-o", "command="])?.out ?? ""
+        if AfpShare.ownHosts(engine: engine.path, processes: processes).contains(host),
+            let already = AfpShare.servedPoint(forHost: host),
+            !AfpShare.hiddenMountExists(forDevice: devicePath)
+                || AfpShare.mountForFinder(
+                    device: devicePath, uid: invokingUID(), gid: invokingGID())
+        {
+            Log.helper.notice("the drive is already served; reporting it open")
+            reply(0, "\(devicePath) was mounted as \(already)\nthe drive was already open")
+            return
+        }
+
         do {
             let workspace = try Workspace()
             defer { workspace.destroy() }

@@ -6823,6 +6823,14 @@ group("anNTFSVolumeReachesFinderOverAFP") {
         "the share is asked for under the volume's own name")
     expect(
         MountScript.shareServe.contains("volume name = $V"), "netatalk keeps the name's case")
+    let served =
+        "disk5.local:/mnt/FIELD on /Volumes/FIELD (nfs, nodev, nosuid, nobrowse, mounted by someone)"
+    expect(
+        AfpShare.servedPoint(forHost: "disk5.local", in: served) == "/Volumes/FIELD",
+        "a drive already served is found where it is")
+    expect(
+        AfpShare.servedPoint(forHost: "disk6.local", in: served) == nil,
+        "and another drive is not taken for it")
     var inputs = sampleInputs(kind: .microsoft)
     inputs.hiddenFromFinder = true
     let script = MountScript.build(inputs)

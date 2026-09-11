@@ -140,7 +140,8 @@ public enum HelperInfo {
     /// 81: progress is reported from the start of a mount, the unpack included.
     /// 82: AFP only where macOS still has its client; NFS on macOS 27.
     /// 83: mounts run off the connection's queue; Finder's volume follows the hidden one at once.
-    public static let contract = 83
+    /// 84: a drive this engine already serves is reported open, not refused.
+    public static let contract = 84
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"
