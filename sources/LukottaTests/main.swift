@@ -6895,6 +6895,30 @@ group("anNTFSVolumeReachesFinderOverAFP") {
     expect(MountScript.shareServe.contains("netatalk -F"), "the guest serves the volume over AFP")
 }
 
+group("aDriveIsCalledWhatItWasCalledWhenItWasOpen") {
+    let file = FileManager.default.temporaryDirectory
+        .appendingPathComponent("memory-\(UUID().uuidString).json")
+    let earlier = SharedMemory.fileOverride
+    SharedMemory.fileOverride = file
+    defer {
+        SharedMemory.fileOverride = earlier
+        try? FileManager.default.removeItem(at: file)
+    }
+    DriveMemory.remember(mountPoint: "/Volumes/BACKUP2_TS", for: "media:Maker-Stick:64:1048576")
+    expect(
+        DriveMemory.knownName(forAnyOf: [
+            "ntfs:abc", "media:Maker-Stick:64:1048576", "/dev/disk9s1",
+        ])
+            == "BACKUP2_TS",
+        "a locked drive is named by whichever of its names was remembered")
+    expect(
+        DriveMemory.knownName(forAnyOf: ["ntfs:abc", "/dev/disk9s1"]) == nil,
+        "and a drive nobody has opened is not given somebody else's name")
+    expect(
+        DriveMemory.knownName(forAnyOf: []) == nil,
+        "a drive with no names to go by is left as it is")
+}
+
 group("theCredentialReachesTheScriptAndNothingWaitsForever") {
     let dir = FileManager.default.temporaryDirectory
         .appendingPathComponent("pipe-\(UUID().uuidString)", isDirectory: true)

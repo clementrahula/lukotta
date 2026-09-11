@@ -1215,7 +1215,7 @@ final class AppModel: ObservableObject {
         let attached: (String) -> Bool = { FileManager.default.fileExists(atPath: $0) }
         adoptedVolumes = adoptedVolumes.filter { attached($0.key) }
         sectorFormats = sectorFormats.filter { attached($0.key) }
-        listed = withAdopted(listed).map(namedAfterItsFile)
+        listed = withAdopted(listed).map(namedAfterItsFile).map(namedAsItWasOpened)
 
         drives = listed
         scanGeneration += 1
@@ -1260,6 +1260,18 @@ final class AppModel: ObservableObject {
     /// attached image macOS calls that "Disk Image" -- so the row read "Disk
     /// Image" over a second line reading "Disk Image", with the name of the
     /// file nowhere on it. This app knows which file it opened.
+    /// A drive that has been opened before is called what it was called then, locked or not.
+    ///
+    /// Locked, macOS has only the hardware's name for it -- "Patriot Memory" -- and the volume's
+    /// own name is inside the encryption. It is remembered from the last time it was open, and
+    /// every Lukotta app reads the same record, so the row says what the person knows it as.
+    private func namedAsItWasOpened(_ row: Drive) -> Drive {
+        guard let remembered = DriveMemory.knownName(forAnyOf: identities(of: row)),
+            remembered != row.name
+        else { return row }
+        return row.called(remembered)
+    }
+
     private func namedAfterItsFile(_ row: Drive) -> Drive {
         guard let file = openedImages[DriveScanner.wholeDisk(of: row.id)] else { return row }
         let unnamed =

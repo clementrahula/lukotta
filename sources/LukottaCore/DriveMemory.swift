@@ -13,6 +13,15 @@ public enum DriveMemory {
         return SharedMemory.read().names[uuid]
     }
 
+    /// The name this drive was opened under before, by whichever of its names is remembered.
+    public static func knownName(forAnyOf identities: [String]) -> String? {
+        let names = SharedMemory.read().names
+        for identity in identities where !identity.isEmpty {
+            if let name = names[identity], !name.isEmpty { return name }
+        }
+        return nil
+    }
+
     public static func remember(mountPoint: String, for uuid: String) {
         guard !uuid.isEmpty else { return }
         let name = (mountPoint as NSString).lastPathComponent
