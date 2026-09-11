@@ -114,7 +114,9 @@ public enum HelperInfo {
     ///    it runs with, and one on 55 would go on writing it synchronously.
     /// 57: a BitLocker volume writes stably again, whatever the engine, and a
     ///    daemon on 56 would go on writing it unstably.
-    public static let contract = 57
+    /// 58: the daemon's mount script also serves NTFS over SMB.
+    /// 59: that SMB server keeps its configuration in memory.
+    public static let contract = 59
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"

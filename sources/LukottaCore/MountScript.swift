@@ -2115,7 +2115,10 @@ public enum MountScript {
 
     // The mounted volume, also served by the guest kernel's own SMB server.
     public static let smbServe = """
-        mkdir -p /etc/ksmbd
+        exec >/tmp/lukotta-smb.log 2>&1
+        mount -t tmpfs tmpfs /etc/ksmbd
+        touch /var/run/.lukotta 2>/dev/null || mount -t tmpfs tmpfs /var/run
+        : > /etc/ksmbd/ksmbdpwd.db
         cat > /etc/ksmbd/ksmbd.conf <<EOF
         [global]
           guest account = nobody
@@ -2140,6 +2143,8 @@ public enum MountScript {
           oplocks = yes
         EOF
         ksmbd.mountd
+        sleep 2
+        netstat -ltn | grep -E ':(445|2049) '
         """
 
     public static var writeSmbScript: String {
