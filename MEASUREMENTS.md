@@ -82,3 +82,10 @@ As shipped in 1.22.16:
     finderparity                1 GB and 500 files byte-identical,
                                 delete of the 500 with nothing skipped
     256 MiB in 4 files          43.9 s, 6.12 MB/s, identical
+
+## BitLocker stick, NFS against SMB from the guest's ksmbd — 2026-09-11
+
+                            NFS                 SMB, leases on      SMB, leases off
+    large files             256 MiB, 7.2 MB/s   257 MB in ~10 min   64 MiB, 6.2 MB/s
+    4 KiB files             2000 in 71.4 s      73 of 2000, 13 min  200 in 6.5 s
+    delete of those         2000 in 4.53 s      not reached         200 in 0.82 s
