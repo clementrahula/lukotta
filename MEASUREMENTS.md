@@ -5461,3 +5461,55 @@ back every second (its log reads `dirty_writeback_centisecs 100` and
 Finder copied 500 files of 4 KiB in 14.5 s and 64 MB at 6.3 MB/s, deleted the
 500 in 1.13 s, and copied 80 folders of 3 files past the app's limit of 64
 watched folders, all byte-identical and with no error.
+
+## Where a Finder delete's time goes, and why the volume gets no Trash — 2026-09-11
+
+A native drive deletes a folder of any size at once because Finder moves it to
+the Trash. This volume has none, so Finder removes every file itself. Measured
+on the BitLocker test stick, NFS client calls counted with `nfsstat -c`:
+
+    Finder delete, 2,000 one-byte files     2.99 s   7.07 calls a file
+                                                     Lookup 3.99, Access 2.01,
+                                                     Remove 1.00, Getattr 0.04
+
+The same Finder delete of 1,000 empty files through a second mount of the same
+export, once per client cache setting:
+
+    as shipped                              1.48 s   7.09 calls a file
+    nonegnamecache                          1.54 s   10.73
+    actimeo=60                              1.51 s   7.10
+    nordirplus                              1.58 s   7.06
+    actimeo=60,nonegnamecache               1.81 s   10.82
+
+3,600 more lookups cost 56 ms, so the number of calls is not what the time is.
+Each operation alone, from Python on the same drive:
+
+    stat of a missing name (one Lookup)     65 us
+    unlink                                  351 us   Getattr 1, Lookup 3.81,
+                                                     Remove 1, Access 1
+    create an empty file                    205 us
+
+Finder spends about 1.48 ms a file, of which the drive and the server answer
+for at most 0.35 ms. The other 1.1 ms is Finder's own work for each item. A
+million files take about 25 minutes at that rate, and still about 18 with
+every round trip free.
+
+So the one route to a delete as fast as a native drive's is a Trash. Every
+layer macOS offers refused one for this volume:
+
+    FileManager.trashItem                   Cocoa 3328, underlying -120 dirNFErr
+    FSMoveObjectToTrashSync                 -120
+    FSFindFolder(kTrashFolderType)          -43 without create; with create,
+                                            .Trashes/501 on the volume
+    url(for: .trashDirectory, ...)          nil
+
+Creating `.Trashes` (1333) and `.Trashes/501` (0700) on the volume changed none
+of these, and Finder, which asks Foundation for the same directory
+(`TFSVolumeInfo::TrashPath`), still deleted 20 files in 256 ms with nothing
+reaching the Trash, on the existing mount and on a new one. CarbonCore's own
+test of whether a volume is too remote for a Trash
+(`VolumeIsRemoteForTrashPurposes`: `vMAttrib` carrying both `bHasExtFSVol` and
+`bAccessCntl`) passes this volume, whose `vMAttrib` is 0x38080408. The -120
+comes from further in; which of the seven places in CarbonCore that return it
+was not traced. Nothing the server or the mount options control changed any of
+it.
