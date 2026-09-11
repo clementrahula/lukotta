@@ -25,7 +25,7 @@ point=""
 for _ in $(seq 1 60); do point="$(finder_volume)"; [ -n "$point" ] && break; sleep 1; done
 [ -n "$point" ] || { echo "the drive did not reach Finder"; exit 1; }
 name="$(basename "$point")"
-sleep 2
+[ "$(ax shows "Show in Finder" 60)" = shown ] || { echo "the window never showed the drive open"; exit 1; }
 
 osascript -e 'tell application "Lukotta Dev" to quit' >/dev/null 2>&1 &
 lq="$(printf '\342\200\234')"; rq="$(printf '\342\200\235')"
