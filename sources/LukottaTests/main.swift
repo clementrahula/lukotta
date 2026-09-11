@@ -6527,6 +6527,11 @@ group("everyVolumeWithoutAJournalWritesStably") {
     expect(
         unread.stableWrites && unread.guestOption == nil,
         "a volume that is not ext with a journal writes stably, and nothing else")
+    var stable = sampleInputs(kind: .microsoft)
+    stable.askForStableWrites()
+    expect(
+        MountScript.build(stable).contains(",mutejukebox,noowners,sync'"),
+        "and the client is asked for it in the options it mounts with")
 }
 
 group("readOnlyIsBothSidesOfTheConnection") {

@@ -28,10 +28,10 @@ public enum Durability {
         }
         // BitLocker writes stably too, though the engine's COMMIT is durable.
         // Written unstably, the Mac's client holds each block until it commits,
-        // and here it stopped committing: a 256 MiB write sat 200 seconds with
-        // the guest idle and every reply delivered, until another request on
-        // the mount set it going. Written stably it ran at the stick's own
-        // 9.4 MB/s with no pause.
+        // and here it stalled: a 256 MiB write sat 200 seconds with the guest
+        // idle and holding no request, until another request on the mount set
+        // it going. Written stably, six runs went at 8.5 to 16.1 MB/s and none
+        // paused for more than six seconds.
         // A LUKS container takes the client's option too, since 2026-09-06.
         //
         // It had the guest's `-o sync` because the superblock inside cannot be

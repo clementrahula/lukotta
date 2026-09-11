@@ -112,7 +112,9 @@ public enum HelperInfo {
     ///    the mount script, so a daemon on 54 would keep serving 128 KiB.
     /// 56: the daemon decides a BitLocker volume's write mode from the engine
     ///    it runs with, and one on 55 would go on writing it synchronously.
-    public static let contract = 56
+    /// 57: a BitLocker volume writes stably again, whatever the engine, and a
+    ///    daemon on 56 would go on writing it unstably.
+    public static let contract = 57
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"

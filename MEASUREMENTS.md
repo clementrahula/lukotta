@@ -5558,9 +5558,10 @@ second through a stall:
     its duplicate-request cache     0 hits: no resent request ever arrived
 
 Every request the guest received it had answered, and the client had read
-every answer. The client was holding its writes itself, and a synchronous
-request from another process on the same mount, a small file written and
-renamed, set it going where a single lookup did not.
+every answer it was sent. The sixteen writes the client counted as in flight
+never reached the guest, neither first time nor resent; where they were held
+was not seen. A synchronous request from another process on the same mount,
+a small file written and renamed, set it going where a single lookup did not.
 
 Written unstably, the client holds each block until it commits it, and here
 it stopped committing. Written stably there is nothing to commit. Six 256 MiB
@@ -5574,13 +5575,16 @@ the same:
                                     27.5 s   9.76 MB/s
                                     31.6 s   8.51 MB/s
 
-Writes of 128 KiB stalled as 1 MiB ones did, three times in one run.
-BitLocker was the one format writing unstably, since every volume without an
-ext journal already wrote stably, and it now writes stably too.
+Writes of 128 KiB stalled as 1 MiB ones did, three times in one run. Every
+volume without an ext journal already wrote stably and BitLocker was the
+exception; it now writes stably too. Ext with a journal still writes
+unstably, and whether it stalls the same way was not measured.
 
 What that costs where the drive is fast: 1 GiB onto an NTFS image on the
-Mac's own SSD, through a second mount of its export, took 1.0 s unstably and
-10.3 s stably, 104.6 MB/s. A stable write waits for its own flush, one
+Mac's own SSD, through a second mount of its export, each timed through the
+fsync that follows, took 1.0 s unstably and 10.3 s stably, 104.6 MB/s. An
+image's writes land in the Mac's own cache, so the unstable figure is not the
+SSD's. A stable write waits for its own flush, one
 megabyte at a time, so a fast drive is held near a hundred megabytes a
 second: ten times what the stick takes, and short of what a fast SSD could.
 
