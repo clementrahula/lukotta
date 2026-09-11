@@ -599,6 +599,11 @@ public enum MountScript {
             lines.append("export SUDO_UID=\(i.uid)")
             lines.append("export SUDO_GID=\(i.gid)")
         }
+        // The engine mounts only on a directory that is already there.
+        if i.hiddenFromFinder {
+            let point = shellQuoted(AfpShare.hiddenPoint(forDevice: i.devicePath))
+            lines.append("mkdir -p \(point) && chown \(i.uid):\(i.gid) \(point)")
+        }
 
         // Read the credential from the pipe into a variable. A FIFO can be
         // consumed once, and prompting again per attempt would defeat the single

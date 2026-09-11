@@ -33,15 +33,6 @@ public enum AfpShare {
         return host.hasPrefix("disk") && host.hasSuffix(".local") ? host : nil
     }
 
-    /// The share's name as netatalk offers it: its config reader lowercases A to Z and nothing else.
-    public static func servedName(_ share: String) -> String {
-        String(
-            String.UnicodeScalarView(
-                share.unicodeScalars.map {
-                    ("A"..."Z").contains($0) ? Unicode.Scalar($0.value + 32)! : $0
-                }))
-    }
-
     public static func url(host: String, share: String) -> String {
         var allowed = CharacterSet.urlPathAllowed
         allowed.remove(charactersIn: "/;?#")

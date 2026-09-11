@@ -6818,11 +6818,18 @@ group("anNTFSVolumeReachesFinderOverAFP") {
         + "/B/engine/bin/anylinuxfs mount /dev/disk5s1"
     let mine = AfpShare.ownHosts(engine: "/A/engine/bin/anylinuxfs", processes: ps)
     expect(mine == ours, "only our engine's drives")
-    expect(AfpShare.servedName("Field Notes Ä"), "field notes Ä", "only A to Z is lowercased")
+    expect(
+        AfpShare.url(host: "disk4s1.local", share: "Field Notes").hasSuffix("/Field%20Notes"),
+        "the share is asked for under the volume's own name")
+    expect(
+        MountScript.shareServe.contains("volume name = $V"), "netatalk keeps the name's case")
     var inputs = sampleInputs(kind: .microsoft)
     inputs.hiddenFromFinder = true
     let script = MountScript.build(inputs)
     expect(script.contains(",nobrowse"), "the NFS mount is kept out of Finder")
+    expect(
+        script.contains("mkdir -p") && script.contains("/Volumes/.lukotta-"),
+        "the hidden mount point exists before the engine is asked to use it")
     expect(MountScript.shareServe.contains("netatalk -F"), "the guest serves the volume over AFP")
 }
 
