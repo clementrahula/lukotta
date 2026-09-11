@@ -1,0 +1,32 @@
+prover b134230d71ec, 2026-09-11T22:05:45Z
+PASS published: v1.22.20-beta.5 at 626e042, not a draft, newest in the beta feed
+PASS update: 1.22.20-beta.4 -> 1.22.20-beta.5 in 25 s, signed and notarised
+PASS bitlocker open: 14 s at /Volumes/BACKUP2_TS
+    big  copy     126.2s     8.5 MB/s  osascript 0  4 identical, 0 differing, 0 missing
+    big  finder  progress window: Copy; zero-length seen at once: 3; ._ seen: 0, left: 0
+    tree copy       9.0s     0.9 MB/s  osascript 0  2000 identical, 0 differing, 0 missing
+    tree finder  progress window: Copy; zero-length seen at once: 0; ._ seen: 0, left: 0
+    tree delete     1.08s  osascript 0  gone from its folder
+    0 failures
+PASS bitlocker write: 1024 MB at 8.5 MB/s and 2000 small files in 9.0 s, every byte identical
+PASS bitlocker delete: 2000 small files in 1.08 s
+PASS bitlocker eject: 6 s
+PASS bitlocker reopen: 17 s at /Volumes/BACKUP2_TS
+PASS bitlocker read: 512 MB at 30.2 MB/s, every byte identical
+PASS bitlocker speed: write 8.5 was 7.5 read 30.2 was 30.2 tree 9.0 was 9.2 on 
+PASS bitlocker eject: 5 s
+PASS keys: Lukotta Beta offered the saved key for /dev/disk4s1 on both opens
+PASS ntfs open: 10 s at /Volumes/SANDISK
+    big  copy      15.7s    68.4 MB/s  osascript 0  4 identical, 0 differing, 0 missing
+    big  finder  progress window: Copy; zero-length seen at once: 3; ._ seen: 0, left: 0
+    tree copy       4.5s     1.8 MB/s  osascript 0  2000 identical, 0 differing, 0 missing
+    tree finder  progress window: Copy; zero-length seen at once: 0; ._ seen: 0, left: 0
+    tree delete     1.47s  osascript 0  gone from its folder
+    0 failures
+PASS ntfs write: 1024 MB at 68.4 MB/s and 2000 small files in 4.5 s, every byte identical
+PASS ntfs delete: 2000 small files in 1.47 s
+PASS ntfs eject: 5 s
+PASS ntfs reopen: 9 s at /Volumes/SANDISK
+PASS ntfs read: 512 MB at 73.5 MB/s, every byte identical
+FAIL ntfs speed: write 68.4 was 70.6 read 73.5 was 101.3 tree 4.5 was 5.1 on Ultra Fit
+VERDICT 1.22.20-beta.5: not proven
