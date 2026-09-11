@@ -3789,7 +3789,7 @@ final class AppModel: ObservableObject {
             Log.mount.notice("\(gone.count, privacy: .public) drives were ejected outside the app")
             let devices = self.openMounts.filter { gone.contains($0.value) }.map(\.key)
             var onScreen = false
-            if case .mounted(let drive) = self.phase {
+            if case .mounted(let drive, _) = self.phase {
                 onScreen = devices.contains(drive.devicePath)
             }
             if case .chooseDrive = self.phase { onScreen = true }
