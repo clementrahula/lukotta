@@ -1,0 +1,2 @@
+- Kopijavimas į BitLocker diską nebesustoja kelioms minutėms pusiaukelėje.
+- Dideli kopijavimai į BitLocker diską vėl laukia, kol kiekvienas įrašas pasieks diską.

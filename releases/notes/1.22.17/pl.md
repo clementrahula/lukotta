@@ -1,0 +1,2 @@
+- Kopiowanie na dysk BitLocker nie zatrzymuje się już w połowie na kilka minut.
+- Duże kopie na dysk BitLocker ponownie czekają, aż każdy zapis dotrze na dysk.

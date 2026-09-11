@@ -1,0 +1,2 @@
+- Kopiranje na pogon BitLocker se sredi postopka ne ustavi več za več minut.
+- Velike kopije na pogon BitLocker znova počakajo, da vsak zapis doseže pogon.

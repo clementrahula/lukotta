@@ -1,0 +1,2 @@
+- La copie vers un disque BitLocker ne s'interrompt plus pendant plusieurs minutes en cours de route.
+- Les copies volumineuses vers un disque BitLocker attendent de nouveau que chaque écriture atteigne le disque.

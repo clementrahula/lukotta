@@ -1,0 +1,2 @@
+- Kopiëren naar een BitLocker-schijf blijft niet langer halverwege minutenlang stilstaan.
+- Grote kopieën naar een BitLocker-schijf wachten weer tot elke schrijfactie de schijf bereikt.

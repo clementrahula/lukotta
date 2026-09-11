@@ -1,0 +1,2 @@
+- Kopiering til et BitLocker-drev holder ikke længere pause i flere minutter undervejs.
+- Store kopieringer til et BitLocker-drev venter igen på, at hver skrivning når drevet.

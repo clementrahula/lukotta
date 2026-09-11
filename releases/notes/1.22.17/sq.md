@@ -1,0 +1,2 @@
+- Kopjimi në një disk BitLocker nuk ndalet më për minuta në mes të rrugës.
+- Kopjet e mëdha në një disk BitLocker presin sërish që çdo shkrim të arrijë në disk.
