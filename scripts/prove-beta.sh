@@ -39,84 +39,24 @@ fail() { say "FAIL $*"; finish 1; }
 now() { date +%s; }
 version() { /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Contents/Info.plist" 2>/dev/null; }
 
-# Accessibility actions through System Events: nobody clicks, nothing needs the screen.
-press_id() {  # identifier, seconds
-  osascript - "$PROC" "$1" "$2" <<'APPLESCRIPT' 2>&1
-on run argv
-  set deadline to (current date) + (item 3 of argv as integer)
-  tell application "System Events" to tell process (item 1 of argv)
-    repeat until (current date) > deadline
-      try
-        repeat with w in windows
-          repeat with e in (entire contents of w)
-            try
-              if (value of attribute "AXIdentifier" of e) is (item 2 of argv) then
-                perform action "AXPress" of e
-                return "pressed"
-              end if
-            end try
-          end repeat
-        end repeat
-      end try
-      delay 1
-    end repeat
-  end tell
-  return "absent"
-end run
-APPLESCRIPT
-}
-
-shows() {  # text, seconds
-  osascript - "$PROC" "$1" "$2" <<'APPLESCRIPT' 2>&1
-on run argv
-  set deadline to (current date) + (item 3 of argv as integer)
-  tell application "System Events" to tell process (item 1 of argv)
-    repeat until (current date) > deadline
-      try
-        repeat with w in windows
-          repeat with e in (entire contents of w)
-            try
-              if ((value of e) as text) contains (item 2 of argv) then return "shown"
-            end try
-            try
-              if ((name of e) as text) contains (item 2 of argv) then return "shown"
-            end try
-          end repeat
-        end repeat
-      end try
-      delay 1
-    end repeat
-  end tell
-  return "absent"
-end run
-APPLESCRIPT
-}
+# Accessibility actions through the AX API: nobody clicks, nothing needs the screen.
+BUNDLE="com.lukotta.beta"
+swiftc -O -o "$WORK/ax-press" scripts/ax-press.swift 2>/dev/null || { echo "ax-press did not build" >&2; exit 2; }
+press_id() { "$WORK/ax-press" "$BUNDLE" press "$1" "$2" 2>/dev/null | tail -1; }  # identifier, seconds
+shows() { "$WORK/ax-press" "$BUNDLE" shows "$1" "$2" 2>/dev/null | tail -1; }  # text, seconds
 
 # One step of Sparkle's own window: whichever install button it offers, or that nothing is offered.
 sparkle_step() {
-  osascript - "$PROC" <<'APPLESCRIPT' 2>&1
-on run argv
-  tell application "System Events" to tell process (item 1 of argv)
-    repeat with w in windows
-      repeat with e in (entire contents of w)
-        try
-          set n to (name of e) as text
-          if (role of e) is "AXButton" and n is in {"Install and Relaunch", "Install Update", "Install"} then
-            perform action "AXPress" of e
-            return "pressed " & n
-          end if
-          if n contains "up to date" or n contains "up-to-date" then return "uptodate"
-        end try
-        try
-          set v to (value of e) as text
-          if v contains "up to date" or v contains "up-to-date" then return "uptodate"
-        end try
-      end repeat
-    end repeat
-  end tell
-  return "waiting"
-end run
-APPLESCRIPT
+  local name
+  for name in "Install and Relaunch" "Install Update" "Install"; do
+    [ "$("$WORK/ax-press" "$BUNDLE" title "$name" 1 2>/dev/null | tail -1)" = pressed ] \
+      && { echo "pressed $name"; return; }
+  done
+  for name in "up to date" "up-to-date"; do
+    [ "$("$WORK/ax-press" "$BUNDLE" shows "$name" 1 2>/dev/null | tail -1)" = shown ] \
+      && { echo uptodate; return; }
+  done
+  echo waiting
 }
 
 finder() {  # copy <from> <to> | delete <item> | eject <volume>
