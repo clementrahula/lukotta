@@ -134,7 +134,9 @@ public enum HelperInfo {
     /// 75: the guest login again.
     /// 76: spent on a home volume netatalk does not give a guest.
     /// 77: the share named after the volume again.
-    public static let contract = 77
+    /// 78: spent on a name the guest could not be given.
+    /// 79: as 77.
+    public static let contract = 79
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"
