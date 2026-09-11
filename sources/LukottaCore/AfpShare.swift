@@ -75,7 +75,7 @@ public enum AfpShare {
         let point = freePoint(named: pair.share, in: table)
         mkdir(point, 0o755)
         chown(point, uid, gid)
-        let address = url(host: pair.host, share: servedName(pair.share))
+        let address = url(host: pair.host, share: pair.share)
         let mount = ["-n", "-u", "#\(uid)", "/sbin/mount_afp", address, point]
         for _ in 0..<30 {
             _ = run("/usr/bin/sudo", mount, timeout: 30)

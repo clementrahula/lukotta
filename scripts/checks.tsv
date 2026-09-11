@@ -74,3 +74,5 @@ lvmlock	goal	slow	the second volume of a Linux laptop disk opens too	bash script
 nowindow	goal	slow	a dead mount goes on its own, before macOS tells anybody	bash scripts/never-the-interrupted-window.sh
 tmpcontained	integrity	fast	nothing this project makes is left loose in the shared temporary directory	bash scripts/nothing-loose-in-tmp.sh
 releasewaitsforbeta	release	fast	a release refuses a version whose beta was not proven by prove-beta.sh	grep -q "scripts/beta-proven.sh" scripts/ship.sh && ! bash scripts/beta-proven.sh 0.0.0 2>/dev/null
+mountsurvivesolderhelper	goal,hardware	slow	a drive opened in the dev build reaches Finder and stays, ten times in ten, with older Lukotta helpers running	bash scripts/mount-survives-older-helper.sh "${LUKOTTA_NTFS_DEVICE:?set it to the NTFS test drive}" 10
+volumenamecase	goal,hardware	slow	Finder shows an NTFS volume under its own label, case and all, at /Volumes/<label>	bash scripts/volume-name-case.sh "${LUKOTTA_NTFS_DEVICE:?set it to the NTFS test drive}"

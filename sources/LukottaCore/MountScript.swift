@@ -2131,6 +2131,7 @@ public enum MountScript {
           spotlight = no
           vol dbpath = /tmp/afpcnid/\\$v/
         [$V]
+          volume name = $V
           path = $ALFS_VM_MOUNT_POINT
           appledouble = ea
           ea = sys
