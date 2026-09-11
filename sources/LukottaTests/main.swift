@@ -1042,6 +1042,20 @@ group("mountStages") {
         checkedMS.contains("{ __slipped && sleep 2 &&"),
         "the retry happens only where the log says the machinery slipped")
     expect(
+        checkedMS.contains("if [ -n \"${__by_ntfs3g:-}\" ]; then\n  sleep 3"),
+        "the settled look waits only after a mount ntfs-3g made, which alone demotes itself later")
+    let ntfs3gCommands = checkedMS.components(separatedBy: "-t ntfs-3g ").count - 1
+    let marks = checkedMS.components(separatedBy: "__by_ntfs3g=1").count - 1
+    let ntfs3Marked = checkedMS.range(
+        of: "-t ntfs3 [^{}]*__by_ntfs3g=1", options: .regularExpression)
+    expect(
+        ntfs3gCommands > 0 && marks == ntfs3gCommands && ntfs3Marked == nil,
+        "an ntfs3 mount is handed over at once; only an ntfs-3g mount is marked for the look")
+    // `a && x || b && y` runs y after a worked: every check after the first success ran, a second each.
+    expect(
+        checkedMS.range(of: "\\|\\| ALFS_", options: .regularExpression) == nil,
+        "every attempt in the chain is braced, so nothing after the one that worked runs")
+    expect(
         checkedMS.contains("__slipped() {"),
         "and what counts as a slip is defined in the script rather than assumed")
     // Read-only was asked for: there is nothing to fall back to and nothing to

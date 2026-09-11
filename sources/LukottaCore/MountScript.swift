@@ -729,7 +729,8 @@ public enum MountScript {
 
             var readOnly = i
             readOnly.readOnly = true
-            let retry = attempts(readOnly, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
+            let retry = attempts(
+                readOnly, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ, braced: false)
             // The echo sits inside the braces, with the attempt it belongs
             // to. Outside them it would be a separate element of the chain:
             // `||` and `&&` are of equal precedence in the shell and group
@@ -763,15 +764,19 @@ public enum MountScript {
             ).joined(separator: " || ")
             var readOnlyAgain = i
             readOnlyAgain.readOnly = true
-            let roAgain = attempts(readOnlyAgain, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
-                .map { "{ \($0) && echo \"\(stageMarker)read-only\" >> \(logQ) ; }" }
-                .joined(separator: " || ")
+            let roAgain = attempts(
+                readOnlyAgain, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ, braced: false
+            )
+            .map { "{ \($0) && echo \"\(stageMarker)read-only\" >> \(logQ) ; }" }
+            .joined(separator: " || ")
             lines.append(
                 """
-                sleep 3
-                if __mounted && ! __mounted_writable; then
-                  __drop_new
-                  { \(repairedAgain) ; } || \(roAgain)
+                if [ -n "${\(ntfs3gMark):-}" ]; then
+                  sleep 3
+                  if __mounted && ! __mounted_writable; then
+                    __drop_new
+                    { \(repairedAgain) ; } || \(roAgain)
+                  fi
                 fi
                 """)
         }
@@ -837,18 +842,22 @@ public enum MountScript {
         engineQ: String,
         deviceQ: String,
         logQ: String,
-        action: String? = tunedActionName
+        action: String? = tunedActionName,
+        braced: Bool = true
     ) -> [String] {
+        // Braced, so a chain of them stops at the first that works: `a && x || b && y` runs y after a.
+        let group = { (attempt: String) in braced ? "{ \(attempt) ; }" : attempt }
         // A volume already chosen by the user is mounted directly: no driver
         // override, no discovery.
         if let volume = i.volume {
             return [
-                mountCommand(
-                    engineQ: engineQ,
-                    target: shellQuoted(volume.mountIdentifier),
-                    driver: nil, options: nfsOptions(i), readOnly: i.readOnly,
-                    ownership: ownershipFlags(i), netHelper: netHelperFlag(i),
-                    logQ: logQ, durability: i.durability, action: action)
+                group(
+                    mountCommand(
+                        engineQ: engineQ,
+                        target: shellQuoted(volume.mountIdentifier),
+                        driver: nil, options: nfsOptions(i), readOnly: i.readOnly,
+                        ownership: ownershipFlags(i), netHelper: netHelperFlag(i),
+                        logQ: logQ, durability: i.durability, action: action))
             ]
         }
 
@@ -947,12 +956,14 @@ public enum MountScript {
                     // the repair action too, so nothing is given up here.
                     chosen = ntfs3gActionName
                 }
-                return mountCommand(
+                let command = mountCommand(
                     engineQ: engineQ, target: target, driver: driver,
                     options: nfsOptions(i), readOnly: i.readOnly,
                     ownership: ownershipFlags(i), netHelper: netHelperFlag(i),
                     logQ: logQ, durability: i.durability, action: chosen,
                     hidden: i.hiddenFromFinder)
+                // Only an ntfs-3g mount can demote itself later, so only one owes the settled look below.
+                return group(driver == "ntfs-3g" ? command + " && \(ntfs3gMark)=1" : command)
             }
         }
         if i.kind == .linux {
@@ -2610,6 +2621,9 @@ public enum MountScript {
     /// it writes to a volume only where writing was the whole intention. The
     /// mount-table test stays underneath it as a second opinion.
     private static let writableCheck = "__mounted_writable"
+
+    /// Set by the script when the mount that stands was made by ntfs-3g.
+    static let ntfs3gMark = "__by_ntfs3g"
 
     /// What a driver is mounted with, beyond read-only.
     ///
