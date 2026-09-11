@@ -247,6 +247,13 @@ actually does -- it stops a release going out under notes that were edited
 after they were written -- and it is a record, not a gate to wait behind. Write
 the line and carry on.
 
+One fix at a time, each through the whole path, never piled into one release:
+
+1. Dev build: `LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1 ./build-app.sh`, measured there.
+2. Beta: `./scripts/ship.sh`.
+3. The whole app exercised on the beta, not only the fix.
+4. Release: `./scripts/ship.sh release --approved`.
+
 The beta channel is not gated. Publish to it freely.
 
 ## Version Numbering
@@ -345,6 +352,12 @@ That program is `MountScript.volumeAction`, public so that a test can run it
 with `awk -v s=… -v q="'" -v ro=…` over a captured listing. It is the only
 reader of the engine's volume list that decides what gets mounted, and nothing
 else can reach it.
+
+**`rootfs.ver` is the engine's.** It compiles its own copy in and compares it with the unpacked home on
+every mount; a home stamped with anything else re-initialises every time, taking `/tmp/anylinuxfs.lock`
+exclusive, and every drive after the first fails with "another instance is already running". A stale
+guest `vmproxy` does the same. This project's build number lives in `rootfs.build`; `versionOfGuest`
+and `versionShipped` combine the two.
 
 ## Finding Out What the App Did
 
@@ -647,6 +660,15 @@ the code alone. Changing one needs the evidence that established it.
   this user's `~/Volumes`. A probe that could not be started is not a mount that
   has stopped answering. Reporting a forced unmount that did not happen is what
   sent the sweep on to take down engines still serving it.
+
+- **A partition type is a claim; the first sector decides.** A reformat leaves the type behind, and
+  macOS may read a stale Apple map over the MBR in use. `VolumeKind.settled` takes the sector's answer
+  in both directions; the daemon reads it (`HelperClient.identify`, 512 bytes a volume, cached per
+  device). `--drive identify` (devtools) prints what the daemon reads and whether the app offers it.
+- **A bundle run from anywhere but its installed path talks to its channel's installed helper.** A
+  released build run from a download directory is paired with whatever helper that channel last
+  registered. Install it at its real path, or name which results the mismatched helper leaves
+  unmeasured.
 
 ## Security Invariants
 

@@ -1,0 +1,6 @@
+# severity	kind	match	need	message
+deny	command	(^|[;&|\s])(cp|mv|rm|ditto|rsync|install)\s[^;&|]*/Applications/Lukotta( Beta)?\.app	-	The owner's Beta and release apps are theirs. Harnesses install Lukotta Dev.app (LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1 ./build-app.sh); scripts/update-test.sh is the one script that replaces an installed app.
+deny	command	security\s+delete-(generic|internet)-password	-	No build, dev included, deletes a saved drive password. Only the person's Forget button or a confirmed uninstall removes one.
+deny	command	git\s+(add|rm|mv|restore|checkout)\b[^;&|]*(^|[\s"'])Sources/	-	The Swift tree is sources/, lowercase. On this case-insensitive disk git add Sources/... leaves tracked files unstaged. Name paths as git ls-files prints them.
+warn	command	(^|[;&|\s])log\s+(show|stream)\b	-	Lukotta's os_log lines never appear in log show on this Mac, at any level. Build a foreground instrument (--drive sweep) rather than reading an absence as evidence.
+warn	edit-requires	(^|/)translations/context/strings\.json$	"audit": false	A new or changed string gets "audit": false on its entry until it is audited.
