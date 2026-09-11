@@ -125,6 +125,10 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             Housekeeping.sweep(opened: self?.openedByConsoleUser() ?? [])
         }
         RunLoop.main.add(timer, forMode: .common)
+        let pairs = Timer(timeInterval: 2, repeats: true) { [weak self] _ in
+            AfpShare.takeDownOrphans(mounting: self?.mounting ?? true)
+        }
+        RunLoop.main.add(pairs, forMode: .common)
     }
 
     // MARK: Accepting connections
@@ -589,6 +593,9 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 // filesystem rather than by the family it belongs to.
                 format: probed)
             if durability.stableWrites { inputs.askForStableWrites() }
+            if kind == .microsoft, volume == nil, !readOnly, probed != .exfat {
+                inputs.hiddenFromFinder = true
+            }
             let script = MountScript.build(inputs)
 
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")
@@ -712,12 +719,21 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     status = 74
                 }
             }
+            if status == 0, inputs.hiddenFromFinder,
+                !AfpShare.mountForFinder(device: devicePath, uid: invokingUID(), gid: invokingGID())
+            {
+                Log.helper.error("the volume is served and Finder could not be given it")
+                output += "\nthe volume is served and Finder could not be given it"
+                status = 74
+            }
             reply(status, Diagnostics.scrubbed(output, secret: credential))
         } catch {
             Log.helper.error("the mount could not be run: \(error)")
             reply(71, "\(error)")
         }
     }
+
+    var mounting: Bool { progressQueue.sync { !running.isEmpty } }
 
     func progress(reply: @escaping (String) -> Void) {
         let (text, secret, others) = progressQueue.sync { () -> (String, String?, [String]) in

@@ -143,6 +143,8 @@ public struct MountTableEntry: Sendable {
     /// arrives on this Mac.
     public var isNFS: Bool { options.hasPrefix("nfs") }
 
+    public var isAFP: Bool { options.hasPrefix("afpfs") }
+
     /// Whether this is one of the engine's own.
     ///
     /// Not every NFS mount is: an office Mac can have a file server mounted all

@@ -89,3 +89,12 @@ As shipped in 1.22.16:
     large files             256 MiB, 7.2 MB/s   257 MB in ~10 min   64 MiB, 6.2 MB/s
     4 KiB files             2000 in 71.4 s      73 of 2000, 13 min  200 in 6.5 s
     delete of those         2000 in 4.53 s      not reached         200 in 0.82 s
+
+## BitLocker stick, AFP from the guest's netatalk, through the app — 2026-09-11
+
+                            AFP                 NFS
+    64 MiB in 4 files       0.5 s, identical    256 MiB at 7.2 MB/s
+    200 files of 4 KiB      0.6 s, identical    2000 in 71.4 s
+    delete of those 200     0.28 s              2000 in 4.53 s
+    ._ files seen           0                   seen
+    eject to engine gone    5 s

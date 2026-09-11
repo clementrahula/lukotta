@@ -168,6 +168,7 @@ public enum EngineStatus {
         ok: Bool, message: String
     ) {
         guard let engine = EnginePaths.anylinuxfs else { return (false, "Engine missing.") }
+        AfpShare.unmountPartner(ofNFS: mountPoint)
         // A deadline, because ejecting a drive that has gone away can otherwise
         // wait for ever, and nil comes back for both a failure to start and a
         // deadline passed.

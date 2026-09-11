@@ -6698,6 +6698,38 @@ group("aStoppedCopyLeavesNoEmptyFiles") {
         "one unchanged since it was looked at is removed")
 }
 
+group("anNTFSVolumeReachesFinderOverAFP") {
+    let pair = AfpShare.hostAndShare(ofNFSSource: "disk4s1.local:/mnt/ORCHARD")
+    expect(pair?.host == "disk4s1.local", "the host comes from the NFS source")
+    expect(pair?.share == "ORCHARD", "and the share from its path")
+    expect(
+        AfpShare.url(host: "disk4s1.local", share: "Field Notes"),
+        "afp://;AUTH=No%20User%20Authent@disk4s1.local/Field%20Notes",
+        "the share name is escaped in the URL")
+    let hidden = "/Volumes/ORCHARD"
+    let nfs = "disk4s1.local:/mnt/ORCHARD on \(hidden) (nfs, nodev, nobrowse)"
+    let afp =
+        "//;AUTH=No%20User%20Authent@disk4s1.local/ORCHARD"
+        + " on /Volumes/ORCHARD 1 (afpfs, nodev)"
+    let once = AfpShare.orphans(in: nfs, lonelyBefore: [])
+    expect(once.points.isEmpty, "alone once, a hidden mount stays")
+    expect(once.lonely == [hidden], "and is noted")
+    let twice = AfpShare.orphans(in: nfs, lonelyBefore: once.lonely)
+    expect(twice.points == [hidden], "alone twice running, it goes")
+    let both = AfpShare.orphans(in: nfs + "\n" + afp, lonelyBefore: [hidden])
+    expect(both.points.isEmpty && both.lonely.isEmpty, "with its AFP volume it stays")
+    let alone = AfpShare.orphans(in: afp, lonelyBefore: [])
+    expect(alone.points == ["/Volumes/ORCHARD 1"], "an AFP volume whose engine went goes")
+    let nas = "//;AUTH=No%20User%20Authent@nas.local/share on /Volumes/share (afpfs, nodev)"
+    expect(AfpShare.orphans(in: nas, lonelyBefore: []).points.isEmpty, "a NAS is never touched")
+    expect(AfpShare.servedName("Field Notes Ä"), "field notes Ä", "only A to Z is lowercased")
+    var inputs = sampleInputs(kind: .microsoft)
+    inputs.hiddenFromFinder = true
+    let script = MountScript.build(inputs)
+    expect(script.contains(",nobrowse"), "the NFS mount is kept out of Finder")
+    expect(MountScript.shareServe.contains("netatalk -F"), "the guest serves the volume over AFP")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

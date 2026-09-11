@@ -116,7 +116,17 @@ public enum HelperInfo {
     ///    daemon on 56 would go on writing it unstably.
     /// 58: the daemon's mount script also serves NTFS over SMB.
     /// 59: that SMB server keeps its configuration in memory.
-    public static let contract = 59
+    /// 60: and grants no leases, whose breaks the Mac never acknowledged.
+    /// 61: AFP from netatalk in the guest replaces that SMB server.
+    /// 62: its guest is nobody, and its state lives in memory.
+    /// 63: the daemon mounts that AFP share for Finder over a hidden NFS mount.
+    /// 64: the hidden NFS mount keeps the engine's own mount point.
+    /// 65: diagnostic build.
+    /// 66: diagnostic build.
+    /// 67: diagnostic build.
+    /// 68: diagnostic build.
+    /// 69: the share is asked for in the case netatalk gives it.
+    public static let contract = 69
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"
