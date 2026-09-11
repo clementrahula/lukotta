@@ -80,8 +80,8 @@ DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
 # The sweep lives in the app and in the helper. The app's is measured and works:
 # a mount whose engine was killed went in about twenty seconds. The helper's does
 # not -- with the app quit, the same mount was still there after three hundred
-# seconds -- and that gap is written down in MEASUREMENTS.md rather than hidden
-# by only ever testing the route that works. What this asserts is the guarantee
+# seconds -- and that gap is not hidden by only ever testing the route that
+# works. What this asserts is the guarantee
 # that holds today.
 /usr/bin/open -a "$APP_BUNDLE" >/dev/null 2>&1
 sleep 5

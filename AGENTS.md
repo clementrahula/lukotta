@@ -70,8 +70,7 @@ written reads back identical. `finder-parity.sh` makes its own source files
 with `dd`.
 
 A number taken any other way is thrown out, not caveated. It is not quoted, not
-compared against, and not used to decide anything. That includes every number
-in MEASUREMENTS.md that was not taken through Finder.
+compared against, not written down, and not used to decide anything.
 
 **Why:** on 2026-09-11 a whole night reported BitLocker copy speed from single
 `dd` streams at 8.5 to 16.1 MB/s and called copies faster. A `ditto` copy of one
@@ -1252,7 +1251,7 @@ geometry -- and both read as "the app cannot open this format".
 Two fixtures in this project were quietly broken this way and stayed broken.
 Ordinary use is not affected -- writing and deleting files, even on btrfs with
 `discard=async`, leaves the file exactly its size; it is the whole-device
-discard that shortens it. See MEASUREMENTS.md for both numbers.
+discard that shortens it.
 
 ## Nothing That Ships May Name the Machine That Built It
 

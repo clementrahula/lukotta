@@ -4,12 +4,10 @@
 #
 # A dozen volumes open at once, opened the way a person opens them.
 #
-# WHY THIS EXISTS SEPARATELY FROM THE MEASUREMENT ALREADY WRITTEN DOWN
+# WHY THE APP AND NOT THE ENGINE
 #
-# Twelve volumes were measured on 2026-09-03 and the numbers are in
-# MEASUREMENTS.md: 1.87 GB in total, byte-identical on all twelve, a shell
-# still answering in 28 ms. Every one of those was opened by calling the engine
-# directly, and the engine takes a loopback address as it finds one.
+# Opened by calling the engine directly, twelve volumes worked, and the engine
+# takes a loopback address as it finds one.
 #
 # The app does not. It asks its daemon for twelve addresses first and will not
 # open a drive it has no address for -- and until 1.22.7-beta.2 the daemon
