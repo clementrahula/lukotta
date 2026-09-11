@@ -727,8 +727,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private static func answerWithin(_ seconds: TimeInterval) {
         let deadline = DispatchTime.now() + seconds
         DispatchQueue.main.asyncAfter(deadline: deadline) {
-            guard !AppModel.leftTidily else { return }
-            Log.app.notice("leaving is taking too long; quitting anyway")
+            // Every .terminateLater gets its own answer; a spare one is ignored.
+            if !AppModel.leftTidily {
+                Log.app.notice("leaving is taking too long; quitting anyway")
+            }
             NSApp.reply(toApplicationShouldTerminate: true)
         }
     }
@@ -737,7 +739,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let model else { return .terminateNow }
         // Already going. The panel is up and the work is running; say yes to
         // this attempt too and let the one in flight finish and reply.
-        guard !isLeaving else { return .terminateLater }
+        guard !isLeaving else {
+            Self.answerWithin(2)
+            return .terminateLater
+        }
         isLeaving = true
         QuitProgress.show(String(localized: "Quitting\u{2026}"))
         Self.answerWithin(8)
@@ -936,7 +941,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             MainActor.assumeIsolated {
                 // Same guard as leave(): a second Cmd-Q while the ejects are
                 // running must not start them again.
-                guard !isLeaving else { return }
+                guard !isLeaving else {
+                    Self.answerWithin(2)
+                    return
+                }
                 isLeaving = true
                 QuitProgress.show(String(localized: "Quitting\u{2026}"))
                 Self.answerWithin(8)
