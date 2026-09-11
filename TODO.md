@@ -15,9 +15,13 @@
 
 ## Deleting over NFS is slow, and the fix is not on the NFS side
 
-Deleting a photo library takes minutes, one unlink per file, and Finder's
-move-to-Trash fails outright ("some items had to be skipped") because the volume
-has no usable `.Trashes`.
+Deleting a photo library takes minutes, one unlink per file. Finder deletes in
+place here, because macOS gives an NFS volume no Trash: `trashItem` and
+`FSMoveObjectToTrashSync` refuse it with -120, and a `.Trashes` folder on the
+volume changes nothing. On 2026-09-11 Finder took 1.5 to 1.9 ms a file on the
+BitLocker stick, against 0.07 ms deleting in place on a native APFS image. The
+"some items had to be skipped" that used to end a delete was the guest's
+directory listing losing its place, fixed in 1.22.16.
 
 Measured on a 40 GB NTFS volume, 6000 small files:
 
@@ -275,3 +279,22 @@ nothing had ever opened one.
   written and applies cleanly to init-rootfs/main.go; what it needs is a Go
   step in build-engine.sh, since that program comes prebuilt from the bottle
   today. Go 1.27 is already on this machine.
+
+## Two things 1.22.17 leaves open
+
+- [ ] **A fast drive is held near one flush a megabyte.** Since 1.22.17
+  BitLocker writes stably, because the Mac's client stalled for minutes on
+  unstable writes to the async export. A stable write waits for its own flush,
+  one megabyte at a time: onto an NTFS image on the Mac's own SSD a stable
+  stream went at 104.6 MB/s. The stick is not held back by it, and no fast
+  physical drive has been measured. The route that keeps both is the server
+  answering unstable writes as stable once they are durable, gathering several
+  before one flush, so the client keeps its writes in flight and never waits on
+  a commit. That is a change to nfsd's write path, and then the stall runs, the
+  kill tests and the goal rows again.
+- [ ] **The fixture builders do not build every fixture the goal rows name.**
+  On 2026-09-11 `~/.lukotta-testvols` was missing, and `make-test-volumes.sh`
+  and `make-format-volumes.sh` rebuilt only part of it. The `*-vectors` images,
+  `luks-big`, `luks-lvm-big`, `luks-ext4`, `luks-xfs`, `plain-xfs`,
+  `plain-ext3` and `plain-ext2` were made by hand. `make-format-volumes.sh`
+  still says the guest has no `mkfs.xfs`, and the guest now carries one.
