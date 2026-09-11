@@ -5516,3 +5516,35 @@ test of whether a volume is too remote for a Trash
 comes from further in; which of the seven places in CarbonCore that return it
 was not traced. Nothing the server or the mount options control changed any of
 it.
+
+## A write that waits 200 seconds with nothing moving — 2026-09-11
+
+`finderparity` held on the BitLocker stick through the dev build, whose
+sources are main's: Finder copied 1 GB and 500 files byte-identical and
+deleted the 500 with nothing skipped. Measured on the same stick right after,
+one thing at a time:
+
+    Finder copy, 256 MiB in 4 files          43.9 s   6.12 MB/s, identical
+    dd 256 MiB, one fsync                    29.9 s   8.98 MB/s
+    the same dd, straight after the copy     570.8 s  0.47 MB/s
+
+That is a stall. Repeated with the stick's own throughput (`iostat` on disk4)
+and the client's calls logged every second:
+
+    256 MiB, no fsync                        220.4 s  1.22 MB/s overall
+    first 7 s                                165 WRITEs, the stick at 12-21 MB/s
+    next ~200 s                              no WRITE, no COMMIT, the stick idle
+    then                                     a COMMIT, 74 WRITEs, done
+
+During the silence the server answered a lookup in 0.02 s and a listing of
+the root in 0.18 s, and the machine's processor was idle. A second run showed
+the client resending 16 requests in one second, nine seconds after its last
+WRITE went out, with no timeout counted: sixteen writes the client had in
+flight got no answer. The guest's log shows no error and macOS logged no
+reset of the stick. What the guest was doing in those seconds is the next
+measurement.
+
+And where a Finder delete's time goes, once more: with nothing sampling, a
+native APFS image deleted 5,000 files in place in 358 ms. On the stick, 3,000
+files took 5.59 s, and the process whose processor time rose by 1.85 s was the
+engine's virtual machine, Finder's barely at all.
