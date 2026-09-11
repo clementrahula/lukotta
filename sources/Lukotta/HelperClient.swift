@@ -219,7 +219,7 @@ final class HelperClient: ObservableObject {
             let differentBuild = !ourBuild.isEmpty && !theirBuild.isEmpty && theirBuild != ourBuild
             self.askContract { [weak self] theirs in
                 guard let self, theirs < HelperInfo.contract || stale || differentBuild else {
-                    return
+                    return asked(false)
                 }
                 Log.app.notice(
                     "the running helper answers contract \(theirs, privacy: .public) build \(theirBuild, privacy: .public), this build wants \(HelperInfo.contract, privacy: .public) build \(ourBuild, privacy: .public), binary differs: \(stale, privacy: .public); replacing it"
@@ -230,8 +230,9 @@ final class HelperClient: ObservableObject {
                 // is already going, so this used to notice the mismatch every
                 // launch and change nothing. Only the daemon can end the daemon.
                 self.askToStepAside { [weak self] stepped in
-                    guard let self else { return }
+                    guard let self else { return asked(false) }
                     if stepped {
+                        asked(true)
                         self.connection?.invalidate()
                         self.connection = nil
                         // launchd starts it again on the next call, from the bundle
@@ -258,6 +259,7 @@ final class HelperClient: ObservableObject {
                         // way across and that asks for one every time.
                         Log.app.notice("the installed daemon is older; asking it to replace itself")
                         self.askItToRefreshItself { [weak self] replaced in
+                            asked(replaced)
                             guard let self else { return }
                             if !replaced {
                                 // Same reason as above: never at launch.
@@ -289,6 +291,7 @@ final class HelperClient: ObservableObject {
                     // command with a password in front of it, and neither is
                     // somebody else's job.
                     self.askItToTakeItselfOff { [weak self] in
+                        asked(true)
                         self?.reregister()
                     }
                 }
