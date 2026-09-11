@@ -56,10 +56,7 @@ struct FailureView: View {
 
                     if let detail, !detail.isEmpty {
                         DisclosureGroup("Details", isExpanded: $showDetail) {
-                            LogView(
-                                lines: detail.components(separatedBy: .newlines).filter {
-                                    !$0.isEmpty && !$0.contains("_mount action: `")
-                                })
+                            LogView(lines: FailureDetail.visibleLines(detail))
                         }
                         .font(.caption)
                     }

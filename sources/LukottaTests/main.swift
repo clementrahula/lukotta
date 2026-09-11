@@ -6881,6 +6881,27 @@ group("anNTFSVolumeReachesFinderOverAFP") {
     expect(MountScript.shareServe.contains("netatalk -F"), "the guest serves the volume over AFP")
 }
 
+group("failureDetailsNeverShowTheScript") {
+    let transcript = """
+        Linux: Running before_mount action: `modprobe nfsd > /dev/null 2>&1; mount -t nfsd nfsd /proc/fs/nfsd`
+        Linux: Running after_mount action: `nohup sh /tmp/lukotta-reclaim >/dev/null 2>&1 &`
+        ALFS_PASSPHRASE="$__cred" /opt/engine/bin/anylinuxfs mount -t ntfs3 /dev/disk9s1
+        + mount -t ntfs3 /dev/vda /mnt/FIELD
+
+        mount: /mnt/FIELD: wrong fs type, bad option, bad superblock on /dev/vda.
+        The volume needs checking before it can be opened.
+        """
+    let shown = FailureDetail.visibleLines(transcript)
+    expect(
+        shown == [
+            "mount: /mnt/FIELD: wrong fs type, bad option, bad superblock on /dev/vda.",
+            "The volume needs checking before it can be opened.",
+        ], "only what happened is shown: \(shown)")
+    expect(
+        !shown.contains { $0.contains("`") || $0.contains("ALFS_") || $0.hasPrefix("+ ") },
+        "no action, command line or shell trace reaches Details")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")
