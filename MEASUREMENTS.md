@@ -5722,6 +5722,22 @@ same build, run directly with ROUNDS=1 rather than through verify.sh:
     crowdafter   twelve pulled with writes in the air, then all 12 opened
                  through the app and 12 byte-identical
 
+## One last copy onto the BitLocker test drive — 2026-09-11 09:53
+
+Through the dev build of 1.22.17, headless, into a folder of its own on
+/dev/disk4s1: one 128 MiB file and 200 files of 20 kB, copied with ditto.
+
+    open           44 s, exit 0
+    copy           138 MB in 41.8 s: 3.3 MB/s, exit 0
+    read back      all 201 byte-identical
+    delete         0.2 s, nothing left
+    eject          clean; no engine left running
+
+No error, no pause. The rate is far below the 8.5 to 16.1 MB/s the six
+stable-write runs on this stick measured, and not far above the 2 MB/s the
+goal rules out. What this copy did differently from those six is not
+established. It is the latest number, and it stands as measured.
+
 Nor is it a delete on a full volume, the other thing both harnesses have in
 common with the leftovers. On another clone of the spare image, with every
 error kept rather than sent to /dev/null:
