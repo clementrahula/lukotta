@@ -1575,11 +1575,19 @@ final class AppModel: ObservableObject {
 
     // MARK: Lifecycle
 
+    /// Finder's own eject reaches the app through this.
+    private var unmountWatch: NSObjectProtocol?
+
     func start() {
         guard !didStart else { return }
         didStart = true
         watcher.start()
         sleepWatch.start()
+        unmountWatch = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didUnmountNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.noticeOutsideEjects() }
+        }
         // Everything this app can leave behind, taken away in one place: the
         // scratch directory of a mount that never finished, the empty folder an
         // ejected drive leaves in ~/Volumes, and the settings' memory of files
@@ -3679,78 +3687,113 @@ final class AppModel: ObservableObject {
             await MainActor.run {
                 self.ejectingPath = nil
                 if result.ok {
-                    self.openVolumes = self.openVolumes.filter { !paths.contains($0) }
-                    // Ejecting is the person saying they are done with it, so
-                    // it is not put back at the next login. Unplugging is not:
-                    // a drive that goes away without being ejected is one to
-                    // open again when it comes back.
-                    // By both names it could have been remembered under: what
-                    // the row calls itself, and what this app knows it as. A
-                    // drive whose row was made before its file was recognised
-                    // is remembered under the one and ejected under the other,
-                    // and came back at the next login having been ejected.
-                    let ejected = devices.compactMap { device in
-                        self.drives.first { $0.devicePath == device }
-                    }
-                    for name in Set(ejected.flatMap { [$0.uuid, self.identity(of: $0)] }) {
-                        MountMemory.forget(uuid: name)
-                    }
-                    // And by what was actually mounted, which is the only thing
-                    // that survives every route to here. A drive put back at
-                    // login has no row anybody chose and may have none at all
-                    // by now, so the lookup above finds nothing and the eject
-                    // is forgotten instead of the drive: it came back at the
-                    // next launch, having been explicitly ejected.
-                    let ejectedMounts = self.openMounts.filter { paths.contains($0.value) }
-                    for entry in MountMemory.all()
-                    where ejectedMounts.keys.contains(where: { key in
-                        key == entry.uuid || key == entry.imagePath
-                            || entry.volumeIdentifier.map { key == "/dev/" + $0 } == true
-                    }) {
-                        MountMemory.forget(uuid: entry.uuid)
-                    }
-                    // What this app itself recorded when it made the mount,
-                    // which needs no row and no device to still exist.
-                    for path in paths {
-                        OpenedHere.remove(path)
-                        guard let uuid = self.restoreKeys.removeValue(forKey: path) else {
-                            continue
-                        }
-                        MountMemory.forget(uuid: uuid)
-                    }
-                    let left = MountMemory.all().count
-                    if left > 0 {
-                        let keys = ejectedMounts.keys.joined(separator: ",")
-                        Log.mount.notice(
-                            "ejected mounts, \(left, privacy: .public) drives still remembered, keys \(keys, privacy: .private)"
-                        )
-                    }
-                    if self.openMounts.isEmpty { self.onAllDrivesClosed?() }
-                    // With the last mount gone, anything of the engine's still
-                    // running is serving nothing -- and while it runs, the next
-                    // drive cannot be opened at all.
-                    Task.detached(priority: .utility) {
-                        _ = EngineProcesses.tidyWhatServesNothing()
-                    }
-                    self.openMounts = self.openMounts.filter { !paths.contains($0.value) }
-                    // The list, not start(): with a single drive attached that
-                    // selects it again and reopens the unlock screen, which is
-                    // the opposite of what ejecting asked for.
-                    self.credential = ""
-                    self.credentialBelongsTo = nil
-                    self.credentialProblem = nil
-                    self.statusLines = []
-                    // Before the list is rebuilt, so the rebuilt one does not
-                    // put back a row for a file that is going away.
-                    self.detachImages(forDevices: devices)
-                    self.forgetEngineRead(devices)
-                    self.showAllDrives()
-                    // The mount point this drive was served on is empty now.
-                    Task.detached(priority: .utility) { Housekeeping.sweep() }
+                    self.finishEjecting(paths: paths, devices: devices, showList: true)
                 } else {
                     self.ejectProblem = result.message
                 }
             }
+        }
+    }
+
+    /// What ejecting leaves behind, whether this app ejected the drive or Finder did.
+    private func finishEjecting(paths: [String], devices: [String], showList: Bool) {
+        self.openVolumes = self.openVolumes.filter { !paths.contains($0) }
+        // Ejecting is the person saying they are done with it, so
+        // it is not put back at the next login. Unplugging is not:
+        // a drive that goes away without being ejected is one to
+        // open again when it comes back.
+        // By both names it could have been remembered under: what
+        // the row calls itself, and what this app knows it as. A
+        // drive whose row was made before its file was recognised
+        // is remembered under the one and ejected under the other,
+        // and came back at the next login having been ejected.
+        let ejected = devices.compactMap { device in
+            self.drives.first { $0.devicePath == device }
+        }
+        for name in Set(ejected.flatMap { [$0.uuid, self.identity(of: $0)] }) {
+            MountMemory.forget(uuid: name)
+        }
+        // And by what was actually mounted, which is the only thing
+        // that survives every route to here. A drive put back at
+        // login has no row anybody chose and may have none at all
+        // by now, so the lookup above finds nothing and the eject
+        // is forgotten instead of the drive: it came back at the
+        // next launch, having been explicitly ejected.
+        let ejectedMounts = self.openMounts.filter { paths.contains($0.value) }
+        for entry in MountMemory.all()
+        where ejectedMounts.keys.contains(where: { key in
+            key == entry.uuid || key == entry.imagePath
+                || entry.volumeIdentifier.map { key == "/dev/" + $0 } == true
+        }) {
+            MountMemory.forget(uuid: entry.uuid)
+        }
+        // What this app itself recorded when it made the mount,
+        // which needs no row and no device to still exist.
+        for path in paths {
+            OpenedHere.remove(path)
+            guard let uuid = self.restoreKeys.removeValue(forKey: path) else {
+                continue
+            }
+            MountMemory.forget(uuid: uuid)
+        }
+        let left = MountMemory.all().count
+        if left > 0 {
+            let keys = ejectedMounts.keys.joined(separator: ",")
+            Log.mount.notice(
+                "ejected mounts, \(left, privacy: .public) drives still remembered, keys \(keys, privacy: .private)"
+            )
+        }
+        if self.openMounts.isEmpty { self.onAllDrivesClosed?() }
+        // With the last mount gone, anything of the engine's still
+        // running is serving nothing -- and while it runs, the next
+        // drive cannot be opened at all.
+        Task.detached(priority: .utility) {
+            _ = EngineProcesses.tidyWhatServesNothing()
+        }
+        self.openMounts = self.openMounts.filter { !paths.contains($0.value) }
+        // Before the list is rebuilt, so the rebuilt one does not
+        // put back a row for a file that is going away.
+        self.detachImages(forDevices: devices)
+        self.forgetEngineRead(devices)
+        // The list, not start(): with a single drive attached that
+        // selects it again and reopens the unlock screen, which is
+        // the opposite of what ejecting asked for.
+        if showList {
+            self.credential = ""
+            self.credentialBelongsTo = nil
+            self.credentialProblem = nil
+            self.statusLines = []
+            self.showAllDrives()
+        }
+        // The mount point this drive was served on is empty now.
+        Task.detached(priority: .utility) { Housekeeping.sweep() }
+    }
+
+    /// A drive whose volume went away outside this app -- ejected in Finder -- is closed here too.
+    private func noticeOutsideEjects() {
+        Task { @MainActor [weak self] in
+            // Time for the helper to take the hidden mount down behind Finder's.
+            try? await Task.sleep(nanoseconds: 5_000_000_000)
+            guard let self, self.ejectingPath == nil else { return }
+            let table = LukottaCore.mountTable()
+            let entries = MountTableEntry.all(in: table)
+            let mounted = Set(entries.map(\.mountPoint))
+            let hidden = Set(entries.filter(AfpShare.isHidden).map(\.mountPoint))
+            let gone = Set(
+                self.openMounts.values.filter { point in
+                    !mounted.contains(point)
+                        || (hidden.contains(point)
+                            && AfpShare.finderPoint(forEngineMount: point, in: table) == nil)
+                })
+            guard !gone.isEmpty else { return }
+            Log.mount.notice("\(gone.count, privacy: .public) drives were ejected outside the app")
+            let devices = self.openMounts.filter { gone.contains($0.value) }.map(\.key)
+            var onScreen = false
+            if case .mounted(let drive) = self.phase {
+                onScreen = devices.contains(drive.devicePath)
+            }
+            if case .chooseDrive = self.phase { onScreen = true }
+            self.finishEjecting(paths: Array(gone), devices: devices, showList: onScreen)
         }
     }
 
