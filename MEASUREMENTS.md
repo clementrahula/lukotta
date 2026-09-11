@@ -5662,3 +5662,35 @@ older than the sources: the merge had rewritten four source files with the
 same contents, and `git diff` between that build's commit and this one is
 empty for sources and resources. The build was made again rather than the
 flag argued with.
+
+## firstwrite's missing cycle, and the deletes that did not reach the disk — 2026-09-11
+
+The cycle that did not run was the first. The system log has all twenty
+launches of the app, each about 32 seconds long. After cycles 2 to 20 there is
+about 1.7 s before the next launch: the copy, the readback and the release.
+After cycle 1 there is 0.16 s, and the unmount comes 63 ms after the app
+exits, so that cycle ended before any copy could have finished. The helper's
+lines for cycle 1 match the other nineteen: ntfs, mount requested, mount
+script exited 0. The log does not say whether the harness then found nothing
+served or the copy failed, and the harness's own log was lost.
+
+crowdafter's first round then failed on the same image. The reopened CROWD8
+said "No space left on device" to a 6 MB copy, and the other eleven were
+byte-identical. When it was next opened, before round 2 copied anything, it
+held 13 MB with 52 MB free, and two folders that should not have been there:
+
+    first-write  60 files  folder last changed 08:42:19, cycle 20 of firstwrite
+    spill        32 files  written 08:45:21 by fullvolume
+
+Both harnesses delete these folders as their last act, then unmount and
+detach the image at once; fullvolume detaches with `-force`. Both deletes
+are missing from the disk. fullvolume also fills the volume under `fill`
+before it writes `spill`. That is the only thing large enough to leave less
+than 6 MB free, and crowdafter's own cleanup removes `fill`, which is why the
+second look found room. So the change made last before the image went is the
+change that did not reach it.
+
+The guest's `stop` shuts down nfsd, mountd, exportfs and rpcbind, and
+unmounts nfsd's own pseudo-filesystems. It never unmounts or syncs the volume
+it serves. Whether a Finder eject, where the engine is left to end by itself,
+loses the same thing is measured next, on a clone of the spare image.
