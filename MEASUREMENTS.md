@@ -5639,3 +5639,26 @@ failed while the machine let go, and the attachment held the file, so every
 reopen said "file already locked". With the harness making its own clean
 volume, the same script passes on this build: the repaired volume takes a
 write and all 41 files are byte-identical.
+
+## The goal rows again, one at a time on a settled tree — 2026-09-11
+
+The long run above cannot stand as a result. Four of its scripts were edited
+while it ran: the goal7 harness fix, after goal7 had run, and the build hints
+in three others, each before its row started or after it finished. verify.sh
+refuses a run whose checks changed under it. So it was stopped at 08:24, and
+every row it had not settled was run alone through verify.sh on 0d707ec, with
+nothing uncommitted under scripts, sources or resources, against a dev build
+of that commit (1.22.17) newer than every source:
+
+    goal7        holds
+    firstwrite   19 of 20 cycles clean, no stale handle, nothing written
+                 wrong; one cycle did not run, and which of the four ways a
+                 cycle can fail was lost with the log
+    imageformats holds
+    fullvolume   holds
+
+The first attempt at these, on the dev build made at 04:46, was flagged as
+older than the sources: the merge had rewritten four source files with the
+same contents, and `git diff` between that build's commit and this one is
+empty for sources and resources. The build was made again rather than the
+flag argued with.
