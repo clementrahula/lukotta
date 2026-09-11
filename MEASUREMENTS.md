@@ -101,3 +101,5 @@ As shipped in 1.22.16:
     1 GiB in 4 files        142.6 s, 7.5 MB/s, identical, Copy window shown, no ._ files
     delete of 2000 files    1.06 s, in place, no Trash on a guest login
       file IDs in SQLite    0.91 s
+    delete of 10,538 files  4.2 s, nothing skipped (NFS: 14.1 s)
+    idle 3 minutes          still mounted; an 8 MiB copy after it 0.3 s, identical

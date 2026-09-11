@@ -2126,7 +2126,7 @@ public enum MountScript {
           uam list = uams_guest.so
           guest account = nobody
           log file = /tmp/afpd.log
-          log level = default:info
+          log level = default:warn
           zeroconf = no
           spotlight = no
           vol dbpath = /tmp/afpcnid/\\$v/
