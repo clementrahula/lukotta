@@ -132,7 +132,9 @@ public enum HelperInfo {
     /// 73: netatalk logs only warnings.
     /// 74: spent on a login that gave Finder no Trash.
     /// 75: the guest login again.
-    public static let contract = 75
+    /// 76: spent on a home volume netatalk does not give a guest.
+    /// 77: the share named after the volume again.
+    public static let contract = 77
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"
