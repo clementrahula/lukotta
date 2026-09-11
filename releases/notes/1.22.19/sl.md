@@ -1,0 +1,1 @@
+- Brisanje velike mape na pogonu BitLocker je hitrejše.

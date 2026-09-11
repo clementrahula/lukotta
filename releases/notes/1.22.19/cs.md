@@ -1,0 +1,1 @@
+- Mazání velké složky na disku BitLocker je rychlejší.

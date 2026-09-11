@@ -1,0 +1,1 @@
+- Egy nagy mappa törlése a BitLocker-meghajtón gyorsabb.

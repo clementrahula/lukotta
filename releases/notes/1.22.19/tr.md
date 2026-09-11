@@ -1,0 +1,1 @@
+- BitLocker sürücüsündeki büyük bir klasörü silmek daha hızlı.

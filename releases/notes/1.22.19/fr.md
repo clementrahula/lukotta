@@ -1,0 +1,1 @@
+- La suppression d'un gros dossier sur un disque BitLocker est plus rapide.

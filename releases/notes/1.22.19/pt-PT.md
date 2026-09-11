@@ -1,0 +1,1 @@
+- Apagar uma pasta grande numa unidade BitLocker é mais rápido.

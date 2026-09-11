@@ -1,0 +1,1 @@
+- Xóa một thư mục lớn trên ổ BitLocker nhanh hơn.

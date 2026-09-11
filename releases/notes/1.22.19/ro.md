@@ -1,0 +1,1 @@
+- Ștergerea unui dosar mare de pe o unitate BitLocker este mai rapidă.

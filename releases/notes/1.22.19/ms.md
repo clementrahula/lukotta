@@ -1,0 +1,1 @@
+- Memadam folder besar pada pemacu BitLocker kini lebih pantas.

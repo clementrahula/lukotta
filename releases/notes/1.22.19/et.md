@@ -1,0 +1,1 @@
+- Suure kausta kustutamine BitLockeri kettalt on kiirem.

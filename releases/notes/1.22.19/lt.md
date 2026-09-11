@@ -1,0 +1,1 @@
+- Didelio aplanko ištrynimas BitLocker diske vyksta greičiau.

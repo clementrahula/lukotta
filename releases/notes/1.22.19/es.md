@@ -1,0 +1,1 @@
+- Eliminar una carpeta grande en una unidad BitLocker es más rápido.

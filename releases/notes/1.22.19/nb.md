@@ -1,0 +1,1 @@
+- Det går raskere å slette en stor mappe på en BitLocker-disk.

@@ -1,0 +1,1 @@
+- Mas mabilis na ang pagbura ng malaking folder sa BitLocker drive.

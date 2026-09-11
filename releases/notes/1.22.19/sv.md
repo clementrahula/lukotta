@@ -1,0 +1,1 @@
+- Det går snabbare att radera en stor mapp på en BitLocker-enhet.

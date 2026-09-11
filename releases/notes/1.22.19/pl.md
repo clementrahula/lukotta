@@ -1,0 +1,1 @@
+- Usuwanie dużego folderu z dysku BitLocker jest szybsze.

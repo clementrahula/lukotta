@@ -1,0 +1,1 @@
+- Suuren kansion poistaminen BitLocker-asemalta on nopeampaa.

@@ -1,0 +1,1 @@
+- Menghapus folder besar di drive BitLocker kini lebih cepat.

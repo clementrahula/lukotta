@@ -1,0 +1,1 @@
+- Das Löschen eines großen Ordners auf einem BitLocker-Laufwerk geht schneller.

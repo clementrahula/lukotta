@@ -1,0 +1,1 @@
+- Een grote map op een BitLocker-schijf verwijderen gaat sneller.

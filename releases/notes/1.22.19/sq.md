@@ -1,0 +1,1 @@
+- Fshirja e një dosjeje të madhe në një disk BitLocker është më e shpejtë.

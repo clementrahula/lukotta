@@ -1,0 +1,1 @@
+- Liela mapes dzēšana BitLocker diskā notiek ātrāk.
