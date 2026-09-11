@@ -1,0 +1,34 @@
+prover b134230d71ec, 2026-09-11T22:31:07Z
+PASS published: v1.22.20-beta.6 at b48ba72, not a draft, newest in the beta feed
+PASS update: 1.22.20-beta.5 -> 1.22.20-beta.6 in 35 s, signed and notarised
+PASS bitlocker open: 13 s at /Volumes/BACKUP2_TS
+    big  copy     124.7s     8.6 MB/s  osascript 0  4 identical, 0 differing, 0 missing
+    big  finder  progress window: Copy; zero-length seen at once: 3; ._ seen: 0, left: 0
+    tree copy      11.1s     0.7 MB/s  osascript 0  2000 identical, 0 differing, 0 missing
+    tree finder  progress window: Copy; zero-length seen at once: 0; ._ seen: 0, left: 0
+    tree delete     0.76s  osascript 0  gone from its folder
+    0 failures
+PASS bitlocker write: 1024 MB at 8.6 MB/s and 2000 small files in 11.1 s, every byte identical
+PASS bitlocker delete: 2000 small files in 0.76 s
+PASS bitlocker eject: 15 s
+PASS bitlocker reopen: 15 s at /Volumes/BACKUP2_TS
+PASS bitlocker read: 512 MB at 30.0 MB/s, every byte identical
+PASS bitlocker speed: write 8.6 was 8.5 read 30.0 was 30.2 tree 11.1 was 9.0 on 
+PASS bitlocker eject: 6 s
+PASS keys: Lukotta Beta offered the saved key for /dev/disk4s1 on both opens
+PASS ntfs open: 10 s at /Volumes/SANDISK
+    big  copy      15.3s    70.2 MB/s  osascript 0  4 identical, 0 differing, 0 missing
+    big  finder  progress window: Copy; zero-length seen at once: 3; ._ seen: 0, left: 0
+    tree copy       4.6s     1.8 MB/s  osascript 0  2000 identical, 0 differing, 0 missing
+    tree finder  progress window: Copy; zero-length seen at once: 0; ._ seen: 0, left: 0
+    tree delete     0.79s  osascript 0  gone from its folder
+    0 failures
+PASS ntfs write: 1024 MB at 70.2 MB/s and 2000 small files in 4.6 s, every byte identical
+PASS ntfs delete: 2000 small files in 0.79 s
+PASS ntfs eject: 5 s
+PASS ntfs reopen: 10 s at /Volumes/SANDISK
+PASS ntfs read: 512 MB at 105.3 MB/s, every byte identical
+PASS ntfs speed: write 70.2 was 70.6 read 105.3 was 101.3 tree 4.6 was 5.1 on Ultra Fit
+PASS ntfs eject: 11 s
+PASS quit: 1 s
+VERDICT 1.22.20-beta.6: proven
