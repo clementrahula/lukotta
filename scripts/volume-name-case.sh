@@ -22,4 +22,4 @@ shown=""
 "$APP" --drive eject="$DEVICE" >/dev/null 2>&1
 
 echo "label '$want', Finder shows '${shown:-nothing}' at '${point:-nowhere}'"
-[ -n "$want" ] && [ "$shown" = "$want" ]
+[ -n "$want" ] && [ "$shown" = "$want" ] && [ "$point" = "/Volumes/$want" ]

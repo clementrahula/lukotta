@@ -6859,6 +6859,13 @@ group("anNTFSVolumeReachesFinderOverAFP") {
     inputs.hiddenFromFinder = true
     let script = MountScript.build(inputs)
     expect(script.contains(",nobrowse"), "the NFS mount is kept out of Finder")
+    expect(
+        script.contains("ALFS_MOUNT_BASE=") && script.contains(AfpShare.hiddenBase),
+        "the hidden mount leaves /Volumes/<label> to Finder's volume")
+    inputs.hiddenFromFinder = false
+    expect(
+        !MountScript.build(inputs).contains("ALFS_MOUNT_BASE="),
+        "a volume Finder is shown is mounted where the engine always puts it")
     expect(MountScript.shareServe.contains("netatalk -F"), "the guest serves the volume over AFP")
 }
 

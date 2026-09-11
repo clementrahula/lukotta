@@ -73,6 +73,9 @@ public enum AfpShare {
         }
     }
 
+    /// Where the engine puts a mount Finder is not shown, so /Volumes/<label> is left for Finder's.
+    public static let hiddenBase = "/Volumes/.lukotta"
+
     /// Mount a device's AFP share as the user, for Finder; on failure its hidden NFS goes too.
     public static func mountForFinder(device: String, uid: UInt32, gid: UInt32) -> Bool {
         let node = (device as NSString).lastPathComponent + "."

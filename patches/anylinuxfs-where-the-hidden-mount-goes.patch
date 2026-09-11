@@ -1,0 +1,29 @@
+Mount the host side of a volume under ALFS_MOUNT_BASE when it is set.
+
+The export keeps the volume's label, so a second volume can take /Volumes/<label>.
+
+--- a/anylinuxfs/src/cmd_mount.rs	2026-09-11 22:45:52
++++ b/anylinuxfs/src/cmd_mount.rs	2026-09-11 22:45:52
+@@ -1041,12 +1041,16 @@
+             Some(mount_point) => mount_point.into(),
+             None => {
+                 // default mount point will be created
+-                let volume_base_dir = if self.config.common.privilege.sudo_uid.is_some() {
+-                    PathBuf::from("/")
+-                } else {
+-                    self.config.common.paths.home_dir.clone()
+-                }
+-                .join(MOUNT_BASE);
++                // ALFS_MOUNT_BASE moves it without renaming the export, which keeps the volume's label
++                let volume_base_dir = match std::env::var_os("ALFS_MOUNT_BASE") {
++                    Some(base) if !base.is_empty() => PathBuf::from(base),
++                    _ => if self.config.common.privilege.sudo_uid.is_some() {
++                        PathBuf::from("/")
++                    } else {
++                        self.config.common.paths.home_dir.clone()
++                    }
++                    .join(MOUNT_BASE),
++                };
+ 
+                 let mut mount_name = self.share_path.split(|&b| b == b'/').last().unwrap();
+                 if mount_name.is_empty() {

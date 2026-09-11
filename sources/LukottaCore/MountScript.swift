@@ -2711,9 +2711,11 @@ public enum MountScript {
         let typeFlag = driver.map { " -t \($0)" } ?? ""
         let actionFlag = action.map { " -a \($0)" } ?? ""
         let client = hidden ? options + ",nobrowse" : options
+        // Out of /Volumes/<label>, which Finder's own volume takes.
+        let base = hidden ? "ALFS_MOUNT_BASE=\(shellQuoted(AfpShare.hiddenBase)) " : ""
         // --nfs-options must use the joined form. The flag is variadic, and the
         // separated form consumes the target that follows it.
-        return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount\(ownership)"
+        return "\(base)ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount\(ownership)"
             + "\(typeFlag)"
             + "\(mountOptions(driver: driver, readOnly: readOnly, durability: durability))"
             + "\(actionFlag) -w false"
