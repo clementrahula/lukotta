@@ -5617,3 +5617,25 @@ about it. finderparity held, three stable writes ran at 11.5 to 16.1 MB/s with
 no pause, and both kill tests above kept everything. Of the goal rows, goal1
 to goal4 held when it went out. The rest were still running, the LUKS sweep on
 its sixth of seven images, and every row after it had not started.
+
+The rows since, on the same build:
+
+    goal5        held, all seven LUKS images, the XFS one rebuilt that morning
+    goal6        nine of ten formats run, none failed; failed for the tenth,
+                 an exFAT image that was never made
+    goal7        failed on every run, as a harness fault
+    corpus       held
+    guestfresh   held
+    twoatonce    held
+    goal8        held: all twelve opened and byte-identical under memory
+                 pressure, none killed
+
+The exFAT image was to be a clone of the plain one, made with `cp -c`; GNU cp,
+first on the PATH here, has no `-c`, and the clone failed. It was made again
+with `/bin/cp -c` and is swept once more in goal9. goal7 primes the app's
+actions on a clean volume, and with no `sweep/base.img` it fell back to the
+dirty image under test: the app was opened on it through `hdiutil`, the detach
+failed while the machine let go, and the attachment held the file, so every
+reopen said "file already locked". With the harness making its own clean
+volume, the same script passes on this build: the repaired volume takes a
+write and all 41 files are byte-identical.
