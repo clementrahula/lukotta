@@ -104,3 +104,10 @@ As shipped in 1.22.16:
     delete of 10,538 files  4.2 s, nothing skipped (NFS: 14.1 s)
     idle 3 minutes          still mounted; an 8 MiB copy after it 0.3 s, identical
     delete, logged in       2000 files 0.78 s, in place: no Trash on AFP with a login either
+
+## The AFP path on fast storage — 2026-09-11
+
+An NTFS image on the Mac's SSD, opened through the dev app. Its writes land in the Mac's cache.
+
+    1 GiB in 4 files        1.7 s, 631.6 MB/s, identical, Copy window shown
+    100 files, then delete  0.4 s, 0.23 s
