@@ -14,6 +14,8 @@ dist/
 # workflow scans it on a Linux runner that has no vendor tree and no macOS
 # build, so an untracked copy would leave it scanning nothing.
 !/vendor/guest-sbom.json
+# Patches the guest's packages are rebuilt with.
+!/vendor/patches/
 
 # Agent worktrees are checkouts of this repo, not content of it.
 .claude/worktrees/

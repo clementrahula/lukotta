@@ -1,0 +1,267 @@
+diff --git a/etc/afpd/enumerate.c b/etc/afpd/enumerate.c
+index ae9fa5a..ddefb4f 100644
+--- a/etc/afpd/enumerate.c
++++ b/etc/afpd/enumerate.c
+@@ -49,6 +49,42 @@ struct savedir {
+     unsigned int sd_sindex;
+ };
+ #define SDBUFBRK	2048
++#define SDSLOTS		16
++
++/* One listing per folder. Finder lists several folders in turn while it deletes; a single
++ * listing was re-read between one folder's batches, entries shifted and were skipped. */
++static struct savedir *savedir_for(u_short vid, uint32_t did)
++{
++    static struct savedir slots[SDSLOTS];
++    static unsigned int used[SDSLOTS];
++    static unsigned int now;
++    int i, oldest = 0;
++
++    for (i = 0; i < SDSLOTS; i++) {
++        if (slots[i].sd_buf != NULL && slots[i].sd_did == did && slots[i].sd_vid == vid) {
++            used[i] = ++now;
++            return &slots[i];
++        }
++
++        if (used[i] < used[oldest]) {
++            oldest = i;
++        }
++    }
++
++    if (slots[oldest].sd_buf == NULL) {
++        if ((slots[oldest].sd_buf = (char *)malloc(SDBUFBRK)) == NULL) {
++            return NULL;
++        }
++
++        slots[oldest].sd_buflen = SDBUFBRK;
++    }
++
++    slots[oldest].sd_did = 0;
++    slots[oldest].sd_last = slots[oldest].sd_buf;
++    slots[oldest].sd_sindex = 1;
++    used[oldest] = ++now;
++    return &slots[oldest];
++}
+ 
+ static int enumerate_loop(struct dirent *de, char *mname _U_, void *data)
+ {
+@@ -173,7 +209,7 @@ for_each_dirent(const struct vol *vol, char *name, dir_loop fn, void *data)
+ static int enumerate(AFPObj *obj _U_, char *ibuf, size_t ibuflen _U_,
+                      char *rbuf, size_t *rbuflen, int ext)
+ {
+-    static struct savedir	sd = { 0, 0, 0, NULL, NULL, 0 };
++    struct savedir		*sd;
+     struct vol			*vol;
+     struct dir			*dir;
+     int				did, ret, len, first = 1;
+@@ -186,16 +222,6 @@ static int enumerate(AFPObj *obj _U_, char *ibuf, size_t ibuflen _U_,
+     struct path                 s_path;
+     size_t                      header;
+ 
+-    if (sd.sd_buflen == 0) {
+-        if ((sd.sd_buf = (char *)malloc(SDBUFBRK)) == NULL) {
+-            LOG(log_error, logtype_afpd, "afp_enumerate: malloc: %s", strerror(errno));
+-            *rbuflen = 0;
+-            return AFPERR_MISC;
+-        }
+-
+-        sd.sd_buflen = SDBUFBRK;
+-    }
+-
+     ibuf += 2;
+     memcpy(&vid, ibuf, sizeof(vid));
+     ibuf += sizeof(vid);
+@@ -286,17 +312,22 @@ static int enumerate(AFPObj *obj _U_, char *ibuf, size_t ibuflen _U_,
+     data = rbuf + 3 * sizeof(uint16_t);
+     sz = 3 * sizeof(uint16_t);	/* fbitmap, dbitmap, reqcount */
+ 
++    if ((sd = savedir_for(vid, curdir->d_did)) == NULL) {
++        LOG(log_error, logtype_afpd, "afp_enumerate: malloc: %s", strerror(errno));
++        return AFPERR_MISC;
++    }
++
+     /*
+      * Read the directory into a pre-malloced buffer, stored
+      *		len <name> \0
+      * The end is indicated by a len of 0.
+      */
+-    if (sindex == 1 || curdir->d_did != sd.sd_did || vid != sd.sd_vid) {
+-        sd.sd_last = sd.sd_buf;
++    if (sindex == 1 || curdir->d_did != sd->sd_did || vid != sd->sd_vid) {
++        sd->sd_last = sd->sd_buf;
+ 
+         /* if dir was in the cache we don't have the inode */
+         if ((!o_path->st_valid && ostat(".", &o_path->st, vol_syml_opt(vol)) < 0) ||
+-                (ret = for_each_dirent(vol, ".", enumerate_loop, (void *)&sd)) < 0) {
++                (ret = for_each_dirent(vol, ".", enumerate_loop, (void *)sd)) < 0) {
+             LOG(log_error, logtype_afpd, "enumerate: loop error: %s (%d)", strerror(errno),
+                 errno);
+ 
+@@ -316,39 +347,39 @@ static int enumerate(AFPObj *obj _U_, char *ibuf, size_t ibuflen _U_,
+         }
+ 
+         setdiroffcnt(curdir, &o_path->st,  ret);
+-        *sd.sd_last = 0;
+-        sd.sd_last = sd.sd_buf;
+-        sd.sd_sindex = 1;
+-        sd.sd_vid = vid;
+-        sd.sd_did = curdir->d_did;
++        *sd->sd_last = 0;
++        sd->sd_last = sd->sd_buf;
++        sd->sd_sindex = 1;
++        sd->sd_vid = vid;
++        sd->sd_did = curdir->d_did;
+     }
+ 
+     /*
+      * Position sd_last as dictated by sindex.
+      */
+-    if (sindex < sd.sd_sindex) {
+-        sd.sd_sindex = 1;
+-        sd.sd_last = sd.sd_buf;
++    if (sindex < sd->sd_sindex) {
++        sd->sd_sindex = 1;
++        sd->sd_last = sd->sd_buf;
+     }
+ 
+-    while (sd.sd_sindex < sindex) {
+-        if (sd.sd_last == NULL) {
+-            sd.sd_did = 0;
++    while (sd->sd_sindex < sindex) {
++        if (sd->sd_last == NULL) {
++            sd->sd_did = 0;
+             return AFPERR_MISC;
+         }
+ 
+-        len = (unsigned char) * (sd.sd_last)++;
++        len = (unsigned char) * (sd->sd_last)++;
+ 
+         if (len == 0) {
+-            sd.sd_did = 0;	/* invalidate sd struct to force re-read */
++            sd->sd_did = 0;	/* invalidate sd struct to force re-read */
+             return AFPERR_NOOBJ;
+         }
+ 
+-        sd.sd_last += len + 1;
+-        sd.sd_sindex++;
++        sd->sd_last += len + 1;
++        sd->sd_sindex++;
+     }
+ 
+-    while ((len = (unsigned char) * (sd.sd_last)) != 0) {
++    while ((len = (unsigned char) * (sd->sd_last)) != 0) {
+         /*
+          * If we've got all we need, send it.
+          */
+@@ -360,21 +391,21 @@ static int enumerate(AFPObj *obj _U_, char *ibuf, size_t ibuflen _U_,
+          * Save the start position, in case we exceed the buffer
+          * limitation, and have to back up one.
+          */
+-        start = sd.sd_last;
+-        sd.sd_last++;
++        start = sd->sd_last;
++        sd->sd_last++;
+ 
+-        if (*sd.sd_last == 0) {
++        if (*sd->sd_last == 0) {
+             /* stat() already failed on this one */
+-            sd.sd_last += len + 1;
++            sd->sd_last += len + 1;
+             continue;
+         }
+ 
+         memset(&s_path, 0, sizeof(s_path));
+-        s_path.u_name = sd.sd_last;
++        s_path.u_name = sd->sd_last;
+         /* Check cache before stat() to avoid syscalls. Files are cached during
+          * creation (FPGetFileDirParams) and directories during creation
+          * (FPCreateDir -> dir_add). This allows us to skip stat() for cached entries */
+-        struct dir *cached = dircache_search_by_name(vol, curdir, sd.sd_last, len);
++        struct dir *cached = dircache_search_by_name(vol, curdir, sd->sd_last, len);
+ 
+         if (cached) {
+             /* Reconstruct stat from cached fields */
+@@ -401,22 +432,22 @@ static int enumerate(AFPObj *obj _U_, char *ibuf, size_t ibuflen _U_,
+             /* Use cached mac name to skip utompath() charset conversion */
+             s_path.m_name = cfrombstr(cached->d_m_name);
+             LOG(log_maxdebug, logtype_afpd,
+-                "enumerate: cache hit for '%s' (skipped stat)", sd.sd_last);
++                "enumerate: cache hit for '%s' (skipped stat)", sd->sd_last);
+         } else {
+             /* Cache miss - fall back to original stat() behavior */
+             if (of_stat(vol, &s_path) < 0) {
+                 /* The next time it won't try to stat it again
+                  * another solution would be to invalidate the cache with
+-                 * sd.sd_did = 0 but if it's not ENOENT error it will start again
++                 * sd->sd_did = 0 but if it's not ENOENT error it will start again
+                  */
+-                *sd.sd_last = 0;
+-                sd.sd_last += len + 1;
++                *sd->sd_last = 0;
++                sd->sd_last += len + 1;
+                 curdir->d_offcnt--;		/* a little lie */
+                 continue;
+             }
+ 
+             LOG(log_maxdebug, logtype_afpd,
+-                "enumerate: cache miss for '%s' (performed stat)", sd.sd_last);
++                "enumerate: cache miss for '%s' (performed stat)", sd->sd_last);
+             /* Entry will be cached below by dir_add() (dirs) or getfilparams() (files) */
+         }
+ 
+@@ -425,7 +456,7 @@ static int enumerate(AFPObj *obj _U_, char *ibuf, size_t ibuflen _U_,
+         const char *convname;
+ 
+         if (!(vol->v_flags & AFPVOL_NOV2TOEACONV)
+-                && ad_convert(sd.sd_last, &s_path.st, vol, &convname) == 0) {
++                && ad_convert(sd->sd_last, &s_path.st, vol, &convname) == 0) {
+             if (convname) {
+                 /* ad_convert renamed the file (v2→EA migration). If we used
+                  * cached stat data, it has st_dev=0 which breaks CNID ops.
+@@ -438,8 +469,8 @@ static int enumerate(AFPObj *obj _U_, char *ibuf, size_t ibuflen _U_,
+ 
+                 s_path.u_name = (char *)convname;
+                 AFP_CNID_START("cnid_lookup");
+-                s_path.id = cnid_lookup(vol->v_cdb, &s_path.st, curdir->d_did, sd.sd_last,
+-                                        strlen(sd.sd_last));
++                s_path.id = cnid_lookup(vol->v_cdb, &s_path.st, curdir->d_did, sd->sd_last,
++                                        strlen(sd->sd_last));
+                 AFP_CNID_DONE();
+ 
+                 if (s_path.id != CNID_INVALID) {
+@@ -456,7 +487,7 @@ static int enumerate(AFPObj *obj _U_, char *ibuf, size_t ibuflen _U_,
+             }
+         }
+ 
+-        sd.sd_last += len + 1;
++        sd->sd_last += len + 1;
+ 
+         if (!cached) {
+             s_path.m_name = NULL;
+@@ -519,7 +550,7 @@ static int enumerate(AFPObj *obj _U_, char *ibuf, size_t ibuflen _U_,
+                 return AFPERR_PARAM;
+             }
+ 
+-            sd.sd_last = start;
++            sd->sd_last = start;
+             break;
+         }
+ 
+@@ -611,7 +642,7 @@ static int enumerate(AFPObj *obj _U_, char *ibuf, size_t ibuflen _U_,
+     }
+ 
+     if (actcnt == 0) {
+-        sd.sd_did = 0;		/* invalidate sd struct to force re-read */
++        sd->sd_did = 0;		/* invalidate sd struct to force re-read */
+ 
+         /*
+          * in case were converting adouble stuff:
+@@ -626,7 +657,7 @@ static int enumerate(AFPObj *obj _U_, char *ibuf, size_t ibuflen _U_,
+         return AFPERR_NOOBJ;
+     }
+ 
+-    sd.sd_sindex = sindex + actcnt;
++    sd->sd_sindex = sindex + actcnt;
+     /*
+      * All done, fill in misc junk in rbuf
+      */

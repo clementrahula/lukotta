@@ -326,6 +326,14 @@ else
   echo "  no ntfsck vendored; run scripts/build-ntfsck.sh to repair NTFS damage"
 fi
 
+# Alpine's afpd skips files when Finder deletes a folder; scripts/build-afpd.sh builds the fixed one.
+[ -x "$HERE/vendor/engine-built/afpd" ] || {
+  echo "error: no afpd vendored; run scripts/build-afpd.sh" >&2; exit 1; }
+/usr/bin/ditto "$HERE/vendor/engine-built/afpd" "$STAGE/usr/sbin/afpd"
+chmod 0755 "$STAGE/usr/sbin/afpd"
+/usr/bin/xattr -w user.containers.override_stat 0:0:0100755 "$STAGE/usr/sbin/afpd"
+echo "  afpd with $(paste -sd' ' "$HERE/vendor/engine-built/afpd.patches") added to the guest"
+
 # What is actually in this guest, as eight hex characters appended to the
 # upstream version.
 #
@@ -391,7 +399,7 @@ done
 # was missing or unreadable, and each then fails somewhere else entirely.
 for tool in bin/lsblk sbin/cryptsetup bin/mount sbin/blkid bin/busybox \
             sbin/mount.ntfs-3g sbin/rpc.nfsd sbin/exportfs sbin/rpc.mountd \
-            usr/sbin/ntfsck; do
+            usr/sbin/ntfsck usr/sbin/afpd; do
   [ -e "$CHECK/rootfs/$tool" ] || continue   # not every image carries every one
   [ -x "$CHECK/rootfs/$tool" ] || fault="$fault $tool-not-executable"
 done
