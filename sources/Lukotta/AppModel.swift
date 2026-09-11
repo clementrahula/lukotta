@@ -1884,17 +1884,15 @@ final class AppModel: ObservableObject {
     /// Keeping the answer means the second time a drive is seen the fingerprint
     /// is known before anything is read, and the name does not change under the
     /// screen.
-    static func cachedFingerprints() -> [String: String] {
-        UserDefaults.standard.dictionary(forKey: AppModel.fingerprintCacheKey) as? [String: String]
-            ?? [:]
-    }
+    static func cachedFingerprints() -> [String: String] { SharedMemory.read().fingerprints }
 
-    /// Filed under both names macOS offers, because either may be the only one
-    /// available next time.
+    /// Filed under both names macOS offers, in the file every Lukotta app shares.
     func rememberFingerprint(_ print: String, of drive: Drive) {
-        var cache = AppModel.cachedFingerprints()
-        for name in [drive.uuid, drive.id] where !name.isEmpty { cache[name] = print }
-        UserDefaults.standard.set(cache, forKey: AppModel.fingerprintCacheKey)
+        SharedMemory.change { contents in
+            for name in [drive.uuid, drive.id] where !name.isEmpty {
+                contents.fingerprints[name] = print
+            }
+        }
     }
 
     /// The passphrase saved for this drive, under whatever it was saved as.

@@ -414,9 +414,7 @@
                 fingerprint = VolumeIdentity.fingerprint(
                     sector, format: BootSector.identify(sector))
             }
-            let cache =
-                UserDefaults.standard.dictionary(forKey: AppModel.fingerprintCacheKey)
-                as? [String: String] ?? [:]
+            let cache = SharedMemory.read().fingerprints
             let names = VolumeIdentity.names(
                 fingerprint: fingerprint, uuid: drive.uuid, id: drive.id, cache: cache)
             for name in names {

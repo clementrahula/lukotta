@@ -157,7 +157,6 @@ enum Uninstall {
                 }
                 if let caches { try? FileManager.default.removeItem(at: caches) }
                 UserDefaults.standard.removePersistentDomain(forName: bundleIdentifier)
-                DriveMemory.forgetEverything()
                 OpenedHere.forgetEverything()
             }
             // The scratch directories, the empty mount points, everything.

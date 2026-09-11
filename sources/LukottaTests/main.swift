@@ -3,6 +3,11 @@
 
 import Foundation
 import LukottaCore
+import Security
+
+// Nothing a test remembers reaches the file the owner's apps share.
+SharedMemory.fileOverride = FileManager.default.temporaryDirectory
+    .appendingPathComponent("lukotta-tests-memory-\(UUID().uuidString).json")
 
 // A plain executable rather than XCTest or swift-testing. Neither ships with
 // the Command Line Tools, and requiring a full Xcode install to run the tests
@@ -2188,6 +2193,64 @@ group("aSavedPasswordIsNeverTakenByTheApp") {
     expect(
         !(save.components(separatedBy: "\n    }").first ?? "").contains("delete("),
         "saving overwrites and never deletes first")
+}
+
+group("aSavedKeyIsAlwaysFound") {
+    let account = "always-found-\(UUID().uuidString)"
+    expect(CredentialStore.save("first", for: account), "a key saves")
+    expect(CredentialStore.load(for: account) == "first", "and is found")
+    expect(CredentialStore.save("second", for: account), "saving again overwrites")
+    expect(CredentialStore.load(for: account) == "second", "and the new one is found")
+
+    let older = "always-found-older-\(UUID().uuidString)"
+    let filed: [String: Any] = [
+        kSecClass as String: kSecClassGenericPassword,
+        kSecAttrService as String: CredentialStore.earlier[0],
+        kSecAttrAccount as String: older,
+        kSecValueData as String: Data("kept".utf8),
+    ]
+    expect(
+        SecItemAdd(filed as CFDictionary, nil) == errSecSuccess, "an earlier build's key is filed")
+    expect(CredentialStore.load(for: older) == "kept", "an earlier build's key is found")
+    expect(
+        CredentialStore.read(service: CredentialStore.store, account: older) == "kept",
+        "and copied into the store")
+    expect(
+        CredentialStore.read(service: CredentialStore.earlier[0], account: older) == "kept",
+        "and left where it was")
+    expect(
+        CredentialStore.allSaved().contains { $0.name == older && $0.credential == "kept" },
+        "and offered among every saved key")
+    expect(CredentialStore.store.hasSuffix(".keys"), "one store name for every version")
+
+    CredentialStore.delete(for: account)
+    CredentialStore.delete(for: older)
+    expect(CredentialStore.load(for: older) == nil, "Forget removes it from every place")
+}
+
+group("aDriveIsRememberedByEveryApp") {
+    let before = SharedMemory.fileOverride
+    let file = FileManager.default.temporaryDirectory
+        .appendingPathComponent("shared-memory-\(UUID().uuidString).json")
+    SharedMemory.fileOverride = file
+    defer {
+        SharedMemory.fileOverride = before
+        try? FileManager.default.removeItem(at: file)
+    }
+    let drive = "remembered-\(UUID().uuidString)"
+    DriveMemory.remember(mountPoint: "/Volumes/Stick", for: drive)
+    expect(SharedMemory.read().names[drive] == "Stick", "the name is in the one shared file")
+    UserDefaults.standard.removeObject(forKey: "knownVolumeNames")
+    expect(DriveMemory.knownName(for: drive) == "Stick", "a wiped setting forgets nothing")
+    MountMemory.remember(.init(uuid: drive, readOnly: false, name: "Stick"))
+    UserDefaults.standard.removeObject(forKey: "restorableMounts")
+    let comesBack = MountMemory.all().contains { $0.uuid == drive }
+    expect(comesBack, "a drive set to come back still comes back")
+    SharedMemory.change { $0.fingerprints[drive] = "fp" }
+    expect(SharedMemory.read().fingerprints[drive] == "fp", "the drive's fingerprint is kept")
+    expect(
+        SharedMemory.defaultFile.path.hasSuffix("Application Support/Lukotta/memory.json"),
+        "one file for every version")
 }
 
 group("aRefusedPermissionSaysWhichOneAndOffersTheWayToIt") {

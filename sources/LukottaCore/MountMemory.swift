@@ -43,40 +43,34 @@ public enum MountMemory {
         }
     }
 
-    private static let key = "restorableMounts"
+    /// Where each app kept its list before the shared file; carried over, then cleared on change.
+    static let key = "restorableMounts"
 
-    /// Where this is stored. The suite is the running bundle's own, so an
-    /// unbranded build and a branded one do not read each other's list.
-    private static var defaults: UserDefaults { .standard }
+    /// This app's own list, kept in the file every Lukotta app shares.
+    public static func all() -> [Entry] { SharedMemory.restorableHere }
 
-    public static func all() -> [Entry] {
-        guard let data = defaults.data(forKey: key),
-            let entries = try? JSONDecoder().decode([Entry].self, from: data)
-        else { return [] }
-        return entries
-    }
-
-    /// Record that this is open, replacing any earlier record of the same
-    /// volume.
+    /// Record that this is open, replacing any earlier record of the same volume.
     public static func remember(_ entry: Entry) {
-        var entries = all().filter { $0.uuid != entry.uuid }
-        entries.append(entry)
-        save(entries)
+        SharedMemory.change { contents in
+            let mine = contents.restorable[SharedMemory.app] ?? []
+            contents.restorable[SharedMemory.app] = mine.filter { $0.uuid != entry.uuid } + [entry]
+        }
+        UserDefaults.standard.removeObject(forKey: key)
     }
 
-    /// Forget one volume, which is what ejecting means.
+    /// Ejecting means it is not opened again at login; the drive itself stays remembered.
     public static func forget(uuid: String) {
-        save(all().filter { $0.uuid != uuid })
+        SharedMemory.change { contents in
+            let mine = contents.restorable[SharedMemory.app] ?? []
+            contents.restorable[SharedMemory.app] = mine.filter { $0.uuid != uuid }
+        }
+        UserDefaults.standard.removeObject(forKey: key)
     }
 
-    /// Forget everything, for uninstalling and for turning the setting off.
+    /// Turning the setting off: nothing of this app's is opened again.
     public static func forgetAll() {
-        defaults.removeObject(forKey: key)
-    }
-
-    private static func save(_ entries: [Entry]) {
-        guard let data = try? JSONEncoder().encode(entries) else { return }
-        defaults.set(data, forKey: key)
+        SharedMemory.change { $0.restorable[SharedMemory.app] = [] }
+        UserDefaults.standard.removeObject(forKey: key)
     }
 }
 

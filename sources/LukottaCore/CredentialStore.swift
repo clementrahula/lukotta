@@ -14,12 +14,12 @@ public enum CredentialStore {
     static let identifier = Bundle.main.bundleIdentifier ?? "com.example.driveunlocker"
 
     /// Written by every Lukotta app, readable by any app without a prompt. Never renamed.
-    static let store: String = {
+    public static let store: String = {
         identifier.hasPrefix(lukotta) ? "\(lukotta).keys" : "\(identifier).keys"
     }()
 
     /// Where keys were kept before: read, copied into the store, never written or removed.
-    static let earlier: [String] = {
+    public static let earlier: [String] = {
         guard identifier.hasPrefix(lukotta) else { return ["\(identifier).drive-credential"] }
         return [lukotta, "\(lukotta).beta", "\(lukotta).dev", "\(lukotta).v2"]
             .map { "\($0).drive-credential" }
@@ -90,7 +90,7 @@ public enum CredentialStore {
         return nil
     }
 
-    static func read(service place: String, account: String) -> String? {
+    public static func read(service place: String, account: String) -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: place,
@@ -154,22 +154,19 @@ public enum CredentialStore {
 
     static func entries(withData: Bool) -> [(account: String, credential: String?)] {
         everywhere.flatMap { place -> [(account: String, credential: String?)] in
-            var query: [String: Any] = [
+            // Attributes for all at once, data one at a time: the Keychain refuses data for many.
+            let query: [String: Any] = [
                 kSecClass as String: kSecClassGenericPassword,
                 kSecAttrService as String: place,
                 kSecReturnAttributes as String: true,
                 kSecMatchLimit as String: kSecMatchLimitAll,
             ]
-            if withData { query[kSecReturnData as String] = true }
             var items: CFTypeRef?
             let found = quietly { SecItemCopyMatching(query as CFDictionary, &items) }
             guard found == errSecSuccess, let list = items as? [[String: Any]] else { return [] }
             return list.compactMap { entry in
                 guard let account = entry[kSecAttrAccount as String] as? String else { return nil }
-                let credential = (entry[kSecValueData as String] as? Data).flatMap {
-                    String(data: $0, encoding: .utf8)
-                }
-                return (account, credential)
+                return (account, withData ? read(service: place, account: account) : nil)
             }
         }
     }

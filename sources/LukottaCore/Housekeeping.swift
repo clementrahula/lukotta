@@ -39,12 +39,11 @@ public enum Housekeeping {
         public var mountPoints = 0
         public var engineLogs = 0
         public var rememberedFiles = 0
-        public var rememberedNames = 0
         public var arrangedRows = 0
 
         public var isEmpty: Bool {
             workspaces == 0 && mountPoints == 0 && engineLogs == 0 && rememberedFiles == 0
-                && rememberedNames == 0 && arrangedRows == 0
+                && arrangedRows == 0
         }
     }
 
@@ -109,13 +108,12 @@ public enum Housekeeping {
         // Mount points this app made that are not mounted any more: ejected in
         // Finder, or gone with a restart.
         _ = OpenedHere.forgetWhatIsGone(mountTable: mountTable)
-        let (files, names, rows) = forgetWhatIsGone(attached: attached)
+        let (files, rows) = forgetWhatIsGone(attached: attached)
         result.rememberedFiles = files
-        result.rememberedNames = names
         result.arrangedRows = rows
         if !result.isEmpty {
             Log.app.notice(
-                "swept \(result.workspaces, privacy: .public) workspaces, \(result.mountPoints, privacy: .public) mount points, \(result.engineLogs, privacy: .public) engine logs, \(result.rememberedFiles + result.rememberedNames + result.arrangedRows, privacy: .public) remembered things"
+                "swept \(result.workspaces, privacy: .public) workspaces, \(result.mountPoints, privacy: .public) mount points, \(result.engineLogs, privacy: .public) engine logs, \(result.rememberedFiles + result.arrangedRows, privacy: .public) remembered things"
             )
         }
         return result
@@ -325,7 +323,7 @@ public enum Housekeeping {
     /// name each image's volume turned out to have, and the order somebody
     /// arranged. A file that has been deleted or moved is remembered for ever,
     /// which is both litter and a record of what somebody once opened.
-    public static func forgetWhatIsGone(attached: Set<String>? = nil) -> (Int, Int, Int) {
+    public static func forgetWhatIsGone(attached: Set<String>? = nil) -> (Int, Int) {
         let manager = FileManager.default
 
         // What is attached, or no answer at all.
@@ -366,9 +364,6 @@ public enum Housekeeping {
             }
         }
 
-        // The name a volume had: kept for files that are still there.
-        let names = DriveMemory.forgetMissingFiles()
-
         // The arrangement: a row whose file has gone keeps its place, because
         // somebody put it there and the file may come back. One whose file has
         // been deleted cannot.
@@ -383,6 +378,6 @@ public enum Housekeeping {
         }
         if rows > 0 { ListOrderMemory.write(kept) }
 
-        return (files, names, rows)
+        return (files, rows)
     }
 }
