@@ -1,0 +1,5 @@
+prover b134230d71ec, 2026-09-11T17:26:54Z
+PASS published: v1.22.20-beta.1 at 7e7bd76, not a draft, newest in the beta feed
+PASS update: 1.22.14-beta.3 -> 1.22.20-beta.1 in 25 s, signed and notarised
+FAIL bitlocker open: Lukotta Beta lists no drive at /dev/disk4s1
+VERDICT 1.22.20-beta.1: not proven

@@ -96,6 +96,7 @@ running_app() {
 open_drive() {  # kind, device, step
   local t0 mp; t0=$(now)
   running_app || fail "$3: $PROC did not open a window"
+  "$WORK/ax-press" "$BUNDLE" title "All Drives" 2 >/dev/null 2>&1
   [ "$(press_id "drive $2" 30)" = pressed ] || fail "$3: $PROC lists no drive at $2"
   if [ "$1" = bitlocker ]; then
     [ "$(shows "Unlock uses it directly" 15)" = shown ] \
