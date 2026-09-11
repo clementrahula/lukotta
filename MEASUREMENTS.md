@@ -5490,9 +5490,12 @@ Each operation alone, from Python on the same drive:
     create an empty file                    205 us
 
 Finder spends about 1.48 ms a file, of which the drive and the server answer
-for at most 0.35 ms. The other 1.1 ms is Finder's own work for each item. A
-million files take about 25 minutes at that rate, and still about 18 with
-every round trip free.
+for at most 0.35 ms. It is not Finder's own pace: on a native APFS disk image
+whose Trash was blocked, so that Finder had to delete in place, it removed
+2,000 files in 283 ms, 0.14 ms a file, with nothing reaching any Trash. So
+about 1 ms a file on this volume is spent neither on the wire nor in the work
+Finder does on a native drive. A million files take about 25 minutes at this
+volume's rate and about 2.4 at the native one.
 
 So the one route to a delete as fast as a native drive's is a Trash. Every
 layer macOS offers refused one for this volume:
