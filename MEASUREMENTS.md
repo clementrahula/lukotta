@@ -5578,6 +5578,12 @@ Writes of 128 KiB stalled as 1 MiB ones did, three times in one run.
 BitLocker was the one format writing unstably, since every volume without an
 ext journal already wrote stably, and it now writes stably too.
 
+What that costs where the drive is fast: 1 GiB onto an NTFS image on the
+Mac's own SSD, through a second mount of its export, took 1.0 s unstably and
+10.3 s stably, 104.6 MB/s. A stable write waits for its own flush, one
+megabyte at a time, so a fast drive is held near a hundred megabytes a
+second: ten times what the stick takes, and short of what a fast SSD could.
+
 And where a Finder delete's time goes, once more: with nothing sampling, a
 native APFS image deleted 5,000 files in place in 358 ms. On the stick, 3,000
 files took 5.59 s, and the process whose processor time rose by 1.85 s was the
