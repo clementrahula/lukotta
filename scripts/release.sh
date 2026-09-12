@@ -442,6 +442,43 @@ fi
 rm -f "$SMOKE_LOG"
 printf '    starts, and loads every library it needs\n'
 
+# And launched, because --smoke-test exits on purpose and says nothing about the
+# app somebody double-clicks. A build shipped on 2026-09-12 passed it and quit
+# on launch; nobody had run it.
+LAUNCH_WINDOWS="$(mktemp -d)"
+cat > "$LAUNCH_WINDOWS/w.swift" <<'SWIFTEOF'
+import CoreGraphics
+let me = CommandLine.arguments[1]
+let all = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]] ?? []
+print(all.filter { ($0[kCGWindowOwnerName as String] as? String) == me
+    && ($0[kCGWindowLayer as String] as? Int) == 0 }.count)
+SWIFTEOF
+swiftc -O -o "$LAUNCH_WINDOWS/w" "$LAUNCH_WINDOWS/w.swift" 2>/dev/null \
+  || { echo "error: the window counter would not build" >&2; exit 1; }
+pkill -x "$APP_NAME" 2>/dev/null || true
+sleep 1
+open -a "$APP" || { echo "error: the built app would not launch" >&2; exit 1; }
+__up=0; __win=0
+for _ in $(seq 1 30); do
+  pgrep -x "$APP_NAME" >/dev/null 2>&1 && __up=1 || __up=0
+  [ "$__up" = 1 ] && [ "$("$LAUNCH_WINDOWS/w" "$APP_NAME")" -gt 0 ] && { __win=1; break; }
+  sleep 1
+done
+if [ "$__up" != 1 ]; then
+  echo "error: the built app quit instead of staying up" >&2
+  rm -rf "$LAUNCH_WINDOWS"; exit 1
+fi
+if [ "$__win" != 1 ]; then
+  echo "error: the built app is running with no window on screen" >&2
+  pkill -x "$APP_NAME" 2>/dev/null || true
+  rm -rf "$LAUNCH_WINDOWS"; exit 1
+fi
+osascript -e "tell application \"$APP_NAME\" to quit" >/dev/null 2>&1 || true
+for _ in $(seq 1 15); do pgrep -x "$APP_NAME" >/dev/null 2>&1 || break; sleep 1; done
+pkill -x "$APP_NAME" 2>/dev/null || true
+rm -rf "$LAUNCH_WINDOWS"
+printf '    launches, shows a window, and quits\n'
+
 printf '==> Archiving\n'
 rm -f "$ZIP"
 # ditto, not zip: zip(1) does not preserve the signature.
