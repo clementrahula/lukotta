@@ -27,9 +27,15 @@ import os, sys, unicodedata
 point = sys.argv[1]
 folder = os.path.join(point, "decomposed-probe")
 name = unicodedata.normalize("NFD", "jõel-Ноты.pdf")
-os.makedirs(folder, exist_ok=True)
-with open(os.path.join(folder, name), "wb") as fh:
+# Written underneath, where the name is stored as it is given. Writing it
+# through the share would be no test at all: the server composes on the way
+# in, so the volume would hold the composed name and the case never arises.
+hidden = os.path.join("/Volumes/.lukotta", os.path.basename(point), "decomposed-probe")
+os.makedirs(hidden, exist_ok=True)
+with open(os.path.join(hidden, name), "wb") as fh:
     fh.write(b"x" * 32)
+if not os.path.isdir(folder):
+    print("the folder written underneath is not in the share"); raise SystemExit(1)
 listed = os.listdir(folder)
 if not listed:
     print("the file was not listed at all"); raise SystemExit(1)
