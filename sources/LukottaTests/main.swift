@@ -452,15 +452,8 @@ group("theElevatedMountScript") {
         MountScript.mountOptions(driver: "ntfs-3g", readOnly: true) == " -o big_writes,ro",
         "ntfs-3g read-only joins big_writes and ro into one -o")
     expect(
-        MountScript.mountOptions(driver: "ntfs-3g", readOnly: false)
-            == " -o big_writes,fmask=0,dmask=0",
-        "ntfs-3g read-write carries big_writes and the masks")
-    // The masks are what lets the server write inside a folder: one arrives 0755
-    // owned by whoever opened the drive, and creating or removing anything in it
-    // was refused for every name, composed or not.
-    expect(
-        MountScript.mountOptions(driver: "ntfs3", readOnly: false) == " -o fmask=0,dmask=0",
-        "ntfs3 read-write carries the masks")
+        MountScript.mountOptions(driver: "ntfs-3g", readOnly: false) == " -o big_writes",
+        "ntfs-3g read-write carries big_writes alone")
     // ntfs3 is given no driver options. dirsync was tried and changed nothing:
     // the fsynced file was still absent after the machine was killed. fmask and
     // dmask were tried for a folder Windows marked read-only that Finder would
