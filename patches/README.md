@@ -1,6 +1,6 @@
 # Patches
 
-<!-- covers: patches/** -->
+<!-- covers: patches/** checked: 2026-09-12 -->
 
 Modifications to the engine that Lukotta carries. `scripts/build-engine.sh`
 fetches every source pinned in `vendor/engine.lock`, verifies it against the

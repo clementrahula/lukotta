@@ -1,6 +1,6 @@
 # Measurements
 
-<!-- covers: scripts/** checked: 2026-09-11 -->
+<!-- covers: none -->
 
 Finder's own copy and delete only.
 
