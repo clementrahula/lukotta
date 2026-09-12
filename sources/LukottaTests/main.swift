@@ -6295,6 +6295,12 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
         MountScript.checkAndRepair.contains("left behind by a copy:"),
         "and the gate reads that line too, or the walk is talking to nobody")
 
+    // ntfsck makes lost+found whether or not it salvages anything into it, and
+    // a Linux folder on an NTFS volume is litter. rmdir takes it only empty.
+    expect(
+        MountScript.checkAndRepair.contains("rmdir /tmp/lukotta-checked/lost+found"),
+        "an empty lost+found is taken off the volume the check mounted")
+
     // Said once, not for ever.
     //
     // The walk reported the temporary and left it on the volume, so the next

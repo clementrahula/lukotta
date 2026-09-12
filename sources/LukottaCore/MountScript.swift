@@ -1949,6 +1949,11 @@ public enum MountScript {
             # transcript is the cheaper of the two.
             if mount -t ntfs3 "$dev" /tmp/lukotta-checked 2>/dev/null; then
               cp /tmp/lukotta-ntfsck.out /tmp/lukotta-checked/.lukotta-check.log 2>/dev/null
+              # ntfsck makes lost+found whether or not it puts anything there,
+              # and a Linux folder on an NTFS volume is litter somebody else has
+              # to look at. rmdir takes it only while it is empty, so anything
+              # salvaged into it stays.
+              rmdir /tmp/lukotta-checked/lost+found 2>/dev/null || true
               umount /tmp/lukotta-checked 2>/dev/null || true
             fi
             # Not with -o force either: a volume that will not mount is a
