@@ -137,12 +137,21 @@ prove_drive() {  # kind, device
   fi
   eject_drive "$kind" "$dev" "$mp"
   open_drive "$kind" "$dev" "$kind reopen"; mp="$OPENED"
-  local t0; t0=$(date +%s.%N)
-  out="$(finder copy "$mp/prove-read" "$WORK/back")" || fail "$kind read: Finder's copy failed: $out"
-  secs=$(awk -v a="$t0" -v b="$(date +%s.%N)" 'BEGIN {printf "%.1f", b - a}')
-  for i in 1 2 3 4; do cmp -s "$WORK/read/r-$i.bin" "$WORK/back/r-$i.bin" || fail "$kind read: r-$i.bin differs"; done
-  rate=$(awk -v s="$secs" 'BEGIN {printf "%.1f", 536.870912 / s}')
-  pass "$kind read: 512 MB at $rate MB/s, every byte identical"
+  # Three passes, and the middle one is the answer. One Finder copy of 512 MB off a
+  # stick varies by half again between runs -- 167.8 and 111.8 MB/s minutes apart on
+  # the same drive -- so a single sample against a quarter-slower threshold fails on
+  # noise and calls a working beta a regression.
+  local rates=() t0
+  for _ in 1 2 3; do
+    rm -rf "$WORK/back/"*
+    t0=$(date +%s.%N)
+    out="$(finder copy "$mp/prove-read" "$WORK/back")" || fail "$kind read: Finder's copy failed: $out"
+    secs=$(awk -v a="$t0" -v b="$(date +%s.%N)" 'BEGIN {printf "%.1f", b - a}')
+    for i in 1 2 3 4; do cmp -s "$WORK/read/r-$i.bin" "$WORK/back/r-$i.bin" || fail "$kind read: r-$i.bin differs"; done
+    rates+=("$(awk -v s="$secs" 'BEGIN {printf "%.1f", 536.870912 / s}')")
+  done
+  rate=$(printf '%s\n' "${rates[@]}" | sort -n | sed -n 2p)
+  pass "$kind read: 512 MB at $rate MB/s, every byte identical (passes: ${rates[*]})"
   finder delete "$mp/prove-read" >/dev/null || rm -rf "$mp/prove-read"
   rm -rf "$mp/.Trashes/$(id -u)/prove-read"* "$WORK/back/"*
 
