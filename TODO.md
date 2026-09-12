@@ -281,6 +281,18 @@ nothing had ever opened one.
   step in build-engine.sh, since that program comes prebuilt from the bottle
   today. Go 1.27 is already on this machine.
 
+## What 1.22.20 leaves open
+
+- [ ] **A dev build will not quit.** Every graceful route is declined at once — an
+  Apple event answers "User cancelled" (-128), Command-Q does nothing, and its own
+  menu's Quit does nothing — with no question on screen and the app still running;
+  SIGTERM ends it. The same code in 1.22.20-beta.10 quits in a second and names the
+  drive, so nothing shipped is affected, and `quitnames` checks the beta. Measured
+  2026-09-12 over eight runs, with and without a drive open, panel open and closed,
+  45 s after launch. The only silent cancel in `applicationShouldTerminate` is the
+  "already asking" guard, which cannot be true on a fresh launch; that contradiction
+  is where the next look starts.
+
 ## What 1.22.18 leaves open
 
 - [ ] Finder shows an NTFS volume's name in lower case: netatalk's config reader lowercases it.
