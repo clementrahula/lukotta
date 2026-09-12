@@ -1,0 +1,33 @@
+prover 8ede15b4e8c1, 2026-09-12T03:42:33Z
+PASS both drives start closed
+PASS published: v1.22.20-beta.11 at 1297cb0, not a draft, newest in the beta feed
+PASS update: 1.22.20-beta.10 -> 1.22.20-beta.11 in 34 s, signed and notarised
+PASS bitlocker open: 12 s at /Volumes/BACKUP2_TS
+    big  copy     133.3s     8.1 MB/s  osascript 0  4 identical, 0 differing, 0 missing
+    big  finder  progress window: Copy; zero-length seen at once: 3; ._ seen: 0, left: 0
+    tree copy       7.9s     1.0 MB/s  osascript 0  2000 identical, 0 differing, 0 missing
+    tree finder  progress window: Copy; zero-length seen at once: 0; ._ seen: 0, left: 0
+    tree delete     1.14s  osascript 0  gone from its folder
+    0 failures
+PASS bitlocker write: 1024 MB at 8.1 MB/s and 2000 small files in 7.9 s, every byte identical
+PASS bitlocker delete: 2000 small files in 1.14 s
+PASS bitlocker eject: 8 s
+PASS bitlocker reopen: 14 s at /Volumes/BACKUP2_TS
+PASS bitlocker read: 512 MB at 38.9 MB/s, every byte identical (passes: 30.3 38.9 42.9)
+PASS bitlocker speed: write 8.1 was 8.7 read 38.9 was 38.3 tree 7.9 was 9.1 on 
+PASS bitlocker eject: 4 s
+PASS keys: Lukotta Beta offered the saved key for /dev/disk4s1 on both opens
+PASS ntfs open: 10 s at /Volumes/SANDISK
+    big  copy      16.5s    65.1 MB/s  osascript 0  4 identical, 0 differing, 0 missing
+    big  finder  progress window: Copy; zero-length seen at once: 3; ._ seen: 0, left: 0
+    tree copy       4.3s     1.9 MB/s  osascript 0  2000 identical, 0 differing, 0 missing
+    tree finder  progress window: Copy; zero-length seen at once: 0; ._ seen: 0, left: 0
+    tree delete     1.22s  osascript 0  gone from its folder
+    0 failures
+PASS ntfs write: 1024 MB at 65.1 MB/s and 2000 small files in 4.3 s, every byte identical
+PASS ntfs delete: 2000 small files in 1.22 s
+PASS ntfs eject: 5 s
+PASS ntfs reopen: 9 s at /Volumes/SANDISK
+PASS ntfs read: 512 MB at 71.6 MB/s, every byte identical (passes: 105.3 70.6 71.6)
+FAIL ntfs speed: write 65.1 was 73.5 read 71.6 was 105.3 tree 4.3 was 4.8 on Ultra Fit
+VERDICT 1.22.20-beta.11: not proven
