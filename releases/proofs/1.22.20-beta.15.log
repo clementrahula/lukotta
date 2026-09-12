@@ -1,0 +1,35 @@
+prover 0652d1e77be6, 2026-09-12T12:50:15Z
+PASS both drives start closed
+PASS published: v1.22.20-beta.15 at a916c96, not a draft, newest in the beta feed
+PASS update: 1.22.20-beta.14 -> 1.22.20-beta.15 in 26 s, signed and notarised
+PASS bitlocker open: 12 s at /Volumes/BACKUP2_TS
+    big  copy     116.9s     9.2 MB/s  osascript 0  4 identical, 0 differing, 0 missing
+    big  finder  progress window: Copy,Downloads; zero-length seen at once: 3; ._ seen: 0, left: 0
+    tree copy       8.8s     0.9 MB/s  osascript 0  2000 identical, 0 differing, 0 missing
+    tree finder  progress window: Copy,Downloads; zero-length seen at once: 0; ._ seen: 0, left: 0
+    tree delete     1.15s  osascript 0  gone from its folder
+    0 failures
+PASS bitlocker write: 1024 MB at 9.2 MB/s and 2000 small files in 8.8 s, every byte identical
+PASS bitlocker delete: 2000 small files in 1.15 s
+PASS bitlocker eject: 11 s
+PASS bitlocker reopen: 18 s at /Volumes/BACKUP2_TS
+PASS bitlocker read: 512 MB at 41.0 MB/s, every byte identical (passes: 37.3 38.6 41.0)
+PASS bitlocker speed: write 9.2 was 8.1 read 41.0 was 39.2 tree 8.8 was 9.2 on 
+PASS bitlocker eject: 4 s
+PASS keys: Lukotta Beta offered the saved key for /dev/disk4s1 on both opens
+PASS ntfs open: 9 s at /Volumes/SANDISK
+    big  copy      15.9s    67.5 MB/s  osascript 0  4 identical, 0 differing, 0 missing
+    big  finder  progress window: Copy; zero-length seen at once: 3; ._ seen: 0, left: 0
+    tree copy       4.8s     1.7 MB/s  osascript 0  2000 identical, 0 differing, 0 missing
+    tree finder  progress window: Copy; zero-length seen at once: 0; ._ seen: 0, left: 0
+    tree delete     0.83s  osascript 0  gone from its folder
+    0 failures
+PASS ntfs write: 1024 MB at 67.5 MB/s and 2000 small files in 4.8 s, every byte identical
+PASS ntfs delete: 2000 small files in 0.83 s
+PASS ntfs eject: 5 s
+PASS ntfs reopen: 9 s at /Volumes/SANDISK
+PASS ntfs read: 512 MB at 103.2 MB/s, every byte identical (passes: 103.2 72.6 71.6)
+PASS ntfs speed: write 67.5 was 66.7 read 103.2 was 101.3 tree 4.8 was 4.3 on Ultra Fit
+PASS ntfs eject: 5 s
+PASS quit: 0 s
+VERDICT 1.22.20-beta.15: proven
