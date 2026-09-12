@@ -453,15 +453,14 @@ group("theElevatedMountScript") {
         "ntfs-3g read-only joins big_writes and ro into one -o")
     expect(
         MountScript.mountOptions(driver: "ntfs-3g", readOnly: false)
-            == " -o big_writes,umask=0",
-        "ntfs-3g read-write carries big_writes and the umask")
-    // The umask is what lets the share delete inside a folder. An entry made
-    // through the mount takes 0777 less the umask, so a folder arrived 0755 and
-    // the guest session -- owner of nothing -- fell to the other bits and was
-    // refused. Measured: unlink in a 0755 parent is EACCES, in a 0777 parent ok.
+            == " -o big_writes,fmask=0,dmask=0",
+        "ntfs-3g read-write carries big_writes and the masks")
+    // The masks are what lets the server write inside a folder: one arrives 0755
+    // owned by whoever opened the drive, and creating or removing anything in it
+    // was refused for every name, composed or not.
     expect(
-        MountScript.mountOptions(driver: "ntfs3", readOnly: false) == " -o umask=0",
-        "ntfs3 read-write carries the umask")
+        MountScript.mountOptions(driver: "ntfs3", readOnly: false) == " -o fmask=0,dmask=0",
+        "ntfs3 read-write carries the masks")
     // ntfs3 is given no driver options. dirsync was tried and changed nothing:
     // the fsynced file was still absent after the machine was killed. fmask and
     // dmask were tried for a folder Windows marked read-only that Finder would

@@ -2651,7 +2651,7 @@ public enum MountScript {
         // refused, measured as EACCES on a composed and a decomposed name alike.
         // The volume root is 0777, which is why this only showed up a level down.
         // A read-only mount still carries `ro`, which is what refuses writes.
-        let masks = readOnly ? [] : ["umask=0"]
+        let masks = readOnly ? [] : ["fmask=0", "dmask=0"]
         guard driver == "ntfs-3g" else { return driver == "ntfs3" ? masks : [] }
         return ["big_writes"] + masks
     }
