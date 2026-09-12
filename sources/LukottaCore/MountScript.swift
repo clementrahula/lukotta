@@ -2135,7 +2135,7 @@ public enum MountScript {
         cat > /tmp/afp.conf <<EOF
         [Global]
           uam list = uams_guest.so
-          guest account = nobody
+          guest account = root
           log file = /tmp/afpd.log
           log level = default:warn
           zeroconf = no
