@@ -1,0 +1,20 @@
+prover 9005f6a07f01, 2026-09-12T01:07:27Z
+PASS published: v1.22.20-beta.9 at 008c4ed, not a draft, newest in the beta feed
+PASS update: 1.22.20-beta.8 -> 1.22.20-beta.9 in 26 s, signed and notarised
+PASS bitlocker open: 13 s at /Volumes/BACKUP2_TS
+    big  copy     126.0s     8.5 MB/s  osascript 0  4 identical, 0 differing, 0 missing
+    big  finder  progress window: Copy; zero-length seen at once: 3; ._ seen: 0, left: 0
+    tree copy       8.9s     0.9 MB/s  osascript 0  2000 identical, 0 differing, 0 missing
+    tree finder  progress window: Copy; zero-length seen at once: 0; ._ seen: 0, left: 0
+    tree delete     1.22s  osascript 0  gone from its folder
+    0 failures
+PASS bitlocker write: 1024 MB at 8.5 MB/s and 2000 small files in 8.9 s, every byte identical
+PASS bitlocker delete: 2000 small files in 1.22 s
+PASS bitlocker eject: 11 s
+PASS bitlocker reopen: 16 s at /Volumes/BACKUP2_TS
+PASS bitlocker read: 512 MB at 41.0 MB/s, every byte identical (passes: 30.0 41.0 44.7)
+PASS bitlocker speed: write 8.5 was 8.9 read 41.0 was 37.5 tree 8.9 was 9.3 on 
+PASS bitlocker eject: 5 s
+PASS keys: Lukotta Beta offered the saved key for /dev/disk4s1 on both opens
+FAIL ntfs open: Lukotta Beta lists no drive at /dev/disk5
+VERDICT 1.22.20-beta.9: not proven
