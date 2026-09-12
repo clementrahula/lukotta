@@ -168,6 +168,26 @@ prove_drive() {  # kind, device
 }
 
 say "prover $(shasum -a 256 scripts/prove-beta.sh | cut -c1-12), $(date -u +%FT%TZ)"
+
+# A drive left open by whatever ran before is not a beta that failed. The window shows an
+# open drive as open rather than as a row to press, and a run read that as the app listing
+# no drive at all. So the two drives this run was given are closed first, by the dev build,
+# which touches nothing else on this Mac.
+DEV="/Applications/Lukotta Dev.app/Contents/MacOS/Lukotta Dev"
+HOSTS="$(basename "$BITLOCKER").local|$(basename "$NTFS").local"
+if [ -x "$DEV" ]; then
+  "$DEV" --drive eject="$BITLOCKER" >/dev/null 2>&1 || true
+  "$DEV" --drive eject="$NTFS" >/dev/null 2>&1 || true
+fi
+left=1
+for _ in $(seq 1 60); do
+  left="$(mount | grep -cE "$HOSTS" || true)"
+  [ "$left" = 0 ] && break
+  sleep 1
+done
+[ "$left" = 0 ] \
+  || fail "the drives were already open and would not close: $(mount | grep -E "$HOSTS" | sed -E 's/ \(.*//' | paste -sd'; ' -)"
+pass "both drives start closed"
 COMMIT="$(git ls-remote --tags origin "refs/tags/v$BETA^{}" | cut -f1)"
 [ -n "$COMMIT" ] || COMMIT="$(git ls-remote --tags origin "refs/tags/v$BETA" | cut -f1)"
 [ -n "$COMMIT" ] || fail "published: no tag v$BETA on origin"
