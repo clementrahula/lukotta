@@ -1,0 +1,8 @@
+- Při otevírání disku je vidět, co se děje a kolik času zhruba zbývá.
+- První otevření po aktualizaci už nečeká na přípravu prostředí Linux.
+- Uložené heslo najde každá aplikace Lukotta a už se na něj nikdy nezeptá.
+- Každá aplikace Lukotta si pamatuje každý disk, který kdy otevřela.
+- Finder zobrazuje každý disk pod jeho vlastním názvem a smazání složky smaže všechny soubory v ní.
+- Jiná nainstalovaná kopie Lukotty už disk nezavře.
+- Disk vysunutý ve Finderu se zavře i v Lukottě.
+- Při ukončení je vidět, který disk se vysouvá, a aplikace se už nezasekne.

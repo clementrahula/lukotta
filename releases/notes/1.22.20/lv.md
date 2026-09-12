@@ -1,0 +1,8 @@
+- Atverot disku, redzams, kas notiek un cik ilgi aptuveni vēl atlicis.
+- Pirmā atvēršana pēc atjauninājuma vairs negaida Linux vides sagatavošanu.
+- Saglabāto paroli atrod katra Lukotta lietotne, un tā vairs nekad netiek prasīta.
+- Katra Lukotta lietotne atceras katru disku, ko tā ir atvērusi.
+- Finder rāda katru disku ar tā īsto nosaukumu, un, dzēšot mapi, tiek izdzēsti visi tajā esošie faili.
+- Cita instalēta Lukotta kopija vairs neaizver disku.
+- Finder izstumts disks tiek aizvērts arī Lukotta.
+- Aizverot redzams, kurš disks tiek izstumts, un tas vairs neiestrēgst.

@@ -1,0 +1,8 @@
+- Atidarant diską rodoma, kas vyksta ir maždaug kiek laiko liko.
+- Pirmasis atidarymas po atnaujinimo nebelaukia, kol bus paruošta Linux aplinka.
+- Išsaugotą slaptažodį randa kiekviena Lukotta programa, ir jo daugiau niekada neklausiama.
+- Kiekviena Lukotta programa prisimena kiekvieną atidarytą diską.
+- Finder rodo kiekvieną diską jo paties vardu, o ištrynus aplanką ištrinami visi jame esantys failai.
+- Kita įdiegta Lukotta kopija nebeuždaro disko.
+- Finder programoje išstumtas diskas uždaromas ir Lukotta programoje.
+- Išeinant rodoma, kuris diskas išstumiamas, ir programa nebestringa.

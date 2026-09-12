@@ -1,0 +1,8 @@
+- När en enhet öppnas visas vad som händer och ungefär hur lång tid som återstår.
+- Första öppningen efter en uppdatering väntar inte längre på att Linux-miljön förbereds.
+- Ett sparat lösenord hittas av alla Lukotta-appar och efterfrågas aldrig igen.
+- Alla Lukotta-appar minns varje enhet de har öppnat.
+- Finder visar varje enhet under dess eget namn, och när du raderar en mapp raderas alla filer i den.
+- En enhet stängs inte längre av en annan installerad kopia av Lukotta.
+- En enhet som matas ut i Finder stängs även i Lukotta.
+- Vid avslut visas vilken enhet som matas ut, och det hänger sig inte längre.

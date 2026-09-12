@@ -1,0 +1,8 @@
+- Pri otvaranju pogona vidi se što se događa i koliko otprilike još treba.
+- Prvo otvaranje nakon ažuriranja više ne čeka pripremu Linux okruženja.
+- Spremljenu lozinku pronalazi svaka Lukotta aplikacija i više se nikad ne traži.
+- Svaka Lukotta aplikacija pamti svaki pogon koji je otvorila.
+- Finder prikazuje svaki pogon pod njegovim vlastitim imenom, a brisanje mape briše sve datoteke u njoj.
+- Druga instalirana kopija Lukotte više ne zatvara pogon.
+- Pogon izbačen u Finderu zatvara se i u Lukotti.
+- Pri izlasku vidi se koji se pogon izbacuje, a aplikacija više ne zapinje.

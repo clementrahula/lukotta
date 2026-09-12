@@ -1,0 +1,8 @@
+- Bij het openen van een schijf zie je wat er gebeurt en hoe lang het nog ongeveer duurt.
+- De eerste keer openen na een update wacht niet meer op het klaarzetten van Linux.
+- Elke Lukotta-app vindt een bewaard wachtwoord, en er wordt nooit meer om gevraagd.
+- Elke Lukotta-app onthoudt elke schijf die hij heeft geopend.
+- De Finder toont elke schijf onder zijn eigen naam, en een map verwijderen verwijdert alle bestanden erin.
+- Een schijf wordt niet meer gesloten door een andere geïnstalleerde kopie van Lukotta.
+- Een schijf die in de Finder wordt uitgeworpen, wordt ook in Lukotta gesloten.
+- Bij het stoppen zie je welke schijf wordt uitgeworpen, en het blijft niet meer hangen.

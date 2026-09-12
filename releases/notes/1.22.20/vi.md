@@ -1,0 +1,8 @@
+- Khi mở ổ đĩa, ứng dụng hiển thị điều đang diễn ra và thời gian còn lại ước tính.
+- Lần mở đầu tiên sau khi cập nhật không còn phải chờ chuẩn bị môi trường Linux.
+- Mọi ứng dụng Lukotta đều tìm thấy mật khẩu đã lưu và không bao giờ hỏi lại.
+- Mọi ứng dụng Lukotta đều ghi nhớ mọi ổ đĩa đã từng mở.
+- Finder hiển thị mỗi ổ đĩa bằng chính tên của nó, và xóa một thư mục sẽ xóa mọi tệp trong đó.
+- Một bản Lukotta khác đã cài không còn đóng ổ đĩa.
+- Ổ đĩa được đẩy ra trong Finder cũng được đóng trong Lukotta.
+- Khi thoát, ứng dụng hiển thị ổ đang được đẩy ra và không còn bị treo.

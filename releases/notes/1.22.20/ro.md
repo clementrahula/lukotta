@@ -1,0 +1,8 @@
+- La deschiderea unei unități se vede ce se întâmplă și cât a mai rămas, aproximativ.
+- Prima deschidere după o actualizare nu mai așteaptă pregătirea mediului Linux.
+- O parolă salvată este găsită de fiecare aplicație Lukotta și nu mai este cerută niciodată.
+- Fiecare aplicație Lukotta ține minte fiecare unitate pe care a deschis-o.
+- Finder arată fiecare unitate cu propriul ei nume, iar ștergerea unui dosar șterge toate fișierele din el.
+- O altă copie instalată a Lukotta nu mai închide o unitate.
+- O unitate scoasă din Finder este închisă și în Lukotta.
+- La ieșire se vede ce unitate este scoasă, iar aplicația nu se mai blochează.

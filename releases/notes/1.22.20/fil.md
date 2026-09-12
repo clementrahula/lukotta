@@ -1,0 +1,8 @@
+- Sa pagbukas ng drive, ipinapakita kung ano ang nangyayari at mga gaano pa katagal.
+- Hindi na hinihintay ng unang pagbukas pagkatapos ng update ang paghahanda ng Linux.
+- Nahahanap ng bawat Lukotta app ang naka-save na password, at hindi na ito itatanong muli.
+- Naaalala ng bawat Lukotta app ang bawat drive na nabuksan nito.
+- Ipinapakita ng Finder ang bawat drive sa sarili nitong pangalan, at binubura ng pagbura ng folder ang lahat ng file sa loob nito.
+- Hindi na isinasara ng ibang naka-install na kopya ng Lukotta ang isang drive.
+- Ang drive na ini-eject sa Finder ay isinasara rin sa Lukotta.
+- Sa pag-quit, ipinapakita kung aling drive ang ini-eject, at hindi na ito natitigil.

@@ -1,0 +1,8 @@
+- Når en disk åpnes, vises hva som skjer og omtrent hvor lenge det er igjen.
+- Første åpning etter en oppdatering venter ikke lenger på at Linux-miljøet klargjøres.
+- Et lagret passord finnes av alle Lukotta-apper og blir aldri spurt om igjen.
+- Alle Lukotta-apper husker hver disk de har åpnet.
+- Finder viser hver disk under sitt eget navn, og når du sletter en mappe, slettes alle filene i den.
+- En disk lukkes ikke lenger av en annen installert kopi av Lukotta.
+- En disk som løses ut i Finder, lukkes også i Lukotta.
+- Ved avslutning vises hvilken disk som løses ut, og det henger ikke lenger.

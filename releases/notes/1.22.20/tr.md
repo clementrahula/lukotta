@@ -1,0 +1,8 @@
+- Bir sürücüyü açarken ne olduğu ve yaklaşık ne kadar kaldığı gösterilir.
+- Bir güncellemeden sonraki ilk açılış artık Linux ortamının hazırlanmasını beklemiyor.
+- Kaydedilen bir parolayı her Lukotta uygulaması bulur ve bir daha asla sormaz.
+- Her Lukotta uygulaması açtığı her sürücüyü hatırlar.
+- Finder her sürücüyü kendi adıyla gösterir ve bir klasörü silmek içindeki tüm dosyaları siler.
+- Lukotta’nın yüklü başka bir kopyası artık bir sürücüyü kapatmaz.
+- Finder’da çıkarılan bir sürücü Lukotta’da da kapatılır.
+- Çıkarken hangi sürücünün çıkarıldığı gösterilir ve uygulama artık takılmaz.

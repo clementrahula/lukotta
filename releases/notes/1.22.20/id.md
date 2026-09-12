@@ -1,0 +1,8 @@
+- Saat membuka drive, ditampilkan apa yang sedang terjadi dan perkiraan sisa waktunya.
+- Pembukaan pertama setelah pembaruan tidak lagi menunggu lingkungan Linux disiapkan.
+- Kata sandi tersimpan ditemukan oleh setiap app Lukotta dan tidak pernah diminta lagi.
+- Setiap app Lukotta mengingat setiap drive yang pernah dibukanya.
+- Finder menampilkan setiap drive dengan namanya sendiri, dan menghapus folder menghapus semua file di dalamnya.
+- Salinan Lukotta lain yang terpasang tidak lagi menutup drive.
+- Drive yang dikeluarkan di Finder juga ditutup di Lukotta.
+- Saat keluar, ditampilkan drive yang sedang dikeluarkan, dan aplikasi tidak lagi macet.

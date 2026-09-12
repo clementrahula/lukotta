@@ -1,0 +1,8 @@
+- Semasa membuka pemacu, dipaparkan apa yang sedang berlaku dan anggaran baki masa.
+- Pembukaan pertama selepas kemas kini tidak lagi menunggu persekitaran Linux disediakan.
+- Kata laluan yang disimpan ditemui oleh setiap apl Lukotta dan tidak diminta lagi.
+- Setiap apl Lukotta mengingati setiap pemacu yang pernah dibukanya.
+- Finder menunjukkan setiap pemacu dengan namanya sendiri, dan memadam folder memadam semua fail di dalamnya.
+- Salinan Lukotta lain yang dipasang tidak lagi menutup pemacu.
+- Pemacu yang dikeluarkan dalam Finder turut ditutup dalam Lukotta.
+- Semasa keluar, dipaparkan pemacu yang sedang dikeluarkan, dan apl tidak lagi tersekat.

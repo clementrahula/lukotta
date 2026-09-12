@@ -1,0 +1,8 @@
+- Gjatë hapjes së një disku shfaqet çfarë po ndodh dhe sa kohë ka mbetur afërsisht.
+- Hapja e parë pas një përditësimi nuk pret më përgatitjen e mjedisit Linux.
+- Një fjalëkalim i ruajtur gjendet nga çdo aplikacion Lukotta dhe nuk kërkohet më kurrë.
+- Çdo aplikacion Lukotta mban mend çdo disk që ka hapur.
+- Finder e shfaq çdo disk me emrin e vet, dhe fshirja e një dosjeje fshin të gjithë skedarët në të.
+- Një kopje tjetër e instaluar e Lukotta nuk e mbyll më një disk.
+- Një disk i nxjerrë në Finder mbyllet edhe në Lukotta.
+- Gjatë daljes shfaqet cili disk po nxirret, dhe aplikacioni nuk ngec më.

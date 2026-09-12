@@ -1,0 +1,8 @@
+- Ao abrir uma unidade, é mostrado o que está a acontecer e quanto falta, aproximadamente.
+- A primeira abertura após uma atualização já não espera pela preparação do Linux.
+- Uma palavra-passe guardada é encontrada por todas as apps Lukotta e nunca mais é pedida.
+- Cada app Lukotta lembra-se de todas as unidades que abriu.
+- O Finder mostra cada unidade com o seu próprio nome, e apagar uma pasta apaga todos os ficheiros que contém.
+- Outra cópia instalada do Lukotta já não fecha uma unidade.
+- Uma unidade ejetada no Finder também é fechada no Lukotta.
+- Ao sair, é mostrada a unidade a ser ejetada, e já não fica bloqueado.

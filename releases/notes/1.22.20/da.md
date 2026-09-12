@@ -1,0 +1,8 @@
+- Når et drev åbnes, vises det, hvad der sker, og omtrent hvor lang tid der er tilbage.
+- Første åbning efter en opdatering venter ikke længere på, at Linux-miljøet klargøres.
+- En gemt adgangskode findes af alle Lukotta-apps og bliver aldrig spurgt om igen.
+- Alle Lukotta-apps husker hvert drev, de har åbnet.
+- Finder viser hvert drev under dets eget navn, og når du sletter en mappe, slettes alle filer i den.
+- Et drev lukkes ikke længere af en anden installeret kopi af Lukotta.
+- Et drev, der skubbes ud i Finder, lukkes også i Lukotta.
+- Ved afslutning vises det, hvilket drev der skubbes ud, og det hænger ikke længere.

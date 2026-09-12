@@ -1,0 +1,8 @@
+- Aseman avaaminen näyttää, mitä tapahtuu ja kuinka kauan on suunnilleen jäljellä.
+- Ensimmäinen avaus päivityksen jälkeen ei enää odota Linux-ympäristön valmistelua.
+- Jokainen Lukotta-sovellus löytää tallennetun salasanan, eikä sitä kysytä enää koskaan.
+- Jokainen Lukotta-sovellus muistaa jokaisen avaamansa aseman.
+- Finder näyttää jokaisen aseman sen omalla nimellä, ja kansion poistaminen poistaa kaikki sen tiedostot.
+- Toinen asennettu Lukotta-kopio ei enää sulje asemaa.
+- Finderissa poistettu asema suljetaan myös Lukottassa.
+- Lopetettaessa näytetään, mikä asema poistetaan, eikä sovellus enää jumitu.

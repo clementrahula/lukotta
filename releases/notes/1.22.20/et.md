@@ -1,0 +1,8 @@
+- Draivi avamisel on näha, mis toimub ja kui kaua see umbes veel kestab.
+- Esimene avamine pärast uuendust ei oota enam Linuxi keskkonna ettevalmistamist.
+- Salvestatud parooli leiab iga Lukotta rakendus ja seda ei küsita enam kunagi.
+- Iga Lukotta rakendus mäletab kõiki draive, mida see on avanud.
+- Finder näitab iga draivi selle enda nimega ja kausta kustutamine kustutab kõik selles olevad failid.
+- Teine paigaldatud Lukotta koopia ei sulge enam draivi.
+- Finderis välja võetud draiv suletakse ka Lukottas.
+- Sulgemisel on näha, milline draiv välja võetakse, ja see ei jää enam kinni.

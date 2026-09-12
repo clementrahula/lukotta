@@ -1,0 +1,8 @@
+- L’ouverture d’un disque indique ce qui se passe et le temps restant approximatif.
+- La première ouverture après une mise à jour n’attend plus la préparation de Linux.
+- Chaque app Lukotta retrouve un mot de passe enregistré, qui n’est plus jamais redemandé.
+- Chaque app Lukotta se souvient de chaque disque qu’elle a ouvert.
+- Le Finder affiche chaque disque sous son propre nom, et supprimer un dossier supprime tous ses fichiers.
+- Un disque n’est plus fermé par une autre copie installée de Lukotta.
+- Un disque éjecté dans le Finder est aussi fermé dans Lukotta.
+- Quitter indique quel disque est en cours d’éjection et ne se bloque plus.

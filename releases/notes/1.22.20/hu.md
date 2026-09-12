@@ -1,0 +1,8 @@
+- Meghajtó megnyitásakor látszik, mi történik, és nagyjából mennyi idő van hátra.
+- A frissítés utáni első megnyitás már nem vár a Linux-környezet előkészítésére.
+- A mentett jelszót minden Lukotta-app megtalálja, és soha többé nem kérdez rá.
+- Minden Lukotta-app emlékszik minden meghajtóra, amelyet megnyitott.
+- A Finder minden meghajtót a saját nevén mutat, és egy mappa törlésekor a benne lévő összes fájl törlődik.
+- A Lukotta egy másik telepített példánya már nem zár be meghajtót.
+- A Finderben kiadott meghajtó a Lukottában is bezárul.
+- Kilépéskor látszik, melyik meghajtó kerül kiadásra, és az app már nem akad el.

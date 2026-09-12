@@ -1,0 +1,8 @@
+- Beim Öffnen eines Laufwerks siehst du, was passiert und wie lange es ungefähr noch dauert.
+- Das erste Öffnen nach einem Update wartet nicht mehr auf die Einrichtung der Linux-Umgebung.
+- Ein gespeichertes Passwort findet jede Lukotta-App, und du wirst nie wieder danach gefragt.
+- Jede Lukotta-App merkt sich jedes Laufwerk, das sie geöffnet hat.
+- Der Finder zeigt jedes Laufwerk unter seinem eigenen Namen, und beim Löschen eines Ordners wird jede Datei darin gelöscht.
+- Eine andere installierte Kopie von Lukotta schließt kein Laufwerk mehr.
+- Ein im Finder ausgeworfenes Laufwerk wird auch in Lukotta geschlossen.
+- Beim Beenden siehst du, welches Laufwerk ausgeworfen wird, und es hängt nicht mehr.

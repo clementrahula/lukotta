@@ -1,0 +1,8 @@
+- Pri odpiranju pogona je vidno, kaj se dogaja in koliko časa približno še ostane.
+- Prvo odpiranje po posodobitvi ne čaka več na pripravo okolja Linux.
+- Shranjeno geslo najde vsaka aplikacija Lukotta in ga nikoli več ne zahteva.
+- Vsaka aplikacija Lukotta si zapomni vsak pogon, ki ga je odprla.
+- Finder prikaže vsak pogon z njegovim lastnim imenom, brisanje mape pa izbriše vse datoteke v njej.
+- Druga nameščena kopija Lukotte ne zapre več pogona.
+- Pogon, izvržen v Finderju, se zapre tudi v Lukotti.
+- Ob izhodu je vidno, kateri pogon se izvrže, in aplikacija ne obvisi več.

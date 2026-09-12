@@ -1,0 +1,8 @@
+- Al abrir una unidad se muestra qué está pasando y cuánto falta aproximadamente.
+- La primera apertura tras una actualización ya no espera a que se prepare el entorno Linux.
+- Todas las apps de Lukotta encuentran una contraseña guardada y no vuelven a pedirla.
+- Cada app de Lukotta recuerda todas las unidades que ha abierto.
+- El Finder muestra cada unidad con su propio nombre, y al eliminar una carpeta se eliminan todos sus archivos.
+- Otra copia instalada de Lukotta ya no cierra una unidad.
+- Una unidad expulsada en el Finder también se cierra en Lukotta.
+- Al salir se muestra qué unidad se está expulsando, y ya no se bloquea.

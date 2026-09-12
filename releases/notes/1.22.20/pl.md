@@ -1,0 +1,8 @@
+- Podczas otwierania dysku widać, co się dzieje i ile czasu mniej więcej zostało.
+- Pierwsze otwarcie po aktualizacji nie czeka już na przygotowanie środowiska Linux.
+- Zapisane hasło znajduje każda aplikacja Lukotta i nigdy więcej o nie nie pyta.
+- Każda aplikacja Lukotta pamięta każdy dysk, który otworzyła.
+- Finder pokazuje każdy dysk pod jego własną nazwą, a usunięcie folderu usuwa wszystkie znajdujące się w nim pliki.
+- Inna zainstalowana kopia Lukotta nie zamyka już dysku.
+- Dysk wysunięty w Finderze zamyka się także w Lukotcie.
+- Przy zamykaniu widać, który dysk jest wysuwany, i aplikacja już się nie zawiesza.
