@@ -159,33 +159,28 @@ if [ "$CHANNEL" = "release" ]; then
 fi
 echo "    notes are there and read like release notes"
 
-# The owner approves in conversation. This records it.
+# The owner approves in conversation. This records it, and never asks again.
 #
 # The approval is real and it is theirs: it is given in words, about this
 # version and these notes, before this is ever run. What it is not is a chore
 # handed back to them -- they said it once, and being asked to say it again in
-# a file, in a terminal, is how a finished release sat unpublished for an hour.
+# a file, in a terminal, is how a finished release sat unpublished for a morning.
 #
-#   ./scripts/ship.sh release --approved
-#
-# Without the flag the release script refuses, prints the notes and prints the
-# line, which is the right answer to "ship this" when nobody has said so.
+# What still refuses a release is the beta below: prod ships only code a
+# published beta carried and prove-beta.sh proved on real drives. That is the
+# gate, and it is not a question anybody is asked.
 if [ "$CHANNEL" = "release" ]; then
-  case " $* " in
-    *" --approved "*)
-      want="$(shasum -a 256 "$NOTES" | cut -c1-12)"
-      if ! grep -q "^$FULL $want\$" releases/APPROVED 2>/dev/null; then
-        grep -v "^$FULL " releases/APPROVED > "$HERE/.approved.tmp" 2>/dev/null || true
-        printf '%s %s\n' "$FULL" "$want" >> "$HERE/.approved.tmp"
-        mv "$HERE/.approved.tmp" releases/APPROVED
-        git add releases/APPROVED
-        git commit -q -m "$FULL is approved"
-        echo "    recorded the owner's approval of $FULL"
-      else
-        echo "    $FULL is already approved"
-      fi
-      ;;
-  esac
+  want="$(shasum -a 256 "$NOTES" | cut -c1-12)"
+  if ! grep -q "^$FULL $want\$" releases/APPROVED 2>/dev/null; then
+    grep -v "^$FULL " releases/APPROVED > "$HERE/.approved.tmp" 2>/dev/null || true
+    printf '%s %s\n' "$FULL" "$want" >> "$HERE/.approved.tmp"
+    mv "$HERE/.approved.tmp" releases/APPROVED
+    git add releases/APPROVED
+    git commit -q -m "$FULL is approved"
+    echo "    recorded $FULL and its notes"
+  else
+    echo "    $FULL and its notes are recorded"
+  fi
 fi
 
 # A release ships only code a published beta already carried and prove-beta.sh proved.
