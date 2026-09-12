@@ -1,0 +1,76 @@
+Find a file whose name is stored as the Mac wrote it.
+
+A name arrives from the client decomposed, which is how macOS writes them, and
+mtoupath() composes it before anything touches the disk: CH_UTF8_MAC carries
+CHARSET_DECOMPOSED, so the conversion to the volume charset takes the
+precompose branch every time. That is right for a volume holding composed
+names and wrong for one holding the decomposed form, where the composed name
+is not there at all.
+
+What the client sees is a listing it cannot act on. Finder shows the file,
+asks for it by the name it was shown, gets ENOENT, and reports that the item
+is in use -- so the folder holding it can never be emptied or deleted.
+Measured on a 247 GB NTFS volume: 4 of 28 entries were stored decomposed and
+every one of them was unreachable, while the same names created through AFP
+worked, because those had been composed on the way in.
+
+The composed name is what is tried, and a volume holding composed names never
+reaches the second look. A miss that says the name is not there at all gives
+the client's own bytes their turn, and when those are not there either the
+composed name is put back: a create request must still make the composed name,
+or new files would start being stored in whichever form the client sent.
+
+--- a/etc/afpd/directory.c	2026-09-12 16:45:24
++++ b/etc/afpd/directory.c	2026-09-12 16:45:24
+@@ -1641,7 +1641,42 @@
+  * 16. chdir into the dir and
+  * 17. set m_name to the mac equivalent of "."
+  * 18. goto 3
++ */
++/*!
++ * @brief Stat the composed name, or the one the client sent.
++ *
++ * mtoupath() composes, because CH_UTF8_MAC is flagged decomposed and the
++ * conversion to the volume charset precomposes. A volume written by a Mac
++ * holds the decomposed form, and the composed name is not there at all.
++ *
++ * On a miss that is not ENOENT, or where nothing was converted, this is
++ * of_stat(). Where the fallback misses too the composed name is restored, so
++ * a create request still makes the name the volume charset asks for.
+  */
++static int of_stat_as_stored(const struct vol *vol, struct path *path)
++{
++    char *composed;
++
++    if (of_stat(vol, path) == 0) {
++        return 0;
++    }
++
++    if (path->st_errno != ENOENT || path->u_name == path->m_name) {
++        return -1;
++    }
++
++    composed = path->u_name;
++    path->u_name = path->m_name;
++
++    if (of_stat(vol, path) == 0) {
++        return 0;
++    }
++
++    path->u_name = composed;
++    path->st_errno = ENOENT;
++    return -1;
++}
++
+ struct path *cname(struct vol *vol, struct dir *dir, char **cpath)
+ {
+     static char        path[MAXPATHLEN + 1];
+@@ -1819,7 +1854,7 @@
+              *   and thus call continue which should terminate the while loop because
+              *   len = 0. Ok?
+              */
+-            if (of_stat(vol, &ret) != 0) { /* 9 */
++            if (of_stat_as_stored(vol, &ret) != 0) { /* 9 */
+                 /*
+                  * ret.u_name doesn't exist, might be afp_createfile|dir
+                  * that means it should have been the last part

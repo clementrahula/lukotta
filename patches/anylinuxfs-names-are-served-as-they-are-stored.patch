@@ -1,0 +1,33 @@
+Do not compose names on their way to the NFS server.
+
+The client mounted with `nfc`, which converts every name it sends into
+Normalization Form C. What comes back from readdir is the name as the volume
+stores it. A name stored decomposed is therefore listed but never resolved:
+lookup, open, rename and unlink all compose it first and match nothing.
+
+Measured on a 247 GB NTFS volume: 4 of 28 entries were stored decomposed, and
+every one of them answered ENOENT on stat while appearing in the listing. The
+folders holding them could not be emptied, so Finder refused to delete them and
+said the item was in use.
+
+Names now go to the server as they came from it, whatever form that is.
+
+--- a/anylinuxfs/src/fsutil.rs	2026-09-12 16:00:00
++++ b/anylinuxfs/src/fsutil.rs	2026-09-12 16:30:00
+@@ -111,7 +111,6 @@
+         #[cfg(target_os = "macos")]
+         {
+             opts.insert("deadtimeout".into(), "45".into()); // this is what Finder uses
+-            opts.insert("nfc".into(), "".into()); // NFC Unicode normalization (macOS-only)
+
+             // Soft mount semantics to bound kernel-level retries when the
+             // underlying microVM becomes unreachable (e.g. user hot-unplugs
+@@ -490,8 +489,8 @@
+         );
+         assert!(
+-            opts_str.contains("nfc"),
+-            "existing 'nfc' option removed: {opts_str}"
++            !opts_str.contains("nfc"),
++            "'nfc' composes names the server stores decomposed: {opts_str}"
+         );
+         assert!(
