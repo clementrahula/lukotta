@@ -454,13 +454,11 @@ group("theElevatedMountScript") {
     expect(
         MountScript.mountOptions(driver: "ntfs-3g", readOnly: false) == " -o big_writes",
         "ntfs-3g read-write carries big_writes alone")
-    // ntfs3 is given no driver options. dirsync was tried, to make its
-    // directory updates synchronous after a killed machine was found to lose
-    // the directory entry outright -- and it changed nothing: the guest
-    // mounted with "-o dirsync,iocharset=utf8,..." and the fsynced file was
-    // still absent afterwards. Reverted rather than kept, because synchronous
-    // directory updates cost every copy of many small files something and
-    // bought nothing.
+    // ntfs3 is given no driver options. dirsync was tried and changed nothing:
+    // the fsynced file was still absent after the machine was killed. fmask and
+    // dmask were tried for a folder Windows marked read-only that Finder would
+    // not delete; ntfs3 applies the masks and then clears the write bits for
+    // that attribute, so they never reach it.
     expect(
         MountScript.mountOptions(driver: "ntfs3", readOnly: true) == " -o ro",
         "ntfs3 is given no driver options, so read-only stands alone")
