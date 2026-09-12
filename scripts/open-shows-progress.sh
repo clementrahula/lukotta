@@ -29,7 +29,13 @@ for _ in $(seq 1 240); do
     open_at="$(since "$t0")"; break
   fi
   samples=$((samples + 1))
-  if [ "$(ax shows "left" 0.2)" = shown ] || [ "$(ax shows "so far" 0.2)" = shown ]; then
+  # Every estimate the window can show while it works: the countdown, the one that
+  # owns up to taking longer, the one before a first open has anything to go on, and
+  # the one for a volume being repaired. Any of them is the person being told where
+  # the open has got to; none of them is a blank screen.
+  if [ "$(ax shows "left" 0.2)" = shown ] || [ "$(ax shows "so far" 0.2)" = shown ] \
+    || [ "$(ax shows "under a minute" 0.2)" = shown ] \
+    || [ "$(ax shows "few minutes" 0.2)" = shown ]; then
     [ -n "$first" ] || first="$(since "$t0")"
   elif [ -n "$first" ]; then
     gaps=$((gaps + 1))
