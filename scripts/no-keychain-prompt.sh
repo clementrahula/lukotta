@@ -14,8 +14,10 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 served() { mount | grep -F "$HOST:" | grep -q nobrowse; }
 settle() { local t0; t0=$(date +%s); while [ "$(( $(date +%s) - t0 ))" -lt 60 ]; do served || return 0; sleep 1; done; return 1; }
-# What macOS puts on screen to ask for a keychain, and the agent behind it.
-prompts() { pgrep -fc "SecurityAgent|loginwindow.*SecurityAgent|CFUserNotification" 2>/dev/null || true; }
+# The agent macOS puts on screen to ask for a keychain. Counted, never assumed: with
+# nothing to ask about there is no such process at all, and `pgrep -c` says so by
+# printing nothing, which is not a number anything can compare.
+prompts() { pgrep -x SecurityAgent 2>/dev/null | wc -l | tr -d ' '; }
 
 pkill -x "Lukotta Dev"; sleep 2
 "$DEV" --drive eject="$DEVICE" >/dev/null 2>&1
