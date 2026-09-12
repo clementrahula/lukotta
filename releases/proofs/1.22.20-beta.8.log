@@ -1,0 +1,32 @@
+prover b134230d71ec, 2026-09-12T00:45:50Z
+PASS published: v1.22.20-beta.8 at 525ba87, not a draft, newest in the beta feed
+PASS update: 1.22.20-beta.7 -> 1.22.20-beta.8 in 26 s, signed and notarised
+PASS bitlocker open: 13 s at /Volumes/BACKUP2_TS
+    big  copy     120.4s     8.9 MB/s  osascript 0  4 identical, 0 differing, 0 missing
+    big  finder  progress window: Copy; zero-length seen at once: 3; ._ seen: 0, left: 0
+    tree copy       9.3s     0.9 MB/s  osascript 0  2000 identical, 0 differing, 0 missing
+    tree finder  progress window: Copy; zero-length seen at once: 0; ._ seen: 0, left: 0
+    tree delete     1.30s  osascript 0  gone from its folder
+    0 failures
+PASS bitlocker write: 1024 MB at 8.9 MB/s and 2000 small files in 9.3 s, every byte identical
+PASS bitlocker delete: 2000 small files in 1.30 s
+PASS bitlocker eject: 20 s
+PASS bitlocker reopen: 16 s at /Volumes/BACKUP2_TS
+PASS bitlocker read: 512 MB at 37.5 MB/s, every byte identical
+PASS bitlocker speed: write 8.9 was 9.2 read 37.5 was 30.0 tree 9.3 was 8.7 on 
+PASS bitlocker eject: 4 s
+PASS keys: Lukotta Beta offered the saved key for /dev/disk4s1 on both opens
+PASS ntfs open: 8 s at /Volumes/SANDISK
+    big  copy      15.2s    70.6 MB/s  osascript 0  4 identical, 0 differing, 0 missing
+    big  finder  progress window: Copy; zero-length seen at once: 3; ._ seen: 0, left: 0
+    tree copy       4.0s     2.0 MB/s  osascript 0  2000 identical, 0 differing, 0 missing
+    tree finder  progress window: Copy; zero-length seen at once: 0; ._ seen: 0, left: 0
+    tree delete     0.77s  osascript 0  gone from its folder
+    0 failures
+PASS ntfs write: 1024 MB at 70.6 MB/s and 2000 small files in 4.0 s, every byte identical
+PASS ntfs delete: 2000 small files in 0.77 s
+PASS ntfs eject: 5 s
+PASS ntfs reopen: 10 s at /Volumes/SANDISK
+PASS ntfs read: 512 MB at 70.6 MB/s, every byte identical
+FAIL ntfs speed: write 70.6 was 70.6 read 70.6 was 105.3 tree 4.0 was 4.9 on Ultra Fit
+VERDICT 1.22.20-beta.8: not proven
