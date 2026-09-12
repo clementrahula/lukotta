@@ -105,6 +105,8 @@ in the guest. Finder is given the AFP volume, under `/Volumes`, and the NFS
 mount it is served from is hidden. A drive opened read-only, and every other
 filesystem, reaches Finder over NFS alone.
 
+AFP: macOS 26 and below. v2 replaces it with FSKit.
+
 **A disk image** is opened without privilege. A raw image is attached by macOS
 first; every other format is handed to the engine as a path, which the engine
 reads itself, attaching nothing. The mount appears under `~/Volumes` rather than
@@ -696,7 +698,7 @@ ext4 on an SSD. Not creates: a directory receiving 3000 file creations lists in
 | `acdirmin` 5 → 30 | nothing, and slower |
 
 The tail was reachable and the median is what NFS costs here. Removing it means
-removing the NFS client from the path, which means FSKit.
+removing the NFS client from the path, which means FSKit (v2).
 `scripts/readdir-under-copy.sh`, `scripts/bulk-list.c`.
 
 ### RAID arrays are not yet offered by the app

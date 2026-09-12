@@ -118,7 +118,7 @@ eject_drive() {  # kind, device, mount point
 }
 
 prove_drive() {  # kind, device
-  local kind="$1" dev="$2" name out rc big tree gone mp secs rate prev wb rb tb
+  local kind="$1" dev="$2" name out rc big tree gone mp secs rate all wb rb tb
   name="$(diskutil info "$dev" 2>/dev/null | awk -F': *' '/Media Name/ {print $2; exit}')"
   open_drive "$kind" "$dev" "$kind open"; mp="$OPENED"
 

@@ -1,5 +1,8 @@
 # Plan
 
+- This version: AFP, macOS 26 and below.
+- v2, this year: FSKit replaces AFP. The FSKit items below belong to it.
+
 - [ ] lint.sh and run-tests.sh leave `/tmp/lukotta-*` on every run; move them into the tmp-root.sh directory.
 - [ ] Re-test FSKit on the current macOS. Third-party extensions were broken on
   26.1 and 26.2: `fskitd` rejects unprivileged clients, which breaks Apple's own
