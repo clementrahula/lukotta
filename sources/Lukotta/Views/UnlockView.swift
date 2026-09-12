@@ -235,7 +235,9 @@ struct UnlockView: View {
                 // screen only to be asked read-write or read-only, and the way
                 // out of a question is to cancel it.
                 Button(
-                    model.chosenDriveIsOpenAlready ? "Cancel" : "Back", action: model.backToDrives)
+                    model.chosenDriveIsOpenAlready ? "Cancel" : "Back", action: model.backToDrives
+                )
+                .accessibilityIdentifier("back")
                 Spacer()
                 // "Open", not "Unlock", for a drive that was never locked. The
                 // read-only choice sits beside each, and is never the default:
