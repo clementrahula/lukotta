@@ -4,3 +4,4 @@ deny	command	security\s+delete-(generic|internet)-password	-	No build, dev inclu
 deny	command	git\s+(add|rm|mv|restore|checkout)\b[^;&|]*(^|[\s"'])Sources/	-	The Swift tree is sources/, lowercase. On this case-insensitive disk git add Sources/... leaves tracked files unstaged. Name paths as git ls-files prints them.
 warn	command	(^|[;&|\s])log\s+(show|stream)\b	-	Lukotta's os_log lines never appear in log show on this Mac, at any level. Build a foreground instrument (--drive sweep) rather than reading an absence as evidence.
 warn	edit-requires	(^|/)translations/context/strings\.json$	"audit": false	A new or changed string gets "audit": false on its entry until it is audited.
+deny	command	snapshots\.sh	-	snapshots are not touched: never run, record or re-record them.
