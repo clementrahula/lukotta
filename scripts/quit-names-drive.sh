@@ -25,7 +25,16 @@ point=""
 for _ in $(seq 1 60); do point="$(finder_volume)"; [ -n "$point" ] && break; sleep 1; done
 [ -n "$point" ] || { echo "the drive did not reach Finder"; exit 1; }
 name="$(basename "$point")"
+# Both, before quitting: the window saying the drive is open, and Finder's volume actually
+# there. Quitting between the two is quitting mid-open -- the app has no open drive to ask
+# about, goes straight out, and leaves the engine's own mount behind.
 [ "$(ax shows "Show in Finder" 60)" = shown ] || { echo "the window never showed the drive open"; exit 1; }
+settled=""
+for _ in $(seq 1 30); do
+  [ -n "$(finder_volume)" ] && [ "$(ax shows "Show in Finder" 1)" = shown ] && { settled=yes; break; }
+  sleep 1
+done
+[ "$settled" = yes ] || { echo "the drive never settled open: volume '$(finder_volume)'"; exit 1; }
 
 osascript -e 'tell application "Lukotta Dev" to quit' >/dev/null 2>&1 &
 lq="$(printf '\342\200\234')"; rq="$(printf '\342\200\235')"
