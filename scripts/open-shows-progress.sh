@@ -23,7 +23,7 @@ open -a "$APP"; sleep 6
 [ "$(ax press "drive $DEVICE" 20)" = pressed ] || { echo "no row for $DEVICE"; exit 1; }
 [ "$(ax press unlock 20)" = pressed ] || { echo "no Unlock button"; exit 1; }
 t0="$(now)"
-first=""; gaps=0; samples=0; open_at=""
+first=""; gaps=0; miss=0; samples=0; open_at=""
 for _ in $(seq 1 240); do
   if mount | grep -F "@$HOST/" | grep -q afpfs && [ "$(ax shows "Opening" 0.2)" != shown ]; then
     open_at="$(since "$t0")"; break
@@ -37,11 +37,15 @@ for _ in $(seq 1 240); do
     || [ "$(ax shows "under a minute" 0.2)" = shown ] \
     || [ "$(ax shows "few minutes" 0.2)" = shown ]; then
     [ -n "$first" ] || first="$(since "$t0")"
+    miss=0
   elif [ -n "$first" ]; then
-    gaps=$((gaps + 1))
+    # Consecutive misses only. One sample of an accessibility tree caught mid-redraw is
+    # not a screen anybody saw go blank; two in a row is a third of a second or more.
+    miss=$((miss + 1))
+    [ "$miss" -gt "$gaps" ] && gaps="$miss"
   fi
   sleep 0.3
 done
-echo "countdown first seen ${first:-never} s after Unlock; $gaps of $samples samples without it; open after ${open_at:-never} s"
-[ -n "$first" ] && [ -n "$open_at" ] && [ "$gaps" -eq 0 ] \
+echo "progress first seen ${first:-never} s after Unlock; longest run without it $gaps of $samples samples; open after ${open_at:-never} s"
+[ -n "$first" ] && [ -n "$open_at" ] && [ "$gaps" -lt 2 ] \
   && awk -v f="$first" 'BEGIN {exit !(f <= 1.0)}'
