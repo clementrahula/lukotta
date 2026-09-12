@@ -294,6 +294,12 @@ nothing had ever opened one.
   set it false today, so nothing shipped is affected, but a quit must never wait on an
   updater that will never answer.
 
+## Unproven
+
+- [ ] An empty `lost+found` is removed by the check that mounts the volume in
+  the guest (`94b7868`). Suite passes; never run against a drive. One open of a
+  volume that needs repairing settles it.
+
 ## What 1.22.18 leaves open
 
 - [ ] Finder shows an NTFS volume's name in lower case: netatalk's config reader lowercases it.
