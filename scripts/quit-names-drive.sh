@@ -38,7 +38,13 @@ for _ in $(seq 1 30); do
 done
 [ "$settled" = yes ] || { echo "the drive never settled open: volume '$(finder_volume)'"; exit 1; }
 
-osascript -e 'tell application "Lukotta Dev" to quit' >/dev/null 2>&1 &
+# Command-Q through System Events, the way a person quits. Telling the application to
+# quit by name is an Apple event to the app itself, which needs a permission of its own
+# and fails silently without it -- the app simply stayed up and there was no question.
+said="$(osascript -e 'tell application "System Events"' \
+  -e 'set frontmost of process "Lukotta Dev" to true' \
+  -e 'keystroke "q" using command down' -e 'end tell' 2>&1 >/dev/null)"
+[ -z "$said" ] || echo "asking it to quit said: $said"
 lq="$(printf '\342\200\234')"; rq="$(printf '\342\200\235')"
 asked="$(ax shows "Quit and leave ${lq}${name}${rq} open?" 15)"
 if [ "$(ax title "Eject and Quit" 10)" != pressed ]; then
