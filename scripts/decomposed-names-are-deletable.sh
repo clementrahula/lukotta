@@ -64,12 +64,14 @@ if not faults:
         os.rmdir(folder)
     except OSError as e:
         faults.append(f"its folder would not go: {e.strerror}")
-# Whatever the outcome, nothing of this run is left on the drive.
-under = os.path.join(hidden, stored)
-if os.path.exists(under):
-    os.remove(under)
-if os.path.isdir(hidden):
-    os.rmdir(hidden)
+# Whatever the outcome, nothing of this run is left on the drive. A delete that
+# already went through the share leaves the handle underneath stale, which is
+# the entry being gone rather than anything to report.
+for path, remove in ((os.path.join(hidden, stored), os.remove), (hidden, os.rmdir)):
+    try:
+        remove(path)
+    except OSError:
+        pass
 for f in faults:
     print(" ", f)
 print("decomposed name held and deleted" if not faults else "decomposed names are not deletable")
