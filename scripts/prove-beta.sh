@@ -137,10 +137,10 @@ prove_drive() {  # kind, device
   fi
   eject_drive "$kind" "$dev" "$mp"
   open_drive "$kind" "$dev" "$kind reopen"; mp="$OPENED"
-  # Three passes, and the middle one is the answer. One Finder copy of 512 MB off a
-  # stick varies by half again between runs -- 167.8 and 111.8 MB/s minutes apart on
-  # the same drive -- so a single sample against a quarter-slower threshold fails on
-  # noise and calls a working beta a regression.
+  # Three passes. One Finder copy of 512 MB off a stick varies by half again between
+  # runs -- 167.8 and 111.8 MB/s minutes apart on the same drive -- so a single sample
+  # against a quarter-slower threshold fails on noise and calls a working beta a
+  # regression. Which pass counts is decided below, where the comparison is.
   local rates=() t0
   for _ in 1 2 3; do
     rm -rf "$WORK/back/"*
