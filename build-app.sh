@@ -85,10 +85,14 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     MARK_SET="MarkUnbranded"
     SWITCH_SET="FullDiskAccessSwitchUnbranded"
     HELPER_NAME="LukottaDevHelper"
-    # Nothing is served here and nothing is meant to be. A development build
-    # that updated itself would replace what is being tested, halfway through
-    # testing it.
-    FEED_URL="https://updates.lukotta.com/dev/appcast.xml"
+    # No feed at all, rather than one nothing serves. A development build that
+    # updated itself would replace what is being tested, halfway through testing
+    # it -- but pointing it at an address that answers nothing is worse: the app
+    # asks its updater before it agrees to quit, and an updater waiting on a feed
+    # that never answers refuses every quit. Measured 2026-09-12: an Apple event
+    # answered "User cancelled", Command-Q and the app's own Quit did nothing, and
+    # the same bundle pointed at the beta feed quit at once.
+    FEED_URL=""
     AUTO_CHECKS="false"
     ;;
   unbranded)
@@ -314,7 +318,7 @@ sed -e "s|__HELPER_REQUIREMENT__|$HELPER_REQUIREMENT|" \
     -e "s|__ICON_SET__|$ICON_SET|" -e "s|__MARK_SET__|$MARK_SET|" \
     -e "s|__SWITCH_SET__|$SWITCH_SET|" \
   "$HERE/sources/Info.plist" > "$CONTENTS/Info.plist"
-if [ -z "$SPARKLE_KEY" ]; then
+if [ -z "$SPARKLE_KEY" ] || [ -z "$FEED_URL" ]; then
   /usr/libexec/PlistBuddy -c 'Delete :SUPublicEDKey' "$CONTENTS/Info.plist" >/dev/null 2>&1 || true
   /usr/libexec/PlistBuddy -c 'Delete :SUFeedURL' "$CONTENTS/Info.plist" >/dev/null 2>&1 || true
   printf 'note: no Sparkle key set — updates disabled in this build\n'

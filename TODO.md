@@ -283,16 +283,12 @@ nothing had ever opened one.
 
 ## What 1.22.20 leaves open
 
-- [ ] **A dev build will not quit, because its update feed does not exist.** Every
-  graceful route is declined at once -- an Apple event answers "User cancelled" (-128),
-  Command-Q does nothing, its own menu's Quit does nothing -- with no question on screen
-  and the app still running; SIGTERM ends it. The cause is the feed: dev branding sets
-  `SUFeedURL` to `updates.lukotta.com/dev/appcast.xml`, which is not served, and the app
-  asks its updater before deciding a quit. Measured 2026-09-12: the same bundle pointed
-  at the beta feed quits cleanly, and with devtools compiled out it still refuses, so it
-  is the feed and not the harness hooks. Nothing shipped is affected -- 1.22.20-beta.12
-  quits in a second and names the drive -- and `quitnames` checks the beta. The fix is to
-  give a dev build no feed at all rather than a dead one.
+- [ ] **A dev build will not quit; the cause is not known.** Every graceful route is
+  declined at once with "User cancelled" (-128), no question on screen, app still
+  running; SIGTERM ends it. Ruled out on 2026-09-12 over a dozen runs: an open drive,
+  the menu bar panel, the first minute after launch, devtools, the feed URL, and where
+  the bundle sits. Shipped builds are unaffected: 1.22.20-beta.12 quits in a second
+  and names the drive, and `quitnames` checks the beta.
 
 ## What 1.22.18 leaves open
 
