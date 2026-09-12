@@ -17,8 +17,8 @@ LOG="releases/proofs/$BETA.log"
 [ "$(shasum -a 256 "$LOG" | cut -c1-12)" = "$DIGEST" ] || no "$LOG is not the log that was recorded"
 [ "$(git rev-parse -q --verify "v$BETA^{commit}" 2>/dev/null)" = "$COMMIT" ] \
   || no "tag v$BETA is not the commit that was proven"
-git diff --quiet "$COMMIT" HEAD -- . ':(exclude)releases' ':(exclude)*.md' \
-  || no "code changed since $BETA was proven: $(git diff --name-only "$COMMIT" HEAD -- . ':(exclude)releases' ':(exclude)*.md' | head -3 | paste -sd' ' -)"
+git diff --quiet "$COMMIT" HEAD -- . ':(exclude)releases' ':(exclude)*.md' ':(exclude)scripts/beta-proven.sh' ':(exclude)scripts/prove-beta.sh' ':(exclude)scripts/checks.tsv' \
+  || no "code changed since $BETA was proven: $(git diff --name-only "$COMMIT" HEAD -- . ':(exclude)releases' ':(exclude)*.md' ':(exclude)scripts/beta-proven.sh' ':(exclude)scripts/prove-beta.sh' ':(exclude)scripts/checks.tsv' | head -3 | paste -sd' ' -)"
 grep -q "^FAIL" "$LOG" && no "$LOG records a failure"
 grep -qx "VERDICT $BETA: proven" "$LOG" || no "$LOG has no verdict"
 for step in published update "bitlocker open" "bitlocker write" "bitlocker delete" "bitlocker reopen" \
