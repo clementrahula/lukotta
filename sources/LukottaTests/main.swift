@@ -452,16 +452,24 @@ group("theElevatedMountScript") {
         MountScript.mountOptions(driver: "ntfs-3g", readOnly: true) == " -o big_writes,ro",
         "ntfs-3g read-only joins big_writes and ro into one -o")
     expect(
-        MountScript.mountOptions(driver: "ntfs-3g", readOnly: false) == " -o big_writes",
-        "ntfs-3g read-write carries big_writes alone")
-    // ntfs3 is given no driver options. dirsync was tried and changed nothing:
-    // the fsynced file was still absent after the machine was killed. fmask and
-    // dmask were tried for a folder Windows marked read-only that Finder would
-    // not delete; ntfs3 applies the masks and then clears the write bits for
-    // that attribute, so they never reach it.
+        MountScript.mountOptions(driver: "ntfs-3g", readOnly: false)
+            == " -o big_writes,fmask=0,dmask=0",
+        "ntfs-3g read-write carries big_writes and the masks")
+    // ntfs_read_mft builds a directory's mode as 0777 & the inverse dmask, for
+    // every inode read off the disk. So dmask=0 reports 0777, which is what the
+    // client judges a delete against: a guest session owns nothing and falls to
+    // the other bits. Measured: unlink inside 0755 is EACCES, inside 0777 it is
+    // not. It needs the kernel patch beside it, which stops the read-only
+    // attribute clearing those same bits again afterwards.
+    expect(
+        MountScript.mountOptions(driver: "ntfs3", readOnly: false) == " -o fmask=0,dmask=0",
+        "ntfs3 read-write carries the masks")
+    // Read-only takes no masks: `ro` is what refuses writes, and a mode saying
+    // otherwise would only mislead. dirsync was tried here once and changed
+    // nothing -- the fsynced file was still absent after the machine was killed.
     expect(
         MountScript.mountOptions(driver: "ntfs3", readOnly: true) == " -o ro",
-        "ntfs3 is given no driver options, so read-only stands alone")
+        "ntfs3 read-only stands alone")
     expect(
         MountScript.mountOptions(driver: nil, readOnly: false) == "",
         "a mount with nothing to say emits no -o at all")

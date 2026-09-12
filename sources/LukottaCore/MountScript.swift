@@ -2645,9 +2645,13 @@ public enum MountScript {
     /// day and broke every read-only ntfs-3g mount: the last resort for a drive
     /// Windows hibernated, and the whole path for anyone who chooses to open
     /// NTFS read-only. mountOptions is the only place allowed to build the flag.
-    static func driverOptions(_ driver: String?) -> [String] {
-        guard driver == "ntfs-3g" else { return [] }
-        return ["big_writes"]
+    static func driverOptions(_ driver: String?, readOnly: Bool = false) -> [String] {
+        // The client judges a delete against the mode it is handed, and a guest
+        // session owns nothing, so it falls to the other bits. A folder arriving
+        // 0755 is refused; one arriving 0777 is not. Measured both ways.
+        let masks = readOnly ? [] : ["fmask=0", "dmask=0"]
+        guard driver == "ntfs-3g" else { return driver == "ntfs3" ? masks : [] }
+        return ["big_writes"] + masks
     }
 
     /// One -o carrying everything, or nothing at all.
@@ -2663,7 +2667,7 @@ public enum MountScript {
     public static func mountOptions(
         driver: String?, readOnly: Bool, durability: String? = nil
     ) -> String {
-        var opts = driverOptions(driver)
+        var opts = driverOptions(driver, readOnly: readOnly)
         // Beside a driver as well, since 2026-09-05.
         //
         // It was kept away from the NTFS drivers on a counterfactual that said
