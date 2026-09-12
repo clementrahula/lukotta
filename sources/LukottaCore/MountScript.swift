@@ -2149,8 +2149,8 @@ public enum MountScript {
           cnid scheme = sqlite
           force user = root
           force group = root
-          file perm = 0666
-          directory perm = 0777
+          file perm = 0644
+          directory perm = 0755
         EOF
         netatalk -F /tmp/afp.conf
         for i in $(seq 1 60); do netstat -ltn | grep -q ':548 ' && break; sleep 0.25; done
