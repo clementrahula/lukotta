@@ -283,12 +283,13 @@ nothing had ever opened one.
 
 ## What 1.22.20 leaves open
 
-- [ ] **A dev build will not quit; the cause is not known.** Every graceful route is
-  declined at once with "User cancelled" (-128), no question on screen, app still
-  running; SIGTERM ends it. Ruled out on 2026-09-12 over a dozen runs: an open drive,
-  the menu bar panel, the first minute after launch, devtools, the feed URL, and where
-  the bundle sits. Shipped builds are unaffected: 1.22.20-beta.12 quits in a second
-  and names the drive, and `quitnames` checks the beta.
+- [ ] **A build with update checks switched off will not quit.** Every graceful route
+  is declined with "User cancelled" (-128), no question on screen, app still running;
+  SIGTERM ends it. It is `SUEnableAutomaticChecks`: set true on the same bundle, the
+  app quits at once; set false, every quit is refused. Measured 2026-09-12; the dead
+  dev feed, devtools and the bundle's location were ruled out first. Only dev builds
+  set it false today, so nothing shipped is affected, but a quit must never wait on an
+  updater that will never answer.
 
 ## What 1.22.18 leaves open
 
