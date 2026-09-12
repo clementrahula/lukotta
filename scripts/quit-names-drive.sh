@@ -12,7 +12,9 @@ BUNDLE="com.lukotta.dev"
 HOST="$(basename "$DEVICE").local"
 [ -d "$APP" ] || { echo "no dev build at $APP"; exit 2; }
 WORK="$(mktemp -d)"
-trap 'pkill -x "Lukotta Dev"; rm -rf "$WORK"' EXIT
+# Whatever happens, the drive is closed again: a run that stops half way must not leave
+# the next one looking at a drive that is already open and reporting there is no row.
+trap 'pkill -x "Lukotta Dev"; "$APP/Contents/MacOS/Lukotta Dev" --drive eject="$DEVICE" >/dev/null 2>&1; rm -rf "$WORK"' EXIT
 swiftc -O -o "$WORK/ax-press" "$(dirname "$0")/ax-press.swift" 2>/dev/null || { echo "ax-press did not build"; exit 2; }
 ax() { "$WORK/ax-press" "$BUNDLE" "$@" | tail -n 1; }
 finder_volume() { mount | grep -F "@$HOST/" | grep afpfs | sed -E 's/^.* on (.*) \([^()]*\)$/\1/' | head -n 1; }
@@ -39,7 +41,17 @@ done
 osascript -e 'tell application "Lukotta Dev" to quit' >/dev/null 2>&1 &
 lq="$(printf '\342\200\234')"; rq="$(printf '\342\200\235')"
 asked="$(ax shows "Quit and leave ${lq}${name}${rq} open?" 15)"
-[ "$(ax title "Eject and Quit" 10)" = pressed ] || { echo "no Eject and Quit in the question"; exit 1; }
+if [ "$(ax title "Eject and Quit" 10)" != pressed ]; then
+  # What was on screen instead, so the next failure explains itself rather than repeating.
+  echo "no Eject and Quit in the question; the app showed:"
+  osascript -e 'tell application "System Events" to tell process "Lukotta Dev"' \
+    -e 'set out to ""' \
+    -e 'repeat with w in windows' \
+    -e 'set out to out & "window: " & (name of w) & " buttons: " & (name of every button of w) & linefeed' \
+    -e 'end repeat' -e 'return out' -e 'end tell' 2>&1 | sed 's/^/  /' | head -n 6
+  echo "  still running: $(pgrep -x "Lukotta Dev" | wc -l | tr -d ' '); mounts: $(mount | grep -c "$HOST")"
+  exit 1
+fi
 ejecting=""
 for _ in $(seq 1 80); do
   [ "$(ax shows "Ejecting $name" 0.1)" = shown ] && { ejecting=shown; break; }
