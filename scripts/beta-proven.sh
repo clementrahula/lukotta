@@ -18,7 +18,7 @@ LOG="releases/proofs/$BETA.log"
 [ "$(git rev-parse -q --verify "v$BETA^{commit}" 2>/dev/null)" = "$COMMIT" ] \
   || no "tag v$BETA is not the commit that was proven"
 git diff --quiet "$COMMIT" HEAD -- sources vendor patches build-app.sh Package.swift Package.resolved \
-  || no "code changed since $BETA was proven: $(git diff --name-only "$COMMIT" HEAD -- sources vendor patches build-app.sh Package.swift Package.resolved | head -3 | paste -sd' ' -)"
+  || no "code changed since $BETA was proven: $(git diff --name-only "$COMMIT" HEAD -- sources vendor patches build-app.sh Package.swift Package.resolved \
 grep -q "^FAIL" "$LOG" && no "$LOG records a failure"
 grep -qx "VERDICT $BETA: proven" "$LOG" || no "$LOG has no verdict"
 for step in published update "bitlocker open" "bitlocker write" "bitlocker delete" "bitlocker reopen" \
