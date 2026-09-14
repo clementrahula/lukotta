@@ -135,15 +135,19 @@ public enum EngineProcesses {
     /// Engine mounts from this bundle that serve nothing and are old enough to
     /// be left behind rather than starting.
     ///
-    /// The engine names a share after the device it was given, its last
-    /// argument, so a mount process whose `<device>.local:` share is absent
-    /// from the table serves nothing. It still holds the engine's lock, and
-    /// with it the drive, for as long as it runs.
+    /// A mount is served from `<host>.local:`, the host named after the engine's
+    /// last argument as `engineHost` names it, or with `-N` added when that
+    /// host was taken. A mount process with no such share in the table serves
+    /// nothing, and still holds the engine's lock and its drive. Anything that
+    /// cannot be matched exactly counts as serving.
     public static func idleMounts(
         ps: String, engine: String, mountTable table: String,
         olderThan age: TimeInterval = idleMountAge
     ) -> Set<Int32> {
-        let shares = Set(MountTableEntry.all(in: table).map(\.source))
+        let hosts = MountTableEntry.all(in: table).compactMap { entry -> String? in
+            guard let end = entry.source.range(of: ".local:") else { return nil }
+            return String(entry.source[..<end.lowerBound])
+        }
         var found: Set<Int32> = []
         for line in ps.components(separatedBy: .newlines) {
             let fields = line.split(separator: " ", maxSplits: 2, omittingEmptySubsequences: true)
@@ -152,13 +156,52 @@ public enum EngineProcesses {
             else { continue }
             let arguments = String(fields[2])
             guard arguments.hasPrefix(engine + " mount "),
-                let device = arguments.split(separator: " ").last
+                let target = arguments.split(separator: " ").last
             else { continue }
-            let share = (String(device) as NSString).lastPathComponent + ".local:"
-            guard !shares.contains(where: { $0.hasPrefix(share) }) else { continue }
+            let base = engineHost(for: String(target))
+            guard !hosts.contains(where: { serves($0, base) }) else { continue }
             found.insert(pid)
         }
         return found
+    }
+
+    /// The engine's own name for the machine serving a target, as
+    /// `hostname_from_disk_ident` makes it.
+    public static func engineHost(for target: String) -> String {
+        let tokens = target.split(separator: ":", omittingEmptySubsequences: false).map(String.init)
+        var first = tokens.first ?? ""
+        var prefix = ""
+        if tokens.count > 1, first == "lvm" || first == "raid" {
+            prefix = first
+            first = tokens[1]
+        }
+        var name = (first as NSString).lastPathComponent
+        if first.isEmpty || name == "/" { name = "" }
+        if let at = name.range(of: "@s", options: .backwards),
+            name[at.upperBound...].allSatisfy({ $0.isASCII && $0.isNumber })
+        {
+            name = String(name[..<at.lowerBound])
+        }
+        let dashed: Set<Character> = [" ", "_", "\\", "<", ">", "|", "+", ":", ".", ","]
+        var host = String(
+            name.map { dashed.contains($0) ? "-" : $0 }
+                .filter { ($0.isASCII && ($0.isLetter || $0.isNumber)) || $0 == "-" })
+        if host.isEmpty { host = "disk" }
+        if !prefix.isEmpty { host = prefix + "-" + host }
+        return String(host.prefix(63))
+    }
+
+    /// Whether a share host is the base, or the base the engine made unique by
+    /// truncating it and adding `-N`.
+    static func serves(_ host: String, _ base: String) -> Bool {
+        if host == base { return true }
+        guard let dash = host.lastIndex(of: "-") else { return false }
+        let digits = host[host.index(after: dash)...]
+        guard !digits.isEmpty, digits.allSatisfy({ $0.isASCII && $0.isNumber }) else {
+            return false
+        }
+        let suffixLength = host.distance(from: dash, to: host.endIndex)
+        return String(host[..<dash]) == String(base.prefix(min(base.count, 63 - suffixLength)))
     }
 
     /// Stop the engine mounts that serve nothing. Root's to call: the helper

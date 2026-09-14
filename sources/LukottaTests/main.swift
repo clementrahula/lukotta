@@ -5489,9 +5489,15 @@ group("anEngineMountServingNothingIsStopped") {
           104 2-03:00:00 /opt/homebrew/bin/anylinuxfs mount -t ext4 /dev/disk6
           105    01:26:11 \(engine) shell /dev/disk7
           106    01:26:11 /Applications/Lukotta Dev.app/Contents/Resources/engine/anylinuxfs/libexec/vmnet-helper --socket /tmp/v.sock
+          107    01:26:11 \(engine) mount --ignore-permissions -t btrfs -a lukottalinux -w false lvm:examplevg:disk5:ROOT
+          108    01:26:11 \(engine) mount --ignore-permissions -t btrfs -a lukottalinux -w false raid:disk6s1:disk7s1
+          109    01:26:11 \(engine) mount --ignore-permissions -t ntfs3 -a lukottantfs3 -w false /dev/disk8s1
         """
     let table = """
         disk4s2.local:/mnt/VOLUME on /Volumes/.lukotta/VOLUME (nfs, nodev, nosuid, synchronous, noowners, nobrowse, mounted by someone)
+        lvm-examplevg.local:/run/disk5 on /Volumes/.lukotta/ROOT (nfs, nodev, nosuid, noowners, nobrowse, mounted by someone)
+        raid-disk6s1.local:/mnt/ARRAY on /Volumes/.lukotta/ARRAY (nfs, nodev, nosuid, noowners, nobrowse, mounted by someone)
+        disk8s1-1.local:/mnt/SECOND on /Volumes/.lukotta/SECOND (nfs, nodev, nosuid, noowners, nobrowse, mounted by someone)
         """
     let idle = EngineProcesses.idleMounts(ps: ps, engine: engine, mountTable: table)
     expect(idle == [101], "only the mount whose share is gone and that has been running for long")
@@ -5500,6 +5506,19 @@ group("anEngineMountServingNothingIsStopped") {
     expect(!idle.contains(104), "another engine's is left alone")
     expect(
         !idle.contains(105) && !idle.contains(106), "a shell and the network helper are not mounts")
+    expect(!idle.contains(107), "an LVM volume served as lvm-<group> is left alone")
+    expect(!idle.contains(108), "a RAID array served as raid-<first member> is left alone")
+    expect(!idle.contains(109), "a mount whose host the engine made unique with -1 is left alone")
+    expect(EngineProcesses.engineHost(for: "/dev/disk4s2") == "disk4s2", "a device is its name")
+    expect(
+        EngineProcesses.engineHost(for: "lvm:examplevg:disk5:ROOT") == "lvm-examplevg",
+        "an LVM target is named after its volume group")
+    expect(
+        EngineProcesses.engineHost(for: "raid:disk6s1:disk7s1") == "raid-disk6s1",
+        "a RAID target after its first member")
+    expect(
+        EngineProcesses.engineHost(for: "/tmp/My Drive_v1.2@s3") == "My-Drive-v1-2",
+        "a partition suffix goes and punctuation becomes dashes")
     expect(EngineProcesses.secondsIn("2-03:00:00") == 183_600, "days, hours, minutes and seconds")
     expect(EngineProcesses.secondsIn("00:40") == 40, "minutes and seconds")
 }
