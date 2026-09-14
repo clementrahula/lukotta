@@ -47697,222 +47697,222 @@
         }
       }
     },
-    "The drive appears in the Finder sidebar under Locations.\nEject it in Finder before unplugging it.": {
+    "The drive appears in the Finder sidebar under Favourites.\nEject it in Finder before unplugging it.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يظهر محرك الأقراص في الشريط الجانبي للباحث ضمن المواقع.\nأخرجه في الباحث قبل فصله."
+            "value": "يظهر محرك الأقراص في الشريط الجانبي للباحث ضمن المفضلة.\nأخرجه في الباحث قبل فصله."
           }
         },
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Дискът се появява в страничната лента на Finder в раздела „Locations“.\nИзвадете го във Finder, преди да го изключите."
+            "value": "Дискът се появява в страничната лента на Finder в раздела „Favourites“.\nИзвадете го във Finder, преди да го изключите."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disk se zobrazí v postranním panelu Finderu v části „Místa“.\nNež jej odpojíte, vysuňte jej ve Finderu."
+            "value": "Disk se zobrazí v postranním panelu Finderu v části „Oblíbené“.\nNež jej odpojíte, vysuňte jej ve Finderu."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enheden vises i Finders indholdsoversigt under “Placeringer”.\nSkub den ud i Finder, før du frakobler den."
+            "value": "Enheden vises i Finders indholdsoversigt under “Favoritter”.\nSkub den ud i Finder, før du frakobler den."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das Laufwerk erscheint in der Finder-Seitenleiste unter „Orte“.\nWirf es im Finder aus, bevor du es abziehst."
+            "value": "Das Laufwerk erscheint in der Finder-Seitenleiste unter „Favoriten“.\nWirf es im Finder aus, bevor du es abziehst."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ο δίσκος εμφανίζεται στην πλαϊνή στήλη του Finder, στην ενότητα «Τοποθεσίες».\nΚάντε εξαγωγή στο Finder πριν τον αποσυνδέσετε."
+            "value": "Ο δίσκος εμφανίζεται στην πλαϊνή στήλη του Finder, στην ενότητα «Αγαπημένα».\nΚάντε εξαγωγή στο Finder πριν τον αποσυνδέσετε."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El disco aparece en la barra lateral del Finder, en «Ubicaciones».\nExpúlsalo en el Finder antes de desconectarlo."
+            "value": "El disco aparece en la barra lateral del Finder, en «Favoritos».\nExpúlsalo en el Finder antes de desconectarlo."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ketas ilmub Finderi külgribale jaotisse „Locations“.\nVäljuta see Finderis, enne kui selle lahti ühendad."
+            "value": "Ketas ilmub Finderi külgribale jaotisse „Favourites“.\nVäljuta see Finderis, enne kui selle lahti ühendad."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Asema näkyy Finderin sivupalkissa kohdassa ”Sijainnit”.\nPoista se käytöstä Finderissa ennen irrottamista."
+            "value": "Asema näkyy Finderin sivupalkissa kohdassa ”Suosikit”.\nPoista se käytöstä Finderissa ennen irrottamista."
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lumalabas ang drive sa sidebar ng Finder sa ilalim ng Locations.\nI-eject ito sa Finder bago hugutin."
+            "value": "Lumalabas ang drive sa sidebar ng Finder sa ilalim ng Favourites.\nI-eject ito sa Finder bago hugutin."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le disque apparaît dans la barre latérale du Finder, sous « Emplacements ».\nÉjectez-le dans le Finder avant de le débrancher."
+            "value": "Le disque apparaît dans la barre latérale du Finder, sous « Favoris ».\nÉjectez-le dans le Finder avant de le débrancher."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "הכונן מופיע בסרגל הצד של Finder תחת מיקומים.\nהוציאו אותו ב‑Finder לפני הניתוק."
+            "value": "הכונן מופיע בסרגל הצד של Finder תחת מועדפים.\nהוציאו אותו ב‑Finder לפני הניתוק."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "ड्राइव Finder के साइडबार में स्थान के नीचे दिखती है।\nनिकालने से पहले उसे Finder में इजेक्ट करें।"
+            "value": "ड्राइव Finder के साइडबार में पसंदीदा के नीचे दिखती है।\nनिकालने से पहले उसे Finder में इजेक्ट करें।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disk se pojavljuje u rubnom stupcu Findera pod „Lokacije”.\nIzbacite ga u Finderu prije odspajanja."
+            "value": "Disk se pojavljuje u rubnom stupcu Findera pod „Omiljene stavke”.\nIzbacite ga u Finderu prije odspajanja."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A meghajtó a Finder oldalsávján, a „Helyek” alatt jelenik meg.\nLeválasztás előtt adja ki a Finderben."
+            "value": "A meghajtó a Finder oldalsávján, a „Kedvencek” alatt jelenik meg.\nLeválasztás előtt adja ki a Finderben."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drive muncul di bilah samping Finder di bawah Lokasi.\nKeluarkan di Finder sebelum mencabutnya."
+            "value": "Drive muncul di bilah samping Finder di bawah Favorit.\nKeluarkan di Finder sebelum mencabutnya."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il disco appare nella barra laterale del Finder, sotto «Posizioni».\nEspellilo nel Finder prima di scollegarlo."
+            "value": "Il disco appare nella barra laterale del Finder, sotto «Preferiti».\nEspellilo nel Finder prima di scollegarlo."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ドライブは Finder のサイドバーの「場所」に表示されます。\n取り外す前に Finder で取り出してください。"
+            "value": "ドライブは Finder のサイドバーの「よく使う項目」に表示されます。\n取り外す前に Finder で取り出してください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "드라이브는 Finder 사이드바의 위치 아래에 나타납니다.\n분리하기 전에 Finder에서 추출하십시오."
+            "value": "드라이브는 Finder 사이드바의 즐겨찾기 아래에 나타납니다.\n분리하기 전에 Finder에서 추출하십시오."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diskas rodomas „Finder“ šoninėje juostoje skiltyje „Locations“.\nIšstumkite jį „Finder“ programoje prieš atjungdami."
+            "value": "Diskas rodomas „Finder“ šoninėje juostoje skiltyje „Favourites“.\nIšstumkite jį „Finder“ programoje prieš atjungdami."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disks parādās programmas Finder sānjoslā sadaļā “Locations”.\nIzstumiet to programmā Finder, pirms to atvienojat."
+            "value": "Disks parādās programmas Finder sānjoslā sadaļā “Favourites”.\nIzstumiet to programmā Finder, pirms to atvienojat."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pemacu muncul dalam bar sisi Finder di bawah Lokasi.\nKeluarkannya dalam Finder sebelum mencabutnya."
+            "value": "Pemacu muncul dalam bar sisi Finder di bawah Kegemaran.\nKeluarkannya dalam Finder sebelum mencabutnya."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enheten vises i sidepanelet i Finder under «Plasseringer».\nMat den ut i Finder før du kobler den fra."
+            "value": "Enheten vises i sidepanelet i Finder under «Favoritter».\nMat den ut i Finder før du kobler den fra."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "De schijf verschijnt in de navigatiekolom van de Finder onder ‘Locaties’.\nVerwijder die in de Finder voordat je de schijf loskoppelt."
+            "value": "De schijf verschijnt in de navigatiekolom van de Finder onder ‘Favorieten’.\nVerwijder die in de Finder voordat je de schijf loskoppelt."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dysk pojawia się na pasku bocznym Findera w sekcji „Miejsca”.\nWysuń go w Finderze, zanim go odłączysz."
+            "value": "Dysk pojawia się na pasku bocznym Findera w sekcji „Ulubione”.\nWysuń go w Finderze, zanim go odłączysz."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O disco aparece na barra lateral do Finder, em «Locais».\nEjete-o no Finder antes de o desligar."
+            "value": "O disco aparece na barra lateral do Finder, em «Favoritos».\nEjete-o no Finder antes de o desligar."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Discul apare în bara laterală Finder, la „Amplasamente”.\nEjectați-l în Finder înainte de a-l deconecta."
+            "value": "Discul apare în bara laterală Finder, la „Favorite”.\nEjectați-l în Finder înainte de a-l deconecta."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Диск появляется в боковом меню Finder в разделе «Размещения».\nИзвлеките его в Finder, прежде чем отключать."
+            "value": "Диск появляется в боковом меню Finder в разделе «Избранное».\nИзвлеките его в Finder, прежде чем отключать."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pogon se prikaže v stranski vrstici Finderja pod »Lokacije«.\nPreden ga odklopite, ga izvrzite v Finderju."
+            "value": "Pogon se prikaže v stranski vrstici Finderja pod »Priljubljeno«.\nPreden ga odklopite, ga izvrzite v Finderju."
           }
         },
         "sq": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disku shfaqet në shiritin anësor të Finder-it te Locations.\nNxirre në Finder para se ta shkëputësh."
+            "value": "Disku shfaqet në shiritin anësor të Finder-it te Favourites.\nNxirre në Finder para se ta shkëputësh."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enheten visas i Finders sidofält under ”Platser”.\nMata ut den i Finder innan du kopplar bort den."
+            "value": "Enheten visas i Finders sidofält under ”Favoriter”.\nMata ut den i Finder innan du kopplar bort den."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ไดรฟ์จะปรากฏในแถบข้างของ Finder ใต้หัวข้อตำแหน่ง\nดันออกใน Finder ก่อนถอดสาย"
+            "value": "ไดรฟ์จะปรากฏในแถบข้างของ Finder ใต้หัวข้อรายการโปรด\nดันออกใน Finder ก่อนถอดสาย"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sürücü, Finder kenar çubuğunda Konumlar altında görünür.\nÇıkarmadan önce Finder'da çıkarın."
+            "value": "Sürücü, Finder kenar çubuğunda Favoriler altında görünür.\nÇıkarmadan önce Finder'da çıkarın."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Диск з’являється в бічній панелі Finder у розділі «Розташування».\nВилучіть його у Finder, перш ніж від’єднувати."
+            "value": "Диск з’являється в бічній панелі Finder у розділі «Улюблені».\nВилучіть його у Finder, перш ніж від’єднувати."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ổ đĩa xuất hiện ở thanh bên của Finder, dưới mục Vị trí.\nHãy tháo nó trong Finder trước khi rút ra."
+            "value": "Ổ đĩa xuất hiện ở thanh bên của Finder, dưới Mục ưa thích.\nHãy tháo nó trong Finder trước khi rút ra."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "该驱动器会出现在“访达”边栏的“位置”下。\n拔下之前请在“访达”中推出它。"
+            "value": "该驱动器会出现在“访达”边栏的“个人收藏”下。\n拔下之前请在“访达”中推出它。"
           }
         }
       }

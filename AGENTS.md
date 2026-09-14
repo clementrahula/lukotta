@@ -784,6 +784,12 @@ Properties of the design. Each has been decided, and arriving at one and
   the disk suppresses it, and a claim belongs to a running process.
 - **The volume appears as a network drive.** macOS offers no supported way to
   mark an NFS mount local. Only replacing the transport changes it.
+- **An open drive is listed under Favourites in Finder's sidebar, not Locations.**
+  On macOS 26 Locations lists no AFP volume: mounted by `mount_afp`, by NetFS, or
+  advertised over Bonjour, measured all three on 2026-09-14. `SidebarFavourites`
+  adds the favourite when a drive opens and removes it, by item id, when it
+  closes; a favourite of an ejected volume resolves to no path. A favourite the
+  person made is never touched.
 - **Full Disk Access cannot be requested.** No API exists; the app detects the
   refusal and explains it.
 - **The drive's name in Finder is right from the second unlock onward.** The

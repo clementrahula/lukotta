@@ -266,7 +266,7 @@
     "The background helper is not set up, so %@ is holding the drive open itself. Quitting now disconnects it, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own.": "백그라운드 도우미가 설정되지 않아 %@이(가) 직접 드라이브를 열어 두고 있습니다. 지금 종료하면 연결이 끊기고, 기록 중인 내용은 끝나지 않습니다.\n\n도우미를 설정하면 드라이브는 스스로 열린 상태를 유지합니다.",
     "The background helper is not set up, so %@ is holding them open itself. Quitting now disconnects them, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own.": "백그라운드 도우미가 설정되지 않아 %@이(가) 직접 그것들을 열어 두고 있습니다. 지금 종료하면 연결이 끊기고, 기록 중인 내용은 끝나지 않습니다.\n\n도우미를 설정하면 드라이브는 스스로 열린 상태를 유지합니다.",
     "The background helper will be unregistered.": "백그라운드 도우미의 등록이 해제됩니다.",
-    "The drive appears in the Finder sidebar under Locations.\nEject it in Finder before unplugging it.": "드라이브는 Finder 사이드바의 위치 아래에 나타납니다.\n분리하기 전에 Finder에서 추출하십시오.",
+    "The drive appears in the Finder sidebar under Favourites.\nEject it in Finder before unplugging it.": "드라이브는 Finder 사이드바의 즐겨찾기 아래에 나타납니다.\n분리하기 전에 Finder에서 추출하십시오.",
     "The drive could not be opened.": "드라이브를 열 수 없습니다.",
     "The drive did not finish ejecting. It may still be in use, so try again or eject it in Finder.": "드라이브 추출을 마치지 못했습니다. 아직 사용 중일 수 있으니 다시 시도하거나 Finder에서 추출하십시오.",
     "The drive is busy. Close anything using it, then try again.": "드라이브가 사용 중입니다. 사용 중인 항목을 닫고 다시 시도하십시오.",

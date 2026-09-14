@@ -1706,8 +1706,8 @@
         "menus"
       ]
     },
-    "The drive appears in the Finder sidebar under Locations.\nEject it in Finder before unplugging it.": {
-      "context": "Two lines in an information box. The first says where to find the opened drive; the second is the one instruction that matters, since pulling a drive out without ejecting it can lose data. Locations is the name of a section in Finder's sidebar.",
+    "The drive appears in the Finder sidebar under Favourites.\nEject it in Finder before unplugging it.": {
+      "context": "Two lines in an information box. The first says where to find the opened drive; the second is the one instruction that matters, since pulling a drive out without ejecting it can lose data. Favourites is the name of a section in Finder's sidebar; use the name Finder gives it in the language.",
       "placeholders": [],
       "screens": [
         "mounted"

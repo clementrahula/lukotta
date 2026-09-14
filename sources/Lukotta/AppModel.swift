@@ -1597,7 +1597,10 @@ final class AppModel: ObservableObject {
         // scratch directory of a mount that never finished, the empty folder an
         // ejected drive leaves in ~/Volumes, and the settings' memory of files
         // that are no longer on this Mac.
-        Task.detached(priority: .utility) { Housekeeping.sweep() }
+        Task.detached(priority: .utility) {
+            Housekeeping.sweep()
+            SidebarFavourites.reconcile()
+        }
         // A config naming an action twice stops the engine reading it at all,
         // and then no drive opens and nothing says why. Repaired here rather
         // than left for somebody to find. See EngineConfig.
@@ -3335,6 +3338,7 @@ final class AppModel: ObservableObject {
         // Without this, uninstalling ejected nothing and went on to delete the
         // Linux environment under drives that were still open.
         OpenedHere.add(mountPoint)
+        Task.detached(priority: .utility) { SidebarFavourites.reconcile() }
         switch route {
         case .authorised:
             // The helper is offered before the mount, not after it: asking here
@@ -3767,7 +3771,10 @@ final class AppModel: ObservableObject {
             self.showAllDrives()
         }
         // The mount point this drive was served on is empty now.
-        Task.detached(priority: .utility) { Housekeeping.sweep() }
+        Task.detached(priority: .utility) {
+            Housekeeping.sweep()
+            SidebarFavourites.reconcile()
+        }
     }
 
     /// Drives whose volume went away outside this app -- ejected in Finder -- are closed here too.
@@ -3777,6 +3784,7 @@ final class AppModel: ObservableObject {
                 try? await Task.sleep(nanoseconds: 2_000_000_000)
                 guard let self else { return }
                 await self.closeWhatWentAway()
+                Task.detached(priority: .utility) { SidebarFavourites.followMountTable() }
             }
         }
     }
@@ -3810,6 +3818,17 @@ final class AppModel: ObservableObject {
         ((AfpShare.finderPoint(forEngineMount: point) ?? point) as NSString).lastPathComponent
     }
 
+    /// The sidebar made to agree with the drives still open, or given up on after
+    /// `seconds`: a favourite on a network mount that stopped answering must not hold a quit.
+    nonisolated static func tidySidebar(within seconds: TimeInterval) {
+        let done = DispatchSemaphore(value: 0)
+        DispatchQueue.global(qos: .userInitiated).async {
+            SidebarFavourites.reconcile()
+            done.signal()
+        }
+        _ = done.wait(timeout: .now() + seconds)
+    }
+
     /// Eject everything, then run the completion. Used on quit.
     func ejectAll(completion: @escaping @MainActor @Sendable () -> Void) {
         // What this app opened, not what the engine is serving.
@@ -3826,6 +3845,7 @@ final class AppModel: ObservableObject {
                 _ = EngineStatus.unmount(mountPoint: point)
             }
             EngineConfig.removeGeneratedAction()
+            AppModel.tidySidebar(within: 5)
             await MainActor.run { completion() }
         }
     }
