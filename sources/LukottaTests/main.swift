@@ -5505,6 +5505,37 @@ group("aProgramThatPrintsMoreThanAPipeHoldsFinishes") {
         if case .finished(let done) = ask("/usr/bin/true", timeout: 5), done.ok { quick += 1 }
     }
     expect(quick == 50, "a program that exits at once is never mistaken for a silent one")
+
+    // A program that ignores its deadline and leaves a child holding the pipe.
+    // Nothing may be left waiting on it, or enough of them leave the process
+    // unable to run anything at all.
+    let stubborn = "trap '' TERM; sleep 613.25 & wait"
+    for _ in 0..<40 { _ = ask("/bin/sh", ["-c", stubborn], timeout: 0.05) }
+    final class Said: @unchecked Sendable {
+        private let lock = NSLock()
+        private var text = ""
+        func set(_ new: String) {
+            lock.lock()
+            text = new
+            lock.unlock()
+        }
+        func get() -> String {
+            lock.lock()
+            defer { lock.unlock() }
+            return text
+        }
+    }
+    let answered = DispatchSemaphore(value: 0)
+    let echoed = Said()
+    Thread.detachNewThread {
+        if case .finished(let said) = ask("/bin/echo", ["still here"]) { echoed.set(said.out) }
+        answered.signal()
+    }
+    expect(
+        answered.wait(timeout: .now() + 15) == .success && echoed.get().hasPrefix("still here"),
+        "forty programs that outlived their deadline leave nothing waiting behind them")
+    _ = ask("/usr/bin/pkill", ["-KILL", "-f", "sleep 613.25"], timeout: 10)
+    _ = ask("/usr/bin/pkill", ["-KILL", "-f", stubborn], timeout: 10)
 }
 
 group("anEngineMountServingNothingIsStopped") {
