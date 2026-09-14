@@ -481,19 +481,21 @@ shipped Image. Everything else about the recipe is the original.
 ## linux-every-entry-is-writable.patch
 
 **Defect.** Finder refused to open a folder stored 0700 and to delete inside
-one stored 0755, on a drive served by a guest acting as root. The client
-decides from the mode it is handed and refuses before asking. Modes come off
-the disk: ntfs3 takes WSL's `$LXMOD` over `fmask` and `dmask`
-(`ntfs_read_mft`, `fs/ntfs3/inode.c:382`), and every folder a Mac copies or
-creates carries one. Linux filesystems store theirs, FAT and exFAT derive them
-from the read-only attribute, and immutable and append-only flags refuse even
-root.
+one stored 0755. Modes come off the disk: ntfs3 takes WSL's `$LXMOD` over
+`fmask` and `dmask` (`ntfs_read_mft`, `fs/ntfs3/inode.c:382`), and every folder
+a Mac copies or creates carries one. Linux filesystems store theirs, FAT and
+exFAT derive them from the read-only attribute, and immutable and append-only
+flags refuse even root. They refused twice: the client judged the mode it was
+handed, and the AFP server, which does not act as root, was judged by the
+kernel against the mode stored. Measured on a 2 TB NTFS drive: with the
+reported modes alone 0777 over NFS and AFP, AFP still refused a folder stored
+0700 and a delete inside one stored 0755.
 
-**Change.** `vfs_getattr_nosec()` adds read and write for everyone to every
-regular file and read, write and search to every folder, after the filesystem
-has filled in the attributes. stat, statx and nfsd all read attributes there,
-for every filesystem including FUSE. `IS_APPEND()` and `IS_IMMUTABLE()` report
-false, so no check refuses a change for those flags. Nothing is written to the
+**Change.** `inode_permission()` returns only what `sb_permission()` says, so
+a read-only mount still refuses and nothing else does. `check_sticky()` and
+`inode_owner_or_capable()` grant. `IS_APPEND()` and `IS_IMMUTABLE()` report
+false. `vfs_getattr_nosec()` adds read and write for everyone to every regular
+file, and read, write and search to every folder. Nothing is written to the
 disk: modes and flags stay as stored, and chmod and chattr still set them.
 
 ## linux-ntfs3-readdir-survives-deletion.patch

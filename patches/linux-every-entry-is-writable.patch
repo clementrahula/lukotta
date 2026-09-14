@@ -1,16 +1,16 @@
 Every entry on a drive the guest serves is readable and writable.
 
-A client decides what it may do from the mode it is handed and refuses before
-asking. The guest serves as root, so the server never refused; the client did.
-Modes come from the disk and are whatever wrote them: WSL's $LXMOD on NTFS, a
-Linux umask, a Windows read-only attribute, a 0700 folder copied from a Mac.
+Modes and flags come off the disk and are whatever wrote them: WSL's $LXMOD on
+NTFS, a Linux umask, a Windows read-only attribute, a 0700 folder copied from a
+Mac, an immutable or append-only flag. They refused twice: the client judged
+the mode it was handed, and a server acting as anyone but root was judged
+against the mode stored.
 
-vfs_getattr_nosec is where stat, statx and nfsd read attributes, for every
-filesystem including FUSE. It adds read and write for everyone, and search on
-folders. Nothing on disk changes: a chmod still stores what it is given.
-
-Immutable and append-only are flags root cannot override, so the macros every
-check goes through report them unset. The flags stay on disk.
+inode_permission() grants everything a read-only mount does not refuse, and
+neither ownership, the sticky bit nor immutable and append-only flags refuse a
+change. vfs_getattr_nosec(), where stat, statx and nfsd read attributes for
+every filesystem including FUSE, adds read and write for everyone, and search
+on folders. Nothing is written to the disk: modes and flags stay as stored.
 
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
@@ -25,6 +25,78 @@ check goes through report them unset. The flags stay on disk.
  
  #ifdef CONFIG_FS_POSIX_ACL
  #define IS_POSIXACL(inode)	__IS_FLG(inode, SB_POSIXACL)
+@@ -3650,10 +3650,7 @@
+ static inline int check_sticky(struct mnt_idmap *idmap,
+ 			       struct inode *dir, struct inode *inode)
+ {
+-	if (!(dir->i_mode & S_ISVTX))
+-		return 0;
+-
+-	return __check_sticky(idmap, dir, inode);
++	return 0;
+ }
+ 
+ static inline void inode_has_no_xattr(struct inode *inode)
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -512,35 +512,7 @@
+ {
+ 	int retval;
+ 
+-	retval = sb_permission(inode->i_sb, inode, mask);
+-	if (retval)
+-		return retval;
+-
+-	if (unlikely(mask & MAY_WRITE)) {
+-		/*
+-		 * Nobody gets write access to an immutable file.
+-		 */
+-		if (IS_IMMUTABLE(inode))
+-			return -EPERM;
+-
+-		/*
+-		 * Updating mtime will likely cause i_uid and i_gid to be
+-		 * written back improperly if their true value is unknown
+-		 * to the vfs.
+-		 */
+-		if (HAS_UNMAPPED_ID(idmap, inode))
+-			return -EACCES;
+-	}
+-
+-	retval = do_inode_permission(idmap, inode, mask);
+-	if (retval)
+-		return retval;
+-
+-	retval = devcgroup_inode_permission(inode, mask);
+-	if (retval)
+-		return retval;
+-
+-	return security_inode_permission(inode, mask);
++	return sb_permission(inode->i_sb, inode, mask);
+ }
+ EXPORT_SYMBOL(inode_permission);
+ 
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -2524,17 +2524,7 @@
+ bool inode_owner_or_capable(struct mnt_idmap *idmap,
+ 			    const struct inode *inode)
+ {
+-	vfsuid_t vfsuid;
+-	struct user_namespace *ns;
+-
+-	vfsuid = i_uid_into_vfsuid(idmap, inode);
+-	if (vfsuid_eq_kuid(vfsuid, current_fsuid()))
+-		return true;
+-
+-	ns = current_user_ns();
+-	if (vfsuid_has_mapping(ns, vfsuid) && ns_capable(ns, CAP_FOWNER))
+-		return true;
+-	return false;
++	return true;
+ }
+ EXPORT_SYMBOL(inode_owner_or_capable);
+ 
 --- a/fs/stat.c
 +++ b/fs/stat.c
 @@ -162,12 +162,20 @@
