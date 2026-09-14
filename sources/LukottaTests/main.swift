@@ -1871,6 +1871,73 @@ group("aPartitionTypeIsNeverADriveName") {
         "and a name is kept")
 }
 
+group("aDriveMacOSReadsAsAPFSIsNotOffered") {
+    // A USB drive formatted APFS: an EFI partition, an Apple_APFS one, and the
+    // container macOS builds from it, whose volumes it mounts from a disk of
+    // their own.
+    let apfsDrive: [String: Any] = [
+        "AllDisksAndPartitions": [
+            [
+                "DeviceIdentifier": "disk7",
+                "Partitions": [
+                    [
+                        "DeviceIdentifier": "disk7s1", "Content": "EFI",
+                        "Size": NSNumber(value: 209_715_200),
+                    ],
+                    [
+                        "DeviceIdentifier": "disk7s2", "Content": "Apple_APFS",
+                        "Size": NSNumber(value: 999_000_000_000),
+                    ],
+                ],
+            ],
+            [
+                "DeviceIdentifier": "disk8",
+                "APFSPhysicalStores": [["DeviceIdentifier": "disk7s2"]],
+                "APFSVolumes": [["DeviceIdentifier": "disk8s1", "VolumeName": "Holiday"]],
+            ],
+        ]
+    ]
+    let external: (String) -> [String: Any] = { _ in
+        ["BusProtocol": "USB", "Internal": false]
+    }
+    expect(
+        DriveScanner.drives(inList: apfsDrive, info: external).isEmpty,
+        "nothing on an APFS drive is a type this app opens")
+    expect(
+        DriveScanner.unclaimedVolumes(inList: apfsDrive, info: external).isEmpty,
+        "and neither the disk nor its volumes is offered for a reading, mounted or not")
+
+    // Split between APFS and NTFS, the NTFS half is still a drive.
+    let split: [String: Any] = [
+        "AllDisksAndPartitions": [
+            [
+                "DeviceIdentifier": "disk9",
+                "Partitions": [
+                    [
+                        "DeviceIdentifier": "disk9s1", "Content": "Apple_APFS",
+                        "Size": NSNumber(value: 500_000_000_000),
+                    ],
+                    [
+                        "DeviceIdentifier": "disk9s2", "Content": "Microsoft Basic Data",
+                        "Size": NSNumber(value: 500_000_000_000),
+                    ],
+                ],
+            ],
+            [
+                "DeviceIdentifier": "disk10",
+                "APFSPhysicalStores": [["DeviceIdentifier": "disk9s1"]],
+                "APFSVolumes": [["DeviceIdentifier": "disk10s1", "VolumeName": "Work"]],
+            ],
+        ]
+    ]
+    expect(
+        DriveScanner.drives(inList: split, info: external).map(\.id) == ["disk9s2"],
+        "the NTFS volume beside APFS is listed")
+    expect(
+        DriveScanner.unclaimedVolumes(inList: split, info: external).isEmpty,
+        "and the APFS half is not offered")
+}
+
 group("aStalePartitionTypeDoesNotHideADrive") {
     // A stick formatted exFAT on Windows, years after somebody partitioned it
     // on a Mac, still declares an Apple partition map holding Apple_HFS. Every
