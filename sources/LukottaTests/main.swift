@@ -5709,6 +5709,72 @@ group("anEngineMountServingNothingIsStopped") {
     expect(EngineProcesses.secondsIn("00:40") == 40, "minutes and seconds")
 }
 
+group("anOpenDriveIsInTheSidebarAndLeavesWithIt") {
+    let table = """
+        disk4s2.local:/mnt/BACKUP on /Volumes/.lukotta/BACKUP (nfs, nodev, nosuid, noowners, nobrowse, mounted by someone)
+        //;AUTH=No%20User%20Authent@disk4s2.local/BACKUP on /Volumes/BACKUP (afpfs, nodev, nosuid, mounted by someone)
+        disk6s1.local:/mnt/CARD on /Volumes/CARD (nfs, read-only, mounted by someone)
+        lvm-examplevg.local:/run/disk5 on /Volumes/disk5 (nfs, nodev, nosuid, noowners, mounted by someone)
+        lvm-examplevg.local:/run/disk5/HOMEFS on /Volumes/disk5/HOMEFS (nfs, noowners)
+        //;AUTH=No%20User%20Authent@nas.local/Photos on /Volumes/Photos (afpfs, nodev, nosuid, mounted by someone)
+        fileserver:/export on /Volumes/export (nfs, nodev, nosuid)
+        /dev/disk9s1 on /Volumes/STICK (msdos, local, nodev, nosuid, noowners)
+        """
+    let opened: Set<String> = ["/Volumes/.lukotta/BACKUP", "/Volumes/CARD", "/Volumes/disk5"]
+    expect(
+        SidebarFavourites.openDrives(in: table, opened: opened) == [
+            "/Volumes/BACKUP", "/Volumes/CARD", "/Volumes/disk5",
+        ],
+        "every drive this app opened, over AFP or NFS, once; not the hidden mount, a nested volume, a NAS, a file server or a stick"
+    )
+    expect(
+        SidebarFavourites.openDrives(in: table, opened: ["/Volumes/CARD"]) == ["/Volumes/CARD"],
+        "a drive another app opened is left for that app to list")
+
+    typealias F = SidebarFavourites.Favourite
+    let apps = F(id: 1, path: "/Applications")
+
+    var plan = SidebarFavourites.plan(favourites: [apps], open: ["/Volumes/BACKUP"], added: [:])
+    expect(plan.add == ["/Volumes/BACKUP"] && plan.remove.isEmpty, "an open drive is added")
+
+    plan = SidebarFavourites.plan(
+        favourites: [apps, F(id: 7, path: "/Volumes/BACKUP")], open: ["/Volumes/BACKUP"],
+        added: ["/Volumes/BACKUP": 7])
+    expect(plan.add.isEmpty && plan.remove.isEmpty, "and not added twice")
+
+    plan = SidebarFavourites.plan(
+        favourites: [apps, F(id: 7, path: nil)], open: [], added: ["/Volumes/BACKUP": 7])
+    expect(
+        plan.remove == [7],
+        "a drive this app added goes when it closes, though it no longer resolves")
+
+    plan = SidebarFavourites.plan(
+        favourites: [apps, F(id: 7, path: nil)], open: ["/Volumes/BACKUP"],
+        added: ["/Volumes/BACKUP": 7])
+    expect(plan.add.isEmpty, "one still there while the drive comes back is not added again")
+
+    plan = SidebarFavourites.plan(
+        favourites: [F(id: 3, path: "/Volumes/KEPT"), F(id: 4, path: nil)], open: [], added: [:])
+    expect(plan.remove.isEmpty, "a favourite somebody made themselves is never taken away")
+
+    plan = SidebarFavourites.plan(favourites: [apps], open: [], added: ["/Volumes/GONE": 9])
+    expect(plan.remove.isEmpty, "one already taken out of the sidebar is not removed again")
+
+    expect(
+        SidebarFavourites.surplus(
+            inserted: ["/Volumes/BACKUP": 9],
+            favourites: [F(id: 5, path: "/Volumes/BACKUP"), F(id: 9, path: "/Volumes/BACKUP")]) == [
+                9
+            ],
+        "added at the same moment as another process, this one takes its own back")
+    expect(
+        SidebarFavourites.surplus(
+            inserted: ["/Volumes/BACKUP": 5],
+            favourites: [F(id: 5, path: "/Volumes/BACKUP"), F(id: 9, path: "/Volumes/BACKUP")]
+        ).isEmpty,
+        "and the one with the lowest id stays, whoever added the other")
+}
+
 group("leftoverEngineHelpersAreTakenDown") {
     // The set arithmetic is the whole of the safety here: a helper that was
     // already running belongs to a drive somebody has open, and killing it

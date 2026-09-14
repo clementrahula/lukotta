@@ -15,6 +15,10 @@
 ||||||| parent of 56259b0 (The scan hands the leftover pass a lookup a test can call, so the APFS answer it depends on is checked)
 - [ ] A whole disk admitted to the list stays until its device node goes, so a first scan that misses `APFSContainerReference` (the container attached late, or `diskutil info` failing) keeps a USB APFS disk listed. Drop an adopted whole disk a later scan no longer offers.
 - [ ] A USB APFS drive has not been plugged in with the app open since `aDriveMacOSReadsAsAPFSIsNotOffered`; check the main list leaves it out, mounted and ejected in Finder.
+||||||| base
+- [ ] `drive-is-in-the-sidebar.sh` has run on the AFP route only. Run it on a drive served over plain NFS: exFAT, LUKS, a volume group, or one opened read-only.
+- [ ] Two Lukotta apps opening drives at once (Dev beside Beta) have not been measured for a duplicate favourite; `surplus` relies on the Finder list giving ids in order.
+- [ ] The sidebar rests on `LSSharedFileList`, deprecated since macOS 10.11 and working on macOS 26. Recheck on each macOS beta.
 - [ ] Re-test FSKit on the current macOS. Third-party extensions were broken on
   26.1 and 26.2: `fskitd` rejects unprivileged clients, which breaks Apple's own
   sample. One afternoon, and it decides whether the route is open.

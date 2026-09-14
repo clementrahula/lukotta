@@ -80,7 +80,7 @@ struct MountedView: View {
 
             InfoBox(
                 text:
-                    "The drive appears in the Finder sidebar under Locations.\nEject it in Finder before unplugging it."
+                    "The drive appears in the Finder sidebar under Favourites.\nEject it in Finder before unplugging it."
             )
 
             if let notice = model.notice {

@@ -635,6 +635,7 @@
                 // sitting for three minutes, the helper's timer firing over it
                 // and finding nothing it was allowed to touch.
                 for point in servedBy(drive.devicePath) { OpenedHere.add(point) }
+                SidebarFavourites.reconcile()
                 say("opened \(drive.name)")
                 exit(0)
             }
@@ -793,6 +794,7 @@
             } else {
                 say("the machine is still running")
             }
+            SidebarFavourites.reconcile()
         }
     }
 
