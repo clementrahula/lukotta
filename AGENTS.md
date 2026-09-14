@@ -1431,11 +1431,3 @@ A trap is not a substitute and never was. It does not run when a run is killed,
 which these runs are, constantly. `ship.sh` was the worst case: it `exec`s a
 copy of itself, so the `trap … EXIT` guarding that copy could not fire once, and
 every release ever run left one behind.
-
-<!-- workflow (managed): the shared doctrine. Do not edit between these markers.
-     AGENTS.workflow.md is machine-local and deliberately not committed. If you have cloned
-     this repository it will not be here, the import below will find nothing, and that is
-     correct - everything this project itself requires is in the rest of this file. -->
-
-@AGENTS.workflow.md
-<!-- end workflow (managed) -->
