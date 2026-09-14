@@ -5509,12 +5509,14 @@ group("anEngineMountServingNothingIsStopped") {
     expect(!idle.contains(107), "an LVM volume served as lvm-<group> is left alone")
     expect(!idle.contains(108), "a RAID array served as raid-<first member> is left alone")
     expect(!idle.contains(109), "a mount whose host the engine made unique with -1 is left alone")
-    let byAddress =
-        table
-        + "\n127.0.0.4:/mnt/DATA on /Volumes/.lukotta/DATA (nfs, nodev, nosuid, noowners, nobrowse, mounted by someone)"
-    expect(
-        EngineProcesses.idleMounts(ps: ps, engine: engine, mountTable: byAddress).isEmpty,
-        "with a share served from an address rather than a name, nothing is stopped")
+    for address in ["127.0.0.4", "192.168.64.2", "[::1]"] {
+        let byAddress =
+            table
+            + "\n\(address):/mnt/DATA on /Volumes/.lukotta/DATA (nfs, nodev, nosuid, noowners)"
+        expect(
+            EngineProcesses.idleMounts(ps: ps, engine: engine, mountTable: byAddress).isEmpty,
+            "with a share served from \(address) rather than a name, nothing is stopped")
+    }
     expect(EngineProcesses.engineHost(for: "/dev/disk4s2") == "disk4s2", "a device is its name")
     expect(
         EngineProcesses.engineHost(for: "lvm:examplevg:disk5:ROOT") == "lvm-examplevg",
