@@ -39,10 +39,12 @@ on folders. Nothing is written to the disk: modes and flags stay as stored.
  static inline void inode_has_no_xattr(struct inode *inode)
 --- a/fs/namei.c
 +++ b/fs/namei.c
-@@ -512,35 +512,7 @@
+@@ -510,37 +510,7 @@
+ int inode_permission(struct mnt_idmap *idmap,
+ 		     struct inode *inode, int mask)
  {
- 	int retval;
- 
+-	int retval;
+-
 -	retval = sb_permission(inode->i_sb, inode, mask);
 -	if (retval)
 -		return retval;
