@@ -21,9 +21,12 @@ git diff --quiet "$COMMIT" HEAD -- sources vendor patches build-app.sh Package.s
   || no "code changed since $BETA was proven: $(git diff --name-only "$COMMIT" HEAD -- sources vendor patches build-app.sh Package.swift Package.resolved | head -3 | paste -sd' ' -)"
 grep -q "^FAIL" "$LOG" && no "$LOG records a failure"
 grep -qx "VERDICT $BETA: proven" "$LOG" || no "$LOG has no verdict"
-for step in published update "bitlocker open" "bitlocker write" "bitlocker delete" "bitlocker reopen" \
-  "bitlocker read" "bitlocker speed" "bitlocker eject" "ntfs open" "ntfs write" "ntfs delete" \
-  "ntfs reopen" "ntfs read" "ntfs speed" "ntfs eject" keys quit; do
+steps=(published update "bitlocker open" "bitlocker write" "bitlocker delete" "bitlocker reopen"
+  "bitlocker read" "bitlocker speed" "bitlocker eject" keys quit)
+# A run given no NTFS drive says so; any other run must show the NTFS steps.
+grep -q "^SKIP ntfs:" "$LOG" \
+  || steps+=("ntfs open" "ntfs write" "ntfs delete" "ntfs reopen" "ntfs read" "ntfs speed" "ntfs eject")
+for step in "${steps[@]}"; do
   grep -q "^PASS $step:" "$LOG" || no "$LOG does not show '$step' passing"
 done
 grep -q "^PASS update: .* -> $BETA " "$LOG" || no "$LOG does not show an update to $BETA"

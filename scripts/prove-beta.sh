@@ -10,8 +10,9 @@ set -uo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$HERE" || exit 2
-USAGE="usage: prove-beta.sh <beta version> <bitlocker partition> <ntfs volume>"
-BETA="${1:?$USAGE}"; BITLOCKER="${2:?$USAGE}"; NTFS="${3:?$USAGE}"
+USAGE="usage: prove-beta.sh <beta version> <bitlocker partition> [ntfs volume]"
+# The NTFS drive is optional: the owner proves a release on BitLocker alone.
+BETA="${1:?$USAGE}"; BITLOCKER="${2:?$USAGE}"; NTFS="${3:-}"
 [[ "$BETA" =~ ^[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+$ ]] || { echo "not a beta version: $BETA" >&2; exit 2; }
 APP="/Applications/Lukotta Beta.app"
 PROC="Lukotta Beta"
@@ -190,10 +191,10 @@ say "prover $(shasum -a 256 scripts/prove-beta.sh | cut -c1-12), $(date -u +%FT%
 # no drive at all. So the two drives this run was given are closed first, by the dev build,
 # which touches nothing else on this Mac.
 DEV="/Applications/Lukotta Dev.app/Contents/MacOS/Lukotta Dev"
-HOSTS="$(basename "$BITLOCKER").local|$(basename "$NTFS").local"
+HOSTS="$(basename "$BITLOCKER").local${NTFS:+|$(basename "$NTFS").local}"
 if [ -x "$DEV" ]; then
   "$DEV" --drive eject="$BITLOCKER" >/dev/null 2>&1 || true
-  "$DEV" --drive eject="$NTFS" >/dev/null 2>&1 || true
+  [ -z "$NTFS" ] || "$DEV" --drive eject="$NTFS" >/dev/null 2>&1 || true
 fi
 left=1
 for _ in $(seq 1 60); do
@@ -239,8 +240,11 @@ fi
 
 prove_drive bitlocker "$BITLOCKER"
 pass "keys: $PROC offered the saved key for $BITLOCKER on both opens"
-[ "$NTFS" = "$BITLOCKER" ] && say "NOTE ntfs: the NTFS volume inside $BITLOCKER; one drive, the owner's decision"
-prove_drive ntfs "$NTFS"
+if [ -n "$NTFS" ]; then
+  prove_drive ntfs "$NTFS"
+else
+  say "SKIP ntfs: no NTFS drive given; proven on BitLocker alone"
+fi
 
 t0=$(now)
 osascript -e "tell application \"$PROC\" to quit" >/dev/null 2>&1
