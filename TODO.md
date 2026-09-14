@@ -11,6 +11,8 @@
 - [ ] `everyentrywritable` has run on one real drive, NTFS. It needs a real exFAT, FAT, ext4, XFS and btrfs drive each, named in `LUKOTTA_TEST_DEVICES`; the Linux ones also need `sudo -n` to set immutable and append-only flags.
 - [ ] `twoatonce` needs two real drives in `LUKOTTA_TEST_DEVICES`; it ran on disk images before, and only one real drive has been attached since.
 - [ ] `every-entry-is-writable.sh` never reads the stored modes back past the patched `vfs_getattr_nosec`, so it would pass vacuously if a chmod stopped reaching the disk. Read them with `ntfsinfo`, `debugfs` or `xfs_db` in the engine shell, which needs root.
+||||||| parent of ef9aec5 (TODO: a USB APFS drive checked against the main list)
+- [ ] A USB APFS drive has not been plugged in with the app open since `aDriveMacOSReadsAsAPFSIsNotOffered`; check the main list leaves it out, mounted and ejected in Finder.
 - [ ] Re-test FSKit on the current macOS. Third-party extensions were broken on
   26.1 and 26.2: `fskitd` rejects unprivileged clients, which breaks Apple's own
   sample. One afternoon, and it decides whether the route is open.
