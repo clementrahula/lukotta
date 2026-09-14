@@ -1364,7 +1364,6 @@ group("mountStages") {
         check.waitUntilExit()
         expect(check.terminationStatus == 0, "the \(kind.rawValue) script is valid shell")
         try? FileManager.default.removeItem(at: file)
-        try? FileManager.default.removeItem(at: file)
     }
 
     // Discovery is driven through expect, which uses a pty, so its output is
@@ -5479,6 +5478,33 @@ group("aDocumentWithRulesAndCodeInIt") {
         "and keeps them as written rather than joining them")
     expect(code.last == ["brew install llvm lld"], "a fenced block is taken whole")
     expect("\(paragraphs)", "2", "the prose around them is still prose")
+}
+
+group("aProgramThatPrintsMoreThanAPipeHoldsFinishes") {
+    // A pipe holds about 64 KB. What is beyond that is read while it runs.
+    if case .finished(let printed) = ask("/bin/sh", ["-c", "yes x | head -c 200000"], timeout: 10) {
+        expect(
+            printed.ok && printed.out.utf8.count == 200_000, "200 KB of output is collected whole")
+    } else {
+        expect(false, "200 KB of output finishes inside its deadline")
+    }
+    if case .finished(let complained) = ask(
+        "/bin/sh", ["-c", "yes y | head -c 200000 1>&2"], timeout: 10)
+    {
+        expect(complained.err.utf8.count == 200_000, "and so is 200 KB on the error stream")
+    } else {
+        expect(false, "200 KB on the error stream finishes inside its deadline")
+    }
+    if case .silent = ask("/bin/sleep", ["5"], timeout: 1) {
+        expect(true, "a program still running at its deadline is silent")
+    } else {
+        expect(false, "a program still running at its deadline is silent")
+    }
+    var quick = 0
+    for _ in 0..<50 {
+        if case .finished(let done) = ask("/usr/bin/true", timeout: 5), done.ok { quick += 1 }
+    }
+    expect(quick == 50, "a program that exits at once is never mistaken for a silent one")
 }
 
 group("anEngineMountServingNothingIsStopped") {
