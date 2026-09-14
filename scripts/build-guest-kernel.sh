@@ -36,7 +36,7 @@ CONFIG="$HERE/patches/$KERNEL-guest.config"
 # This project's, applied after the fork's in this order. Named rather than
 # globbed, so a patch still being written beside them is not built in unasked.
 OWN_PATCHES=(linux-nfsd-commit-is-durable.patch linux-ntfs3-readdir-survives-deletion.patch
-  linux-ntfs3-read-only-is-not-undeletable.patch)
+  linux-every-entry-is-writable.patch)
 # Bookworm, because the config records its gcc 12.2 and binutils 2.40.
 BUILDER="debian:bookworm@sha256:6ebd97fa83deb272194a2cf015b3d26a4d538e9ad3a7a79d544c8af5b0a01443"
 # libexec/Image in the anylinuxfs 0.19.0 bottle.

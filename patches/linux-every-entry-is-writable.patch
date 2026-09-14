@@ -1,0 +1,56 @@
+Every entry on a drive the guest serves is readable and writable.
+
+A client decides what it may do from the mode it is handed and refuses before
+asking. The guest serves as root, so the server never refused; the client did.
+Modes come from the disk and are whatever wrote them: WSL's $LXMOD on NTFS, a
+Linux umask, a Windows read-only attribute, a 0700 folder copied from a Mac.
+
+vfs_getattr_nosec is where stat, statx and nfsd read attributes, for every
+filesystem including FUSE. It adds read and write for everyone, and search on
+folders. Nothing on disk changes: a chmod still stores what it is given.
+
+Immutable and append-only are flags root cannot override, so the macros every
+check goes through report them unset. The flags stay on disk.
+
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2308,8 +2308,8 @@
+ #define IS_I_VERSION(inode)	__IS_FLG(inode, SB_I_VERSION)
+ 
+ #define IS_NOQUOTA(inode)	((inode)->i_flags & S_NOQUOTA)
+-#define IS_APPEND(inode)	((inode)->i_flags & S_APPEND)
+-#define IS_IMMUTABLE(inode)	((inode)->i_flags & S_IMMUTABLE)
++#define IS_APPEND(inode)	((void)(inode), 0)
++#define IS_IMMUTABLE(inode)	((void)(inode), 0)
+ 
+ #ifdef CONFIG_FS_POSIX_ACL
+ #define IS_POSIXACL(inode)	__IS_FLG(inode, SB_POSIXACL)
+--- a/fs/stat.c
++++ b/fs/stat.c
+@@ -162,12 +162,20 @@
+ 				  STATX_ATTR_DAX);
+ 
+ 	idmap = mnt_idmap(path->mnt);
+-	if (inode->i_op->getattr)
+-		return inode->i_op->getattr(idmap, path, stat,
+-					    request_mask,
+-					    query_flags | AT_GETATTR_NOSEC);
+-
+-	generic_fillattr(idmap, request_mask, inode, stat);
++	if (inode->i_op->getattr) {
++		int err = inode->i_op->getattr(idmap, path, stat,
++					       request_mask,
++					       query_flags | AT_GETATTR_NOSEC);
++		if (err)
++			return err;
++	} else {
++		generic_fillattr(idmap, request_mask, inode, stat);
++	}
++
++	if (S_ISDIR(stat->mode))
++		stat->mode |= 0777;
++	else if (S_ISREG(stat->mode))
++		stat->mode |= 0666;
+ 	return 0;
+ }
+ EXPORT_SYMBOL(vfs_getattr_nosec);

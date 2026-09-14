@@ -31,15 +31,9 @@ name = unicodedata.normalize("NFD", "jõel-Ноты.pdf")
 # through the share would be no test at all: the server composes on the way
 # in, so the volume would hold the composed name and the case never arises.
 hidden = os.path.join("/Volumes/.lukotta", os.path.basename(point), "decomposed-probe")
-# Made without a umask, so the folder arrives as one on the drive does. A mode
-# the volume stores wins over anything the mount is given, so a probe stamped
-# 0755 on the way in would be testing its own setup rather than the drive.
-old = os.umask(0)
-try:
-    os.makedirs(hidden, exist_ok=True)
-    os.chmod(hidden, 0o777)
-finally:
-    os.umask(old)
+# Stamped 0755, as a folder a Mac copies onto the drive is.
+os.makedirs(hidden, exist_ok=True)
+os.chmod(hidden, 0o755)
 with open(os.path.join(hidden, name), "wb") as fh:
     fh.write(b"x" * 32)
 if not os.path.isdir(folder):

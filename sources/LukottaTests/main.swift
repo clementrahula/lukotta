@@ -452,21 +452,13 @@ group("theElevatedMountScript") {
         MountScript.mountOptions(driver: "ntfs-3g", readOnly: true) == " -o big_writes,ro",
         "ntfs-3g read-only joins big_writes and ro into one -o")
     expect(
-        MountScript.mountOptions(driver: "ntfs-3g", readOnly: false)
-            == " -o big_writes,fmask=0,dmask=0",
-        "ntfs-3g read-write carries big_writes and the masks")
-    // ntfs_read_mft builds a directory's mode as 0777 & the inverse dmask, for
-    // every inode read off the disk. So dmask=0 reports 0777, which is what the
-    // client judges a delete against: a guest session owns nothing and falls to
-    // the other bits. Measured: unlink inside 0755 is EACCES, inside 0777 it is
-    // not. It needs the kernel patch beside it, which stops the read-only
-    // attribute clearing those same bits again afterwards.
+        MountScript.mountOptions(driver: "ntfs-3g", readOnly: false) == " -o big_writes",
+        "ntfs-3g read-write carries big_writes alone")
+    // No masks for any driver: a mode stored on the disk overrides them, and the
+    // guest kernel reports every entry writable whatever mode it stores.
     expect(
-        MountScript.mountOptions(driver: "ntfs3", readOnly: false) == " -o fmask=0,dmask=0",
-        "ntfs3 read-write carries the masks")
-    // Read-only takes no masks: `ro` is what refuses writes, and a mode saying
-    // otherwise would only mislead. dirsync was tried here once and changed
-    // nothing -- the fsynced file was still absent after the machine was killed.
+        MountScript.mountOptions(driver: "ntfs3", readOnly: false) == "",
+        "ntfs3 read-write is given no driver options")
     expect(
         MountScript.mountOptions(driver: "ntfs3", readOnly: true) == " -o ro",
         "ntfs3 read-only stands alone")
@@ -3699,14 +3691,9 @@ group("aBlockedRestoreExplainsItself") {
         "only drives needing the raw device are affected")
 }
 
-group("theRestoreRecordCarriesThisMountsReadOnlyState") {
-    // Bookkeeping this mount's success is one function for all three routes.
-    // Written out a second time for the authorised route, the copy recorded the
-    // restore entry before working out whether the mount had fallen back to
-    // read-only, so the entry carried the previous mount's answer.
-    //
-    // The order is what is being pinned: whatever decides mountedReadOnly must
-    // run before whatever reads it.
+group("theRestoreRecordCarriesWhatWasAskedNotAFallback") {
+    // A drive that fell back to read-only once is tried writable again the next
+    // time it is put back; only read-only that was asked for is remembered.
     let source =
         (try? String(
             contentsOfFile: "sources/Lukotta/AppModel.swift", encoding: .utf8)) ?? ""
@@ -3714,14 +3701,12 @@ group("theRestoreRecordCarriesThisMountsReadOnlyState") {
         return expect(false, "finishMount was found in the file")
     }
     let after = String(source[body.upperBound...])
-    guard let decides = after.range(of: "mountedReadOnly = mountingReadOnly || fellBack"),
-        let reads = after.range(of: "rememberForRestore(drive, readOnly: mountedReadOnly)")
-    else {
-        return expect(false, "both statements were found")
-    }
     expect(
-        decides.lowerBound < reads.lowerBound,
-        "the read-only state is decided before the restore record reads it")
+        after.contains("rememberForRestore(drive, readOnly: mountingReadOnly)"),
+        "the restore record carries the read-only that was asked for")
+    expect(
+        !after.contains("rememberForRestore(drive, readOnly: mountedReadOnly)"),
+        "the restore record never carries a fallback")
 }
 
 group("aReportBuiltInTwoPartsMatchesOneBuiltAtOnce") {
