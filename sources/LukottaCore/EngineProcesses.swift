@@ -144,11 +144,13 @@ public enum EngineProcesses {
         ps: String, engine: String, mountTable table: String,
         olderThan age: TimeInterval = idleMountAge
     ) -> Set<Int32> {
-        let engineMounts = MountTableEntry.all(in: table).filter(\.isEngineMount)
         var hosts: [String] = []
-        for entry in engineMounts {
+        for entry in MountTableEntry.all(in: table) where entry.isNFS {
             // A machine that could not register its name serves from its
-            // address, and no host can be told apart from that: nothing stops.
+            // address -- loopback, vmnet's subnet or IPv6 -- and an address
+            // does not say which machine: while any NFS share is served that
+            // way, nothing stops. A file server's share looks the same, and
+            // only delays the sweep.
             guard let end = entry.source.range(of: ".local:") else { return [] }
             hosts.append(String(entry.source[..<end.lowerBound]))
         }
