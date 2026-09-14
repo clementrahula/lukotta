@@ -297,6 +297,26 @@ the result under that name: the GPL grants everything about the software and
 nothing about the marks. TRADEMARKS.txt sets out what is permitted, including
 giving a fork its own name and artwork.
 
+### The v2 line
+
+| fact | value |
+| --- | --- |
+| branch | `v2-coverage`, built beside v1; `main` keeps shipping v1 fixes |
+| build | `LUKOTTA_BRANDING=v2 ./build-app.sh` |
+| app | "Lukotta v2", `com.lukotta.v2`, `LukottaV2Helper`, its own saved passphrases, engine home and feed |
+| automatic update checks | off; the feed URL is never fetched |
+| `VERSION` | 2.3.0; `v2.0.0`-`v2.2.0` are tags of the earlier FSKit attempt, parked on `v3-fskit` |
+| release channel | none: v2 is local only; `release.sh` accepts only `release` and `beta`, so it cannot publish a v2 build |
+| staying in sync | `git merge main` from this branch, often: v1 fixes land in `BootSector.swift`, `MountScript.swift` and `DiskWatcher.swift`, where the coverage work lands |
+| `dirty-ntfs-repair.sh` | needs nothing for this channel: it finds daemons by glob |
+
+The v2 daemon is `SMAppService`, not `SMJobBless`:
+
+- Registration needs no password. The daemon stays off until the app is enabled in System Settings > General > Login Items and Extensions; until then the app reports `helper state: awaitingApproval` and mounts nothing.
+- Enabled on this line since 2026-09-05: `--check-helper` answers `helper state: ready`.
+- `/Library/LaunchDaemons` does not show it: an `SMAppService` daemon runs from the app bundle, so a registered and an unregistered one look the same there. Ask `launchctl print system/com.lukotta.v2.helper`, or the app.
+- Run directly from `Contents/MacOS`, registration reports `Operation not permitted`; launched through LaunchServices (`open -a "/Applications/Lukotta v2.app" --args --reinstall-helper`) it succeeds. The first answer is not a signing or entitlement fault.
+
 ## Releasing
 
 One command, which does every step between a finished build and somebody being
