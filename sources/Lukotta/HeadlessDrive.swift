@@ -220,22 +220,8 @@
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
             task.waitUntilExit()
             let elapsed = String(decoding: data, as: UTF8.self).trimmingCharacters(in: .whitespaces)
-            guard let seconds = secondsIn(elapsed) else { return false }
+            guard let seconds = EngineProcesses.secondsIn(elapsed) else { return false }
             return Date().addingTimeInterval(-seconds) < written
-        }
-
-        /// ps prints elapsed time as [[dd-]hh:]mm:ss.
-        private static func secondsIn(_ elapsed: String) -> TimeInterval? {
-            var text = elapsed
-            var days = 0.0
-            if let dash = text.firstIndex(of: "-") {
-                days = Double(text[text.startIndex..<dash]) ?? 0
-                text = String(text[text.index(after: dash)...])
-            }
-            let parts = text.split(separator: ":").compactMap { Double($0) }
-            guard !parts.isEmpty else { return nil }
-            let withinDay = parts.reduce(0.0) { $0 * 60 + $1 }
-            return days * 86400 + withinDay
         }
 
         private static func say(_ line: String) {
