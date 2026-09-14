@@ -144,9 +144,13 @@ public enum EngineProcesses {
         ps: String, engine: String, mountTable table: String,
         olderThan age: TimeInterval = idleMountAge
     ) -> Set<Int32> {
-        let hosts = MountTableEntry.all(in: table).compactMap { entry -> String? in
-            guard let end = entry.source.range(of: ".local:") else { return nil }
-            return String(entry.source[..<end.lowerBound])
+        let engineMounts = MountTableEntry.all(in: table).filter(\.isEngineMount)
+        var hosts: [String] = []
+        for entry in engineMounts {
+            // A machine that could not register its name serves from its
+            // address, and no host can be told apart from that: nothing stops.
+            guard let end = entry.source.range(of: ".local:") else { return [] }
+            hosts.append(String(entry.source[..<end.lowerBound]))
         }
         var found: Set<Int32> = []
         for line in ps.components(separatedBy: .newlines) {
