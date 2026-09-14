@@ -478,6 +478,24 @@ carries a `zfs_config.h` configured for userspace too. With that archive put in
 place of this build's and the kernel relinked, the result is identical to the
 shipped Image. Everything else about the recipe is the original.
 
+## linux-every-entry-is-writable.patch
+
+**Defect.** Finder refused to open a folder stored 0700 and to delete inside
+one stored 0755, on a drive served by a guest acting as root. The client
+decides from the mode it is handed and refuses before asking. Modes come off
+the disk: ntfs3 takes WSL's `$LXMOD` over `fmask` and `dmask`
+(`ntfs_read_mft`, `fs/ntfs3/inode.c:382`), and every folder a Mac copies or
+creates carries one. Linux filesystems store theirs, FAT and exFAT derive them
+from the read-only attribute, and immutable and append-only flags refuse even
+root.
+
+**Change.** `vfs_getattr_nosec()` adds read and write for everyone to every
+regular file and read, write and search to every folder, after the filesystem
+has filled in the attributes. stat, statx and nfsd all read attributes there,
+for every filesystem including FUSE. `IS_APPEND()` and `IS_IMMUTABLE()` report
+false, so no check refuses a change for those flags. Nothing is written to the
+disk: modes and flags stay as stored, and chmod and chattr still set them.
+
 ## linux-ntfs3-readdir-survives-deletion.patch
 
 **Defect.** Finder deletes a folder as it lists it, and on a BitLocker drive it

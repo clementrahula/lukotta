@@ -3331,7 +3331,7 @@ final class AppModel: ObservableObject {
             readOnlyMounts.remove(mountPoint)
         }
         DriveMemory.remember(mountPoint: mountPoint, for: drive.uuid)
-        rememberForRestore(drive, readOnly: mountedReadOnly)
+        rememberForRestore(drive, readOnly: mountingReadOnly)
         restoreKeys[mountPoint] = drive.uuid
         // And in the settings, so that after a restart this app can still say
         // which mounts on this Mac are its own: a beta and a release both serve
