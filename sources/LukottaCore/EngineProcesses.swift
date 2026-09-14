@@ -210,15 +210,25 @@ public enum EngineProcesses {
         return String(host[..<dash]) == String(base.prefix(min(base.count, 63 - suffixLength)))
     }
 
+    /// The same, from how the two readings ended. Nothing is idle unless both
+    /// ran and finished: an empty table from a mount that never ran would make
+    /// every serving engine look idle.
+    public static func idleMounts(ps: Ending, mountTable: Ending, engine: String) -> Set<Int32> {
+        guard case .finished(let processes) = ps, processes.ok,
+            case .finished(let mounts) = mountTable, mounts.ok
+        else { return [] }
+        return idleMounts(ps: processes.out, engine: engine, mountTable: mounts.out)
+    }
+
     /// Stop the engine mounts that serve nothing. Root's to call: the helper
     /// starts them as root.
     @discardableResult
     public static func stopIdleMounts() -> Int {
-        guard let engine = EnginePaths.anylinuxfs,
-            let result = run("/bin/ps", ["-axo", "pid=,etime=,args="])
-        else { return 0 }
+        guard let engine = EnginePaths.anylinuxfs else { return 0 }
         let idle = idleMounts(
-            ps: result.out, engine: engine.path, mountTable: LukottaCore.mountTable())
+            ps: ask("/bin/ps", ["-axo", "pid=,etime=,args="], timeout: 10),
+            mountTable: ask("/sbin/mount", timeout: 10),
+            engine: engine.path)
         guard !idle.isEmpty else { return 0 }
         Log.mount.notice("stopping \(idle.count, privacy: .public) engine mounts serving nothing")
         stop(idle)

@@ -31,6 +31,12 @@ public struct CommandOutput: Sendable {
     }
 
     public var ok: Bool { status == 0 }
+
+    public init(status: Int32, out: String, err: String) {
+        self.status = status
+        self.out = out
+        self.err = err
+    }
 }
 
 /// How a program's run ended, when the difference matters.

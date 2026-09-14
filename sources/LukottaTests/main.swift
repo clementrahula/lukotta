@@ -5510,13 +5510,33 @@ group("anEngineMountServingNothingIsStopped") {
     expect(!idle.contains(107), "an LVM volume served as lvm-<group> is left alone")
     expect(!idle.contains(108), "a RAID array served as raid-<first member> is left alone")
     expect(!idle.contains(109), "a mount whose host the engine made unique with -1 is left alone")
-    for address in ["127.0.0.4", "192.168.64.2", "[::1]"] {
+    for address in ["127.0.0.4", "192.168.64.2", "[::1]", "fe80::1%lo0"] {
         let byAddress =
             table
             + "\n\(address):/mnt/DATA on /Volumes/.lukotta/DATA (nfs, nodev, nosuid, noowners)"
         expect(
             EngineProcesses.idleMounts(ps: ps, engine: engine, mountTable: byAddress).isEmpty,
             "with a share served from \(address) rather than a name, nothing is stopped")
+    }
+    // A reading that did not finish is not an empty table.
+    let listed = CommandOutput(status: 0, out: ps, err: "")
+    let mounted = CommandOutput(status: 0, out: table, err: "")
+    expect(
+        EngineProcesses.idleMounts(
+            ps: .finished(listed), mountTable: .finished(mounted), engine: engine)
+            == [101],
+        "two readings that finished find the mount left behind")
+    for unread in [
+        Ending.couldNotAsk, .silent, .finished(CommandOutput(status: 1, out: "", err: "busy")),
+    ] {
+        expect(
+            EngineProcesses.idleMounts(ps: .finished(listed), mountTable: unread, engine: engine)
+                .isEmpty,
+            "a mount table that was not read stops nothing")
+        expect(
+            EngineProcesses.idleMounts(ps: unread, mountTable: .finished(mounted), engine: engine)
+                .isEmpty,
+            "and a process list that was not read stops nothing")
     }
     expect(EngineProcesses.engineHost(for: "/dev/disk4s2") == "disk4s2", "a device is its name")
     expect(
