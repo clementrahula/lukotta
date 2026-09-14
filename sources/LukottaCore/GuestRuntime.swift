@@ -5,20 +5,17 @@ import Foundation
 
 /// Keeps the guest filesystem in step with the engine the app ships.
 ///
-/// The engine holds a shared lock on /tmp/anylinuxfs.lock for the life of a
-/// mount, so drives sit alongside each other. It upgrades that lock to an
-/// exclusive one only when it has to write to the guest filesystem, and the one
-/// thing it writes there is `vmproxy`, copied out of the app bundle whenever the
-/// copy in the guest differs. The upgrade cannot succeed while another drive is
-/// open, and the mount fails with "another instance is already running".
+/// The engine copies `vmproxy` from its bundle into the guest filesystem when
+/// the bundled file is a different size or newer, and it takes an exclusive
+/// lock on /tmp/anylinuxfs.lock to do it. Every mount holds that lock shared,
+/// so with any drive open the copy is refused and so is the mount asking for
+/// it: "another instance is already running". A rebuild or an update gives the
+/// bundled file a newer timestamp over identical bytes, which is enough.
 ///
-/// That only bites after the vendored engine changes, because the bundled file
-/// keeps its timestamp through a rebuild. It bites exactly then, though: drives
-/// stay open across an update, so the first mount afterwards is likely to have
-/// company.
-///
-/// Doing the copy at launch, while nothing is mounted, means the engine never
-/// needs the exclusive lock at a moment when it cannot have it.
+/// Settled here before each mount instead. Identical bytes need only the
+/// timestamp; different bytes are staged and renamed over the old file, which a
+/// machine running from it keeps. Neither needs the lock, and afterwards the
+/// engine's own test finds nothing to copy.
 public enum GuestRuntime {
     static let overrideStatAttribute = "user.containers.override_stat"
 
@@ -42,22 +39,19 @@ public enum GuestRuntime {
         return bundledModified > guestModified
     }
 
-    /// Bring the guest copy up to date, if it is out of date and it is safe to.
+    /// Bring the guest copy up to date, if it is out of date.
     ///
-    /// Returns whether anything was copied. Every reason to decline is a reason
-    /// to leave the guest filesystem exactly as it is and let the engine deal
-    /// with it: this writes into the engine's private state, so it does the
-    /// smallest possible thing or nothing at all.
+    /// Returns whether anything changed.
     @discardableResult
     public static func syncIfNeeded() -> Bool {
-        let fm = FileManager.default
         guard let bundled = bundledVMProxy else { return false }
-        let guest = guestVMProxy
-        guard fm.fileExists(atPath: bundled.path), fm.fileExists(atPath: guest.path) else {
-            return false
-        }
+        return sync(bundled: bundled, guest: guestVMProxy)
+    }
 
-        guard let bundledAttrs = try? fm.attributesOfItem(atPath: bundled.path),
+    public static func sync(bundled: URL, guest: URL) -> Bool {
+        let fm = FileManager.default
+        guard fm.fileExists(atPath: bundled.path), fm.fileExists(atPath: guest.path),
+            let bundledAttrs = try? fm.attributesOfItem(atPath: bundled.path),
             let guestAttrs = try? fm.attributesOfItem(atPath: guest.path),
             let bundledSize = (bundledAttrs[.size] as? NSNumber)?.int64Value,
             let guestSize = (guestAttrs[.size] as? NSNumber)?.int64Value,
@@ -71,39 +65,28 @@ public enum GuestRuntime {
                 guestSize: guestSize, guestModified: guestModified)
         else { return false }
 
-        // The guest file carries an attribute telling the runtime what to report
-        // for its owner and mode. Copy it across rather than invent one: if it
-        // is missing or unreadable this is not the file we think it is, so leave
-        // the whole thing alone.
+        if bundledSize == guestSize, fm.contentsEqual(atPath: bundled.path, andPath: guest.path) {
+            return
+                (try? fm.setAttributes(
+                    [.modificationDate: bundledModified], ofItemAtPath: guest.path))
+                != nil
+        }
+
+        // The attribute tells the runtime what owner and mode to report. A guest
+        // file without one is not the file this expects, so it is left alone.
         guard let override = extendedAttribute(overrideStatAttribute, of: guest) else {
             return false
         }
 
-        // Take the lock the engine takes. Held exclusively, so this cannot run
-        // beside a mount that is starting, and a mount cannot start beside it.
-        // Failing to get it means a drive is open, which is precisely when this
-        // must not happen.
-        guard let lock = EngineLock() else { return false }
-        guard lock.acquireExclusive() else { return false }
-        defer { lock.release() }
-
         let staging = guest.deletingLastPathComponent()
-            .appendingPathComponent(".vmproxy.lukotta-staged")
+            .appendingPathComponent(".vmproxy.lukotta-staged-\(getpid())")
         try? fm.removeItem(at: staging)
-        guard (try? fm.copyItem(at: bundled, to: staging)) != nil else {
-            try? fm.removeItem(at: staging)
-            return false
-        }
-
-        guard setExtendedAttribute(overrideStatAttribute, to: override, of: staging) else {
-            try? fm.removeItem(at: staging)
-            return false
-        }
-        // Match the timestamp too, so the engine's test comes out false rather
-        // than merely closer, and stays false.
-        try? fm.setAttributes([.modificationDate: bundledModified], ofItemAtPath: staging.path)
-
-        guard (try? fm.replaceItemAt(guest, withItemAt: staging)) != nil else {
+        guard (try? fm.copyItem(at: bundled, to: staging)) != nil,
+            setExtendedAttribute(overrideStatAttribute, to: override, of: staging),
+            (try? fm.setAttributes([.modificationDate: bundledModified], ofItemAtPath: staging.path))
+                != nil,
+            rename(staging.path, guest.path) == 0
+        else {
             try? fm.removeItem(at: staging)
             return false
         }
@@ -126,23 +109,5 @@ public enum GuestRuntime {
         value.withUnsafeBytes { raw in
             setxattr(url.path, name, raw.baseAddress, value.count, 0, 0) == 0
         }
-    }
-}
-
-/// The engine's lock file, so the app can stand aside for a running mount.
-final class EngineLock {
-    private let descriptor: Int32
-
-    init?() {
-        let fd = open("/tmp/anylinuxfs.lock", O_RDWR)
-        guard fd >= 0 else { return nil }
-        descriptor = fd
-    }
-
-    func acquireExclusive() -> Bool { flock(descriptor, LOCK_EX | LOCK_NB) == 0 }
-
-    func release() {
-        flock(descriptor, LOCK_UN)
-        close(descriptor)
     }
 }

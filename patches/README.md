@@ -491,10 +491,13 @@ kernel against the mode stored. Measured on a 2 TB NTFS drive: with the
 reported modes alone 0777 over NFS and AFP, AFP still refused a folder stored
 0700 and a delete inside one stored 0755.
 
-**Change.** `inode_permission()` returns only what `sb_permission()` says, so
-a read-only mount still refuses and nothing else does. `check_sticky()` and
-`inode_owner_or_capable()` grant. `IS_APPEND()` and `IS_IMMUTABLE()` report
-false. `vfs_getattr_nosec()` adds read and write for everyone to every regular
+**Change.** `inode_permission()` keeps `sb_permission()` and passes on only
+`EROFS` and `EIO` from the filesystem's own check, so a read-only mount and a
+read-only btrfs snapshot still refuse and nothing else does. `check_sticky()`
+and `inode_owner_or_capable()` grant. `IS_APPEND()` and `IS_IMMUTABLE()` hold
+only on `SB_NOUSER` superblocks, the kernel's internal pseudo filesystems,
+which assert the flag; ext4's check that a symlink carries neither flag reads
+`i_flags` directly, so it still catches corruption. `vfs_getattr_nosec()` adds read and write for everyone to every regular
 file, and read, write and search to every folder. Nothing is written to the
 disk: modes and flags stay as stored, and chmod and chattr still set them.
 
