@@ -38,8 +38,8 @@ import sys
 #
 # The last four belong to nobody: they are what a machine calls itself when no
 # person is logged into it. A hosted runner runs as "runner", and this check
-# then read every sentence about a runner in the workflows, in AGENTS.md and in
-# two source files as somebody's account name leaking into the repository --
+# then read every sentence about a runner in the workflows, in the documents and
+# in two source files as somebody's account name leaking into the repository --
 # so the one place that would catch a real leak before it is published failed
 # on every build instead, which is the same as not running.
 ALLOWED_USERS = {"someone", "u", "Shared", "kim", "runner", "root", "build", "ci"}

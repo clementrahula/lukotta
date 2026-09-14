@@ -33,6 +33,11 @@ git config core.hooksPath .githooks   # the pre-commit checks
 
 The result is `dist/Drive Unlocker.app`, and a copy in `/Applications`.
 
+- `swift build` alone produces an app that cannot unlock anything: the bundle
+  needs the vendored engine and the compiled asset catalogue.
+- `build-app.sh` needs `actool` from Xcode. Without it `Assets.xcassets` is
+  copied uncompiled, and the app has no icon and no mark.
+
 Builds are unbranded by default, the Lukotta name, wordmark and logo being
 trademarks the GPL does not license. The software is otherwise identical. See
 [Branding](#branding).
@@ -102,6 +107,8 @@ names to the record. **After `build-engine.sh` this step is required:** its
 vmproxy exports async only on this kernel, and `vendor-engine.sh` refuses to
 package that vmproxy without it.
 
+Docker runs headlessly: `docker desktop start`, never the Docker Desktop app.
+
 ## The Guest Image
 
 The engine downloads the Alpine image the virtual machine boots, so it is the
@@ -163,6 +170,16 @@ Watch for `warning: roots not present in image` in the trim output. It names a
 package the keep-list asks for that the image does not have, and it is the only
 signal that the guest being packed is not the guest that was prepared.
 
+### Nothing That Ships Names the Build Machine
+
+- `umoci` writes the account, hostname and home directory of whoever ran
+  `anylinuxfs init` into the header of the rootfs manifest. `vendor-engine.sh`
+  drops that header when packing.
+- `vendor-engine.sh` sweeps the vendored tree before packing, and `build-app.sh`
+  sweeps the finished bundle before it reports done. Both sweep every file.
+- A sweep counts matches. `strings | grep -q` under `pipefail` reports a match as
+  a failure.
+
 ### Kernel modules nothing owns
 
 Trimming removes the files each dropped package's own database entry names.
@@ -195,6 +212,27 @@ LUKOTTA_SIGN_ID="Developer ID Application: …" ./build-app.sh
 LUKOTTA_NOTARY_PROFILE="name" ./build-app.sh  # also notarise and staple
 LUKOTTA_BRANDING=official ./build-app.sh      # build as Lukotta
 ```
+
+- `LUKOTTA_DEVTOOLS=1` compiles in the headless harnesses: `--drive`, `--e2e`,
+  `--snapshots`, `--update-test`, `--ux-check`. Without it they exist only in an
+  unbranded build. A branded build handed one launches, hides its window, prints
+  nothing and never exits.
+- Development build: `LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1 ./build-app.sh`.
+- A bundle a harness drives against a real drive:
+  `LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh`.
+- `official` and `beta` builds are never copied into `/Applications`. An
+  installed `Lukotta.app` or `Lukotta Beta.app` changes only through its own
+  updater. A first install comes from the disk image or the cask.
+- `dev` and unbranded builds install: "Lukotta Dev" under `com.lukotta.dev` and
+  "Drive Unlocker" under `com.example.driveunlocker`, each with its own daemon
+  and saved passphrases.
+- `scripts/update-test.sh` is the one script that replaces an installed app. It
+  keeps a copy of what was there and puts it back.
+- `release.sh` passes `LUKOTTA_INSTALL=0`. `check-coverage.sh` checks that
+  `build-app.sh` copies neither branded build, that `release.sh` writes nothing
+  into `/Applications`, and that no other script copies over an installed app.
+- No build, `dev` included, deletes a saved drive password. Only the Forget
+  button or a confirmed uninstall removes one.
 
 The version comes from `VERSION`; the build number is the commit count, so it
 moves only when something is committed. Building with uncommitted changes
@@ -236,6 +274,15 @@ shipping with the Command Line Tools cannot, and reports working credentials as
 missing. The build archives with `ditto`, which preserves the signature where
 `zip` does not, submits it, and staples the ticket into the bundle so a first
 launch works offline.
+
+- `xcrun` resolves through `xcode-select`. Pointed at the Command Line Tools, it
+  finds a `notarytool` that answers `No Keychain password item found for
+  profile` for a profile that exists and works. `security
+  find-generic-password` cannot see those credentials either. Neither error is
+  evidence that notarisation is unconfigured.
+- Whether notarisation is configured is answered only by
+  `./scripts/notary-status.sh`. `unknown` is never read as `no`.
+- `build-app.sh` prefers Xcode's `notarytool`.
 
 ## Verifying the Build
 
@@ -312,6 +359,14 @@ Use official branding to check a release against its source. Do not distribute
 the result under that name: the GPL grants everything about the software and
 nothing about the marks. TRADEMARKS.txt sets out what is permitted, including
 giving a fork its own name and artwork.
+
+- The unbranded default does not change. No identity is hard-coded in Swift: the
+  code reads the name, identifier, icon and mark from the bundle.
+- `LUKOTTA_BRANDING=dev`: "Lukotta Dev", `com.lukotta.dev`, the unbranded
+  artwork, no update feed.
+- On the `v2-coverage` branch, `LUKOTTA_BRANDING=v2` builds "Lukotta v2" with its
+  own identifier, saved passphrases, engine home and feed, and automatic update
+  checks off.
 
 ## Releasing
 
@@ -426,6 +481,100 @@ against: put the archives of previous releases in `dist/previous`, or point
 `LUKOTTA_PREVIOUS` at a directory of them. Sparkle then sends somebody on an
 earlier build only what changed rather than ninety megabytes. With none there,
 everybody downloads the whole archive, as they do for a first release.
+
+### Channels
+
+- Both channels publish as the work is ready. Publishing to either is approved,
+  standing and in advance. The beta channel is not gated.
+- One fix at a time, each through the whole path:
+  1. Dev build, measured there: `LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1 ./build-app.sh`.
+  2. Beta: `./scripts/ship.sh`.
+  3. The whole app exercised on the beta, not only the fix.
+  4. Release: `./scripts/ship.sh release --approved`.
+- `ship.sh release` runs `beta-proven.sh`, which refuses unless `prove-beta.sh`
+  proved a beta of that version: its log is the one recorded, every step passed,
+  no speed fell more than a quarter, and nothing outside `releases/` changed
+  since.
+- `prove-beta.sh` runs on the published beta, and is the only writer of
+  `releases/proofs/` and `releases/BETA-PROVEN`. It commits and pushes them.
+- `ship.sh` runs every check before compiling, commits and pushes the appcast
+  and cask checkouts, and runs from a copy of itself.
+- `releases/APPROVED` names the version beside the hash of
+  `releases/<version>.md` as it stands; `release.sh` refuses otherwise.
+
+| Channel | Feed | Cask |
+| --- | --- | --- |
+| release | `https://updates.lukotta.com/appcast.xml` | `clementrahula/tap/lukotta` |
+| beta | `https://updates.lukotta.com/beta/appcast.xml` | `clementrahula/tap/lukotta@beta` |
+
+- Artefacts: `dist/<slug>.dmg`, `dist/<slug>-<version>.zip`, the delta updates
+  beside them, the appcast, the notes, `SHA256SUMS.txt`, and a GitHub release on
+  `clementrahula/lukotta`.
+- `ship.sh` fetches the live feed after publishing and checks it. By hand:
+
+  ```bash
+  curl -fsS https://updates.lukotta.com/appcast.xml \
+    | grep -oE 'sparkle:shortVersionString>[^<]*' | head -1
+  curl -fsIL https://github.com/clementrahula/lukotta/releases/latest/download/Lukotta.dmg \
+    | grep -iE '^HTTP|^content-length' | tail -2
+  ```
+
+### Release Hazards
+
+- Sparkle offers an update only on a higher build number: `sparkle:version`, the
+  commit count. A hotfix cut from a shorter branch, a squash merge or a rewrite
+  produces a number already published, and Sparkle answers "up to date". The
+  release checks the published feed; that check is not worked around.
+- `ship.sh` is not edited while it runs, and `dist/` is not rebuilt during a
+  ship. A devtools build dropped on the shipping bundle made the closing summary
+  read a bundle with no `SUFeedURL`, which ended the run after the GitHub
+  release was published and before the appcast was committed.
+- Nothing after the publish step ends a run by failing to print; the closing
+  summary of `release.sh` tolerates a missing key.
+
+### Versions
+
+- `VERSION` holds the version being worked towards, plain semver: `1.20.1`.
+  Nothing else goes in it.
+- Betas are `1.20.1-beta.1`, `1.20.1-beta.2`; the release is `1.20.1`. The suffix
+  is not in `VERSION`: `release.sh` adds it on the beta channel, numbered from
+  the beta feed.
+- Tags: `v1.20.1-beta.1`, `v1.20.1`. The casks use `v#{version}` on both
+  channels.
+- Sparkle compares `sparkle:version`. `CFBundleShortVersionString` is shown, not
+  compared.
+- The About sheet shows the version with the build in brackets:
+  `1.20.1-beta.1 (612)`.
+- `VERSION` is bumped as work lands, once committed and its tests pass:
+  `./scripts/bump-version.sh patch` for a fix, `minor` for a feature. Raising the
+  first number needs `--approved`.
+- Every bump is tagged `v<version>`; `--no-tag` skips it. Push with
+  `git push origin main --follow-tags`.
+- There is no changelog file. Each version, pre-releases included, has
+  `releases/<version>.md`.
+
+### Notes and Translations
+
+- `scripts/check-changelog.py` refuses developer verbs. `release.sh` and
+  `ship.sh` run it before anything is published.
+- Pre-release notes stay in English. Only release-channel notes are translated.
+- Order:
+  1. The English is written and cut back: `releases/<version>.md`, one bullet a
+     line.
+  2. The owner edits and approves it: a line in `releases/APPROVED` naming the
+     version and the hash of those words. Nothing is translated before this.
+  3. Drafts go in `releases/notes/<version>/<lang>.md`, same shape. The first
+     line is `<!-- heading: … -->`, that language's word for "Version".
+  4. The pack: `./scripts/notes-audit.py <version> --zip`. It carries the
+     approved English, the drafts, and the glossary built from
+     `translations/context/terms.json`, and no earlier releases. A term that must
+     stay consistent between versions goes in the glossary.
+  5. The owner audits the pack in a different model. The review is advisory;
+     a proposal without a reason is discarded.
+  6. What survives is applied, and the release goes out. `release.sh` writes a
+     page per language and names each in the appcast with its `xml:lang`. A
+     missing language gets the English notes.
+- A release with no translations still goes out; `release.sh` says so.
 
 ## Reproducing a Released Build
 

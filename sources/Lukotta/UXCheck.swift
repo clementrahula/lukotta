@@ -12,8 +12,8 @@
     ///
     ///     Lukotta --ux-check
     ///
-    /// AGENTS.md says no interface change is done until it has been run in the
-    /// built application and every route through it tried. That rule is worth
+    /// No interface change is done until it has been run in the built
+    /// application and every route through it tried. That rule is worth
     /// nothing if keeping it means a person clicking, because then it is kept
     /// when somebody has the time and skipped when they do not, which is how
     /// the early-development notice shipped appearing at every launch with a

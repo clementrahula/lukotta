@@ -51,7 +51,17 @@ and every way a person can reach it has been tried: from a cold start, by each
 condition that shows it, by each button that dismisses it, and again after
 quitting and launching. A snapshot proves a scene draws. It proves nothing
 about when the scene appears, when it goes, or what it leaves behind, and that
-is where the faults are. AGENTS.md sets this out in full.
+is where the faults are.
+
+Before a UI change is called done:
+
+1. Build and install it with `./build-app.sh`, and open the built application. Not `swift build`.
+2. Reach the change from a cold start.
+3. Reach it every other way, and leave it every way. Shown once: quit, relaunch, confirm it is not shown again. Buttons: press each, and close without pressing any. Conditional: reach it by each condition.
+4. Leave and come back: state written to the wrong place, or not written before the process ended.
+5. Say which of these were run.
+
+`Lukotta --ux-check` on a DEVTOOLS build drives these routes against the real `AppModel` with nobody clicking. It does not replace step 1.
 
 ## House Style
 
@@ -62,6 +72,21 @@ is where the faults are. AGENTS.md sets this out in full.
 - No historical narration in comments or documents; git remembers.
 - Every source file starts with its SPDX identifier and the copyright line. A
   new file gets them; a file under `patches/` gets that project's instead.
+- The two header lines go after a shebang, and after `swift-tools-version` in
+  `Package.swift`.
+- `patches/` identifiers: MIT for imago, Apache-2.0 for krun-devices,
+  GPL-3.0-or-later for anylinuxfs.
+- Paths are named as `git ls-files` prints them: `sources/`, lowercase. On a
+  case-insensitive disk `git add Sources/…` leaves tracked files unstaged.
+- A script that makes anything temporary sources `tmp-root.sh` first, under its
+  `set` line. `everyScriptThatMakesTemporaryThingsContainsThem` fails and names
+  a script that does not. It moves `$TMPDIR` into `$TMPDIR/lukotta-work` for
+  every child; `scripts/sweep-workspaces.sh` empties that directory by age. A
+  trap is not a substitute: it does not run when a run is killed.
+
+  ```bash
+  . "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
+  ```
 
 ## Sending a Change
 
@@ -123,6 +148,39 @@ Both must pass. `build-app.sh` runs the tests itself and refuses to produce a
 bundle from a failing tree, since the app reads raw disks and runs part of
 itself as root.
 
+```bash
+./scripts/verify.sh       # every checkable claim, and which hold now
+```
+
+- `scripts/checks.tsv` holds one row per claim: id, tags, speed, claim, command.
+  `FULL=1` runs the slow rows, `TAG=release` one set, `ID=goal7` one claim.
+- A fix adds a row. A claim with no check yet is a row with an empty command,
+  listed as unchecked.
+- `swift test` prints `no tests found`. The tests are a plain executable run by
+  `run-tests.sh`, which prints the count.
+- A check belongs to the `group` it is written in. `group` does not nest: the
+  inner name replaces the outer one and is not restored.
+- To check compilation: `swift build -c release --product Lukotta`. A bundle is
+  needed only for snapshots, `--smoke-test` and end-to-end runs.
+- `build-app.sh` refuses to build on a failing test, so a tree broken on purpose
+  can leave the previous binary in place. Check the binary's timestamp changed.
+- `lint.sh` runs swift-format, shellcheck, `check-private.py`, `check-casks.sh`,
+  the check that every workflow action is pinned to a commit, and
+  `check-coverage.sh`.
+- `lint.sh` and the pre-commit hook use Homebrew's `swift-format` (603.0.0),
+  which CI uses. The toolchain's `swift format` (6.3.0) passes lines it refuses.
+- CI (`checks.yml`) runs on a push to `main`, on pull requests and on request.
+  It builds both shipped applications with `LUKOTTA_INSTALL=0
+  LUKOTTA_SKIP_TESTS=1`, smoke-tests them, scans the whole history for anything
+  private, and ends with `lint.sh`. A macOS runner is billed at ten times a
+  Linux one while the repository is private.
+
+| Run | What it answers |
+| --- | --- |
+| `scripts/run-tests.sh` | the logic, on any Mac, with no drive; seconds |
+| `scripts/preflight.sh` | a release: install, open, write, eject, update, roll back, both channels |
+| `scripts/e2e.sh` | every format, every filesystem, the awkward names, the unhappy paths; over an hour per channel |
+
 ### Against real hardware
 
 The unit tests cover the script the app generates, not what a disk does with
@@ -178,6 +236,124 @@ that cannot be used without seeing it.
 `./scripts/e2e.sh` drives the whole flow against real images and needs Full Disk
 Access and a Mac. It is worth running for anything touching mounting.
 
+## End-to-End
+
+`./scripts/e2e.sh` drives a flow through the built app with no window and no
+person: open a container file, unlock it, rebuild the list underneath it, eject
+it. Real engine, real helper, real `hdiutil`.
+
+- Fixtures are built once into `~/Library/Caches/dev.lukotta.e2e`. Nothing of the
+  user's is touched.
+- A fixture is passed as `name=path`: one line in `e2e.sh`, one in
+  `EndToEnd.swift`. `check-coverage.sh` fails when a format named in SPECS.md is
+  built and never handed over. A fixture handed over and missing on disk is a
+  counted failure.
+- `openAndChoose` does the preamble every flow shares (start, scan, open, find
+  the row) and checks each wait.
+- `scanGeneration` counts scans actually applied. A step that waited on the
+  phase passed against a broken rebuild. A new step is broken on purpose once and
+  seen to fail.
+- A killed run leaves image fixtures truncated, and thirty negative tests then
+  report "it opened, rather than failing". Delete
+  `~/Library/Caches/dev.lukotta.e2e` and re-run.
+- `e2e.sh` is written in BSD dialect (`dd bs=1m`, `stat -f%z`). With GNU
+  coreutils first on `PATH` those are errors, and `set -e` exits after the first
+  `echo`.
+- `update-test.sh` runs inside `preflight.sh`, and alone. It applies real
+  updates through Sparkle against a feed served from this Mac: a full archive, a
+  delta, one offered while a drive is open, and a build that cannot start being
+  put back.
+
+## Snapshots
+
+Snapshots are not run, recorded or re-recorded.
+
+- `./scripts/snapshots.sh` renders every screen from the built unbranded app and
+  compares it with `tests/snapshots/`. It needs `./build-app.sh`; `run-tests.sh`
+  skips it when there is no app.
+- Baselines belong to the unbranded build: the header draws the app's own name.
+- `--look` draws every screen into a temporary directory and leaves the
+  baselines alone. `--look hu` draws one language.
+- `--record` replaces baselines, and refuses a change wider than sixteen without
+  `--all`. One screen is eight: English at two sizes in two appearances, and one
+  picture each in German, Arabic, Japanese and Hindi.
+- Those four languages are the four ways a layout breaks: text that runs long,
+  an interface that turns round, lines that break without spaces, a script
+  taller than its box.
+- A capture is taken once two captures agree. SwiftUI settles over a turn of the
+  run loop, and an SF Symbol drawn for the first time in a process later still.
+- Scenes are hosted in an off-screen `NSWindow`. `ImageRenderer` returns the
+  inside of a `ScrollView` empty.
+- `dynamicTypeSize` does nothing on macOS: `.accessibility3` rendered
+  byte-identical to `.large`. The second axis is window size.
+
+## Code
+
+One place for each of these:
+
+| Job | Where |
+| --- | --- |
+| Run a program and collect its output | `run(_:_:timeout:)` in `Shell.swift` |
+| Read the mount table | `mountTable()`, same file |
+| Take apart one of its lines | `MountTableEntry`, same file |
+| Read a big- or little-endian field | the `Data` extension in `ByteOrder.swift` |
+| Ask how large a file is | `fileSize(atPath:)` in `DiskImage.swift` |
+
+- Three spawns do not use `run`, each commented where it is: `EngineEnvironment`'s
+  `tar` reads stderr as it arrives to count entries for progress; `MountProbe`'s
+  `df` collects no output, so a wedged `df` is abandoned with no pipe open;
+  `Mounter.mount` drives osascript through a FIFO.
+- `AppModel` is one file of about eighteen hundred lines, navigated by its marked
+  sections, and not split. Swift's `private` is file-scoped: members moved out
+  become visible to the module, `activeCredential` among them, which holds the
+  passphrase while a mount is in flight.
+- Swift 6: a closure written inside `@MainActor` code is main-actor isolated, and
+  an Objective-C API calling it on its own queue traps
+  (`dispatch_assert_queue_fail`, SIGTRAP). A closure for `NSXPCConnection`,
+  `NSWorkspace.recycle`, `DiskArbitration` or any API calling back on an unknown
+  queue is created in a `nonisolated` function, usually static, and hops back
+  with `Task { @MainActor in … }`. The shapes: `HelperClient.roundTrip` and
+  `moveToTheBin`.
+- After a change to `MountScript`, restart the helper: it links `LukottaCore`.
+
+### Logging
+
+- `os.Logger`, under the running bundle's identifier. `Log.subsystem` is the
+  only definition.
+- `log show --predicate 'subsystem == "com.lukotta"' --last 30m`. An unbranded
+  build logs under `com.example.driveunlocker`. The helper logs under its app's
+  subsystem; `category` tells them apart.
+- On the development Mac Lukotta's lines never appear in `log show`, at any
+  level. `log stream` works, and `--drive sweep` is the foreground instrument.
+- An interpolated string is private by default and reads back as `<private>`.
+  Anything meant to be legible says `privacy: .public`. A passphrase is never
+  logged.
+
+## Nothing Private in the Repository
+
+No account name, no path from a real machine, no identifier of a real disk, no
+recovery key a drive would accept. Real output used to shape a fixture is
+sanitised in the same edit: `someone` is the account name, `/Users/someone` the
+home directory, identifiers invented and shaped like the real thing.
+
+```bash
+./scripts/check-private.py            # everything git tracks
+./scripts/check-private.py --staged   # what is about to be committed
+```
+
+- It refuses a recovery key satisfying BitLocker's arithmetic, a home directory
+  with an unfamiliar name, an account name inside `mount` output, the UUID of any
+  disk this Mac has had attached, and anything shaped like a signing team.
+  Deliberate lookalikes are in `ALLOWED` inside it.
+- The account and the host name are asked of the system on each run. Disk UUIDs
+  are kept as digests inside `.git`; `--forget` drops them.
+- No identifier of any person belongs in that script or anywhere in the
+  repository.
+- Removal after it is committed: `git-filter-repo --replace-text` over every
+  commit, a force-push of every branch and tag, and a re-cut of any release whose
+  source archive carries it. Search for fragments too: a key's undashed form,
+  six digits quoted in an assertion.
+
 ## Translations
 
 Thirty-six languages live in `translations/`, one JSON file each, built into
@@ -209,6 +385,9 @@ a translation goes out for review.
 Adding a string means adding its context. `./scripts/context-skeleton.py
 --write` makes the entry; the sentence explaining it is written by hand, and
 the coverage gate fails while it is empty.
+
+A new or changed entry in `strings.json` carries `"audit": false` until it is
+audited.
 
 Corrections are as welcome as new languages. If a phrase reads badly to you as
 a native speaker, it reads badly — say so in an issue if you would rather not

@@ -290,6 +290,46 @@ the same volume mounted without `nfc` takes such a link and follows it. The
 option stays, because names are what every volume is full of and this shape of
 link is rare, turning up in archives written on a system in another language.
 
+## 5a. Decided behaviour
+
+Each of these is decided. Changing one reverses a decision.
+
+- **Encryption nested inside encryption is not opened.** A logical volume that is
+  itself a LUKS container fails, and the drive falls back to a single volume; the
+  app should say so. Several containers on one disk open.
+- **The initialise dialog is held back only while Lukotta is running.** Claiming
+  the disk suppresses it, and a claim belongs to a running process.
+- **The volume appears as a network drive.** macOS offers no supported way to
+  mark an NFS mount local. Only replacing the transport changes it.
+- **An open drive is listed under Favourites in Finder's sidebar, not
+  Locations.** On macOS 26 Locations lists no AFP volume, whether mounted by
+  `mount_afp`, by NetFS, or advertised over Bonjour; all three were measured.
+  `SidebarFavourites` adds the favourite when a drive opens and removes it, by
+  item id, when it closes. A favourite of an ejected volume resolves to no path.
+  A favourite the person made is never touched.
+- **Full Disk Access cannot be requested.** No API exists; the app detects the
+  refusal and explains it.
+- **A drive's name in Finder is right from the second unlock onward.** The label
+  is not knowable until the volume is open, which is after the share is named.
+- **A crash with a fallback mount open produces the system's "server connections
+  interrupted" dialog.** A crash cannot be intercepted, only avoided by
+  unmounting first.
+- **Apple Silicon, macOS 15 or later, no Mac App Store.** Sandboxed apps cannot
+  read raw devices or elevate.
+- **TPM-sealed volumes and detached LUKS headers cannot be opened.**
+- **A hibernated NTFS volume is opened read-only and is not repaired.** `ntfsck
+  -f` would repair it by discarding Windows' memory image, losing work nobody
+  agreed to lose. The check refuses it, the refusal fails the rung, and the
+  ladder ends at read-only. No rung runs the check with `|| true`. On a container
+  holding several volumes the refusal takes the whole container read-only: a
+  mount attempt covers the container.
+- **An NTFS volume is checked only when it has asked, and only once.** A full
+  `ntfsck` reads the whole MFT: 59 seconds on a 247 GB drive. A volume asks when
+  the reclaim walk wrote "could not move:" into `.lukotta-reclaim.log`, or when
+  ntfs3 refuses a volume ntfs-3g will take. The transcript in
+  `.lukotta-check.log`, written on failure too, limits a volume nothing can fix
+  to one scan.
+
 ## 6. Where the drivers came from
 
 imago read raw, qcow2 and flat VMDK, and wrote only qcow2 and raw. Everything
