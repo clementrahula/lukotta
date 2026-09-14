@@ -108,6 +108,9 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     private func watchForDeadMounts() {
         let interval = TimeInterval(Housekeeping.deadMountWatchSeconds)
         let timer = Timer(timeInterval: interval, repeats: true) { [weak self] _ in
+            // An engine mount left serving nothing holds the engine's lock, and
+            // only root can stop it. Whatever else is open.
+            if let self, !self.mounting { EngineProcesses.stopIdleMounts() }
             // Asked of the mount table, not of the engine.
             //
             // This guard was `EngineStatus.current()`, which runs

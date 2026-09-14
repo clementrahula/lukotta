@@ -127,6 +127,69 @@ public enum EngineProcesses {
         for pid in stillThere { kill(pid, SIGKILL) }
     }
 
+    /// How long an engine mount may run with nothing of its own in the mount
+    /// table before it counts as left behind. The slowest open measured, a
+    /// repair on a large drive, took minutes; this is well past it.
+    public static let idleMountAge: TimeInterval = 10 * 60
+
+    /// Engine mounts from this bundle that serve nothing and are old enough to
+    /// be left behind rather than starting.
+    ///
+    /// The engine names a share after the device it was given, its last
+    /// argument, so a mount process whose `<device>.local:` share is absent
+    /// from the table serves nothing. It still holds the engine's lock, and
+    /// with it the drive, for as long as it runs.
+    public static func idleMounts(
+        ps: String, engine: String, mountTable table: String,
+        olderThan age: TimeInterval = idleMountAge
+    ) -> Set<Int32> {
+        let shares = Set(MountTableEntry.all(in: table).map(\.source))
+        var found: Set<Int32> = []
+        for line in ps.components(separatedBy: .newlines) {
+            let fields = line.split(separator: " ", maxSplits: 2, omittingEmptySubsequences: true)
+            guard fields.count == 3, let pid = Int32(fields[0]),
+                let elapsed = secondsIn(String(fields[1])), elapsed >= age
+            else { continue }
+            let arguments = String(fields[2])
+            guard arguments.hasPrefix(engine + " mount "),
+                let device = arguments.split(separator: " ").last
+            else { continue }
+            let share = (String(device) as NSString).lastPathComponent + ".local:"
+            guard !shares.contains(where: { $0.hasPrefix(share) }) else { continue }
+            found.insert(pid)
+        }
+        return found
+    }
+
+    /// Stop the engine mounts that serve nothing. Root's to call: the helper
+    /// starts them as root.
+    @discardableResult
+    public static func stopIdleMounts() -> Int {
+        guard let engine = EnginePaths.anylinuxfs,
+            let result = run("/bin/ps", ["-axo", "pid=,etime=,args="])
+        else { return 0 }
+        let idle = idleMounts(
+            ps: result.out, engine: engine.path, mountTable: LukottaCore.mountTable())
+        guard !idle.isEmpty else { return 0 }
+        Log.mount.notice("stopping \(idle.count, privacy: .public) engine mounts serving nothing")
+        stop(idle)
+        return idle.count
+    }
+
+    /// ps prints elapsed time as [[dd-]hh:]mm:ss.
+    public static func secondsIn(_ elapsed: String) -> TimeInterval? {
+        var text = elapsed
+        var days = 0.0
+        if let dash = text.firstIndex(of: "-") {
+            days = Double(text[text.startIndex..<dash]) ?? 0
+            text = String(text[text.index(after: dash)...])
+        }
+        let parts = text.split(separator: ":").compactMap { Double($0) }
+        guard !parts.isEmpty else { return nil }
+        let withinDay = parts.reduce(0.0) { $0 * 60 + $1 }
+        return days * 86400 + withinDay
+    }
+
     /// Take down whatever an attempt started, given the helpers that were
     /// running before it began.
     ///

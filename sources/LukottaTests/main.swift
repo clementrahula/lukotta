@@ -5480,6 +5480,30 @@ group("aDocumentWithRulesAndCodeInIt") {
     expect("\(paragraphs)", "2", "the prose around them is still prose")
 }
 
+group("anEngineMountServingNothingIsStopped") {
+    let engine = "/Applications/Lukotta Dev.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs"
+    let ps = """
+          101    01:26:11 \(engine) mount --ignore-permissions -t ntfs-3g -a lukottantfs3g -w false /dev/disk5
+          102    01:26:11 \(engine) mount --ignore-permissions -t ntfs3 -a lukottantfs3 -w false /dev/disk4s2
+          103       00:40 \(engine) mount --ignore-permissions -t ntfs3 -a lukottantfs3 -w false /dev/disk9s1
+          104 2-03:00:00 /opt/homebrew/bin/anylinuxfs mount -t ext4 /dev/disk6
+          105    01:26:11 \(engine) shell /dev/disk7
+          106    01:26:11 /Applications/Lukotta Dev.app/Contents/Resources/engine/anylinuxfs/libexec/vmnet-helper --socket /tmp/v.sock
+        """
+    let table = """
+        disk4s2.local:/mnt/VOLUME on /Volumes/.lukotta/VOLUME (nfs, nodev, nosuid, synchronous, noowners, nobrowse, mounted by someone)
+        """
+    let idle = EngineProcesses.idleMounts(ps: ps, engine: engine, mountTable: table)
+    expect(idle == [101], "only the mount whose share is gone and that has been running for long")
+    expect(!idle.contains(102), "a mount serving its drive is left alone")
+    expect(!idle.contains(103), "one still starting is left alone")
+    expect(!idle.contains(104), "another engine's is left alone")
+    expect(
+        !idle.contains(105) && !idle.contains(106), "a shell and the network helper are not mounts")
+    expect(EngineProcesses.secondsIn("2-03:00:00") == 183_600, "days, hours, minutes and seconds")
+    expect(EngineProcesses.secondsIn("00:40") == 40, "minutes and seconds")
+}
+
 group("leftoverEngineHelpersAreTakenDown") {
     // The set arithmetic is the whole of the safety here: a helper that was
     // already running belongs to a drive somebody has open, and killing it
