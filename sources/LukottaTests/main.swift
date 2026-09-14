@@ -1872,10 +1872,10 @@ group("aPartitionTypeIsNeverADriveName") {
 }
 
 group("aDriveMacOSReadsAsAPFSIsNotOffered") {
-    // A USB drive formatted APFS: an EFI partition, an Apple_APFS one, and the
-    // container macOS builds from it, whose volumes it mounts from a disk of
-    // their own.
-    let apfsDrive: [String: Any] = [
+    // A USB drive formatted APFS, as the list of physical disks gives it: the
+    // container macOS built is not in that list, and only the APFS partition's
+    // own `diskutil info` names it.
+    let physicalOnly: [String: Any] = [
         "AllDisksAndPartitions": [
             [
                 "DeviceIdentifier": "disk7",
@@ -1889,26 +1889,44 @@ group("aDriveMacOSReadsAsAPFSIsNotOffered") {
                         "Size": NSNumber(value: 999_000_000_000),
                     ],
                 ],
-            ],
-            [
-                "DeviceIdentifier": "disk8",
-                "APFSPhysicalStores": [["DeviceIdentifier": "disk7s2"]],
-                "APFSVolumes": [["DeviceIdentifier": "disk8s1", "VolumeName": "Holiday"]],
-            ],
+            ]
         ]
     ]
-    let external: (String) -> [String: Any] = { _ in
-        ["BusProtocol": "USB", "Internal": false]
+    let external: (String) -> [String: Any] = { identifier in
+        var answer: [String: Any] = ["BusProtocol": "USB", "Internal": false]
+        if identifier == "disk7s2" || identifier == "disk9s1" {
+            answer["APFSContainerReference"] = identifier == "disk7s2" ? "disk8" : "disk10"
+        }
+        return answer
     }
     expect(
-        DriveScanner.drives(inList: apfsDrive, info: external).isEmpty,
+        DriveScanner.drives(inList: physicalOnly, info: external).isEmpty,
         "nothing on an APFS drive is a type this app opens")
     expect(
-        DriveScanner.unclaimedVolumes(inList: apfsDrive, info: external).isEmpty,
-        "and neither the disk nor its volumes is offered for a reading, mounted or not")
+        !DriveScanner.unclaimedVolumes(inList: physicalOnly, info: external)
+            .contains { $0.devicePath == "/dev/disk7" },
+        "and the disk is not offered whole, from the physical list alone")
 
-    // Split between APFS and NTFS, the NTFS half is still a drive.
-    let split: [String: Any] = [
+    // The same drive in the full list, where the container has an entry of its own.
+    let full: [String: Any] = [
+        "AllDisksAndPartitions":
+            (physicalOnly["AllDisksAndPartitions"] as? [[String: Any]] ?? []) + [
+                [
+                    "DeviceIdentifier": "disk8",
+                    "APFSPhysicalStores": [["DeviceIdentifier": "disk7s2"]],
+                    "APFSVolumes": [["DeviceIdentifier": "disk8s1", "VolumeName": "Holiday"]],
+                ]
+            ]
+    ]
+    let plain: (String) -> [String: Any] = { _ in ["BusProtocol": "USB", "Internal": false] }
+    expect(
+        !DriveScanner.unclaimedVolumes(inList: full, info: plain)
+            .contains { $0.devicePath == "/dev/disk7" },
+        "nor from the full list, where the container says which disk it lives on")
+
+    // A partition of a type nothing names, beside APFS, is still read: it may
+    // hold what this app opens.
+    let beside: [String: Any] = [
         "AllDisksAndPartitions": [
             [
                 "DeviceIdentifier": "disk9",
@@ -1919,23 +1937,26 @@ group("aDriveMacOSReadsAsAPFSIsNotOffered") {
                     ],
                     [
                         "DeviceIdentifier": "disk9s2", "Content": "Microsoft Basic Data",
-                        "Size": NSNumber(value: 500_000_000_000),
+                        "Size": NSNumber(value: 250_000_000_000),
+                    ],
+                    [
+                        "DeviceIdentifier": "disk9s3", "Content": "FreeBSD",
+                        "Size": NSNumber(value: 250_000_000_000),
                     ],
                 ],
-            ],
-            [
-                "DeviceIdentifier": "disk10",
-                "APFSPhysicalStores": [["DeviceIdentifier": "disk9s1"]],
-                "APFSVolumes": [["DeviceIdentifier": "disk10s1", "VolumeName": "Work"]],
-            ],
+            ]
         ]
     ]
     expect(
-        DriveScanner.drives(inList: split, info: external).map(\.id) == ["disk9s2"],
+        DriveScanner.drives(inList: beside, info: external).map(\.id) == ["disk9s2"],
         "the NTFS volume beside APFS is listed")
+    let besideLeftovers = DriveScanner.unclaimedVolumes(inList: beside, info: external)
     expect(
-        DriveScanner.unclaimedVolumes(inList: split, info: external).isEmpty,
-        "and the APFS half is not offered")
+        besideLeftovers.contains { $0.devicePath == "/dev/disk9s3" },
+        "a volume of a type nothing names is still offered for a reading")
+    expect(
+        !besideLeftovers.contains { $0.devicePath == "/dev/disk9" },
+        "and the disk is still not offered whole")
 }
 
 group("aStalePartitionTypeDoesNotHideADrive") {

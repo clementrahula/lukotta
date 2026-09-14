@@ -365,8 +365,15 @@ public enum DriveScanner {
         // this Mac's own boot disk out of the list -- with nothing answering,
         // every guard that reads it saw `false`, and 1.22.14 offered to unlock
         // /dev/disk0, called it External, and gave it no bus.
+        let apfsPartitions = Set(
+            ((plist["AllDisksAndPartitions"] as? [[String: Any]]) ?? [])
+                .flatMap { ($0["Partitions"] as? [[String: Any]]) ?? [] }
+                .filter { ($0["Content"] as? String) == DriveSurvey.apfsVolume }
+                .compactMap { $0["DeviceIdentifier"] as? String })
+        // And the APFS partitions, whose answer names the container macOS built.
         let aboutWholeDisks: (String) -> [String: Any] = { identifier in
-            guard wholeDisk(of: identifier) == identifier else { return [:] }
+            guard wholeDisk(of: identifier) == identifier || apfsPartitions.contains(identifier)
+            else { return [:] }
             return answers.value(for: identifier) { info(for: identifier) ?? [:] }
         }
         let leftovers = unclaimedVolumes(inList: plist, info: aboutWholeDisks)
@@ -451,13 +458,21 @@ public enum DriveScanner {
 
         var drives: [Drive] = []
         // Disks under an APFS container macOS has built. It builds one only from
-        // a container it has read, so what is on such a disk is macOS's to
-        // serve, mounted or not, and its volumes are mounted from the container
-        // rather than from the disk.
+        // a container it has read, so the disk is macOS's to serve, mounted or
+        // not, and its volumes are mounted from the container rather than from
+        // the disk. The list of physical disks leaves the containers out, so the
+        // partition's own `diskutil info` is what names one there.
         let apfsStores = Set(
-            allDisks.flatMap { ($0["APFSPhysicalStores"] as? [[String: Any]]) ?? [] }
-                .compactMap { $0["DeviceIdentifier"] as? String }
-                .map { wholeDisk(of: $0) })
+            allDisks.flatMap { disk -> [String] in
+                let listed = ((disk["APFSPhysicalStores"] as? [[String: Any]]) ?? [])
+                    .compactMap { $0["DeviceIdentifier"] as? String }
+                let read = ((disk["Partitions"] as? [[String: Any]]) ?? [])
+                    .filter { ($0["Content"] as? String) == DriveSurvey.apfsVolume }
+                    .compactMap { $0["DeviceIdentifier"] as? String }
+                    .filter { !((info($0)["APFSContainerReference"] as? String) ?? "").isEmpty }
+                return listed + read
+            }
+            .map { wholeDisk(of: $0) })
         for disk in allDisks {
             let wholeIdent = disk["DeviceIdentifier"] as? String
             let wholeInfo = wholeIdent.map(info) ?? [:]
@@ -543,9 +558,9 @@ public enum DriveScanner {
                     // unpartitioned disk is -- a neutral guess the first sector
                     // overrules -- and marked as telling us nothing, so no row
                     // claims a format nobody has read.
-                    guard !internalDisk, !holdsAPFS, isWholeDisk || declared == nil else {
-                        continue
-                    }
+                    guard !internalDisk, !(holdsAPFS && isWholeDisk),
+                        isWholeDisk || declared == nil
+                    else { continue }
                     kind = .linux
                 }
 
