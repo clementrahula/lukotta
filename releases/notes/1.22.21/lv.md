@@ -1,0 +1,4 @@
+- Katru atvērta diska failu un mapi var atvērt, mainīt un dzēst programmā Finder neatkarīgi no tā, kādas atļaujas diskā saglabātas.
+- Atvērts disks parādās programmas Finder sānjoslā sadaļā “Favourites” un pazūd no tās, kad disks tiek izstumts.
+- USB disks, ko macOS nolasa kā APFS, vairs netiek rādīts kā atbloķējams disks.
+- Pēc atjaunināšanas otrs disks atveras, kamēr cits vēl ir atvērts.

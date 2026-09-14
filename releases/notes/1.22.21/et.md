@@ -1,0 +1,4 @@
+- Avatud ketta iga faili ja kausta saab Finderis avada, muuta ja kustutada, olenemata sellest, milliseid õigusi ketas on salvestanud.
+- Avatud ketas ilmub Finderi külgribale jaotisse „Favourites“ ja kaob sealt, kui ketas väljutatakse.
+- USB-ketast, mida macOS loeb APFS-ina, ei kuvata enam avatava kettana.
+- Pärast värskendust avaneb teine ketas ka siis, kui mõni teine on veel avatud.

@@ -1,0 +1,4 @@
+- Setiap fail dan folder pada pemacu yang dibuka boleh dibuka, diubah dan dipadam dalam Finder, tanpa mengira kebenaran yang disimpan oleh pemacu.
+- Pemacu yang dibuka muncul dalam bar sisi Finder di bawah Kegemaran, dan hilang daripadanya apabila pemacu dikeluarkan.
+- Pemacu USB yang dibaca oleh macOS sebagai APFS tidak lagi disenaraikan sebagai pemacu untuk dibuka kunci.
+- Selepas kemas kini, pemacu kedua dibuka semasa pemacu lain masih terbuka.

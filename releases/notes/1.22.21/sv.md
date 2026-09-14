@@ -1,0 +1,4 @@
+- Alla filer och mappar på en öppen enhet kan öppnas, ändras och raderas i Finder, oavsett vilka behörigheter enheten har sparat.
+- En öppen enhet visas i Finders sidofält under Favoriter och försvinner därifrån när enheten matas ut.
+- En USB-enhet som macOS läser som APFS visas inte längre som en enhet att låsa upp.
+- Efter en uppdatering öppnas en andra enhet medan en annan fortfarande är öppen.

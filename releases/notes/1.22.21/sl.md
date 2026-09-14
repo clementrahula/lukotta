@@ -1,0 +1,4 @@
+- Vsako datoteko in mapo na odprtem pogonu lahko v Finderju odprete, spremenite in izbrišete, ne glede na dovoljenja, shranjena na pogonu.
+- Odprt pogon se prikaže v stranski vrstici Finderja pod »Priljubljeno« in izgine, ko pogon izvržete.
+- Pogon USB, ki ga macOS bere kot APFS, ni več prikazan kot pogon za odklepanje.
+- Po posodobitvi se odpre drugi pogon, medtem ko je drug še odprt.

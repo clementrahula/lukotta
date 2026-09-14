@@ -1,0 +1,4 @@
+- Svaka datoteka i mapa na otvorenom disku može se u Finderu otvoriti, promijeniti i obrisati, bez obzira na dopuštenja koja je disk spremio.
+- Otvoreni disk pojavljuje se u rubnom stupcu Findera pod „Omiljene stavke” i nestaje odande kad se disk izbaci.
+- USB disk koji macOS čita kao APFS više se ne prikazuje kao disk za otključavanje.
+- Nakon ažuriranja otvara se i drugi disk dok je neki drugi još otvoren.

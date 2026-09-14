@@ -1,0 +1,4 @@
+- Elk bestand en elke map op een geopende schijf kun je in de Finder openen, wijzigen en verwijderen, welke rechten de schijf ook heeft opgeslagen.
+- Een geopende schijf verschijnt in de navigatiekolom van de Finder onder Favorieten en verdwijnt daar weer als je de schijf verwijdert.
+- Een USB-schijf die macOS als APFS leest, wordt niet meer getoond als schijf om te ontgrendelen.
+- Na een update opent een tweede schijf terwijl een andere nog open is.

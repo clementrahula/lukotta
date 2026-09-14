@@ -1,0 +1,4 @@
+- Todos los archivos y carpetas de un disco abierto se pueden abrir, modificar y eliminar en el Finder, sean cuales sean los permisos que guarde el disco.
+- Un disco abierto aparece en la barra lateral del Finder, en Favoritos, y desaparece al expulsarlo.
+- Un disco USB que macOS lee como APFS ya no aparece como disco para desbloquear.
+- Tras una actualización se abre un segundo disco mientras otro sigue abierto.

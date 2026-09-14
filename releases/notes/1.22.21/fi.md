@@ -1,0 +1,4 @@
+- Avoimen aseman jokaisen tiedoston ja kansion voi avata, muuttaa ja poistaa Finderissa riippumatta siitä, mitä oikeuksia asemalle on tallennettu.
+- Avoin asema näkyy Finderin sivupalkissa kohdassa Suosikit ja poistuu sieltä, kun asema poistetaan.
+- USB-asemaa, jonka macOS lukee APFS-muotoisena, ei enää näytetä avattavana asemana.
+- Päivityksen jälkeen toinen asema avautuu, vaikka toinen on vielä auki.

@@ -1,0 +1,4 @@
+- Ang bawat file at folder sa nakabukas na drive ay maaaring buksan, baguhin at tanggalin sa Finder, anuman ang mga pahintulot na nakaimbak sa drive.
+- Lumalabas ang nakabukas na drive sa sidebar ng Finder sa ilalim ng Favourites, at nawawala rito kapag ang drive ay ini-eject.
+- Ang USB drive na binabasa ng macOS bilang APFS ay hindi na nakalista bilang drive na kailangang i-unlock.
+- Nagbubukas ang ikalawang drive pagkatapos ng update habang nakabukas pa ang isa.
