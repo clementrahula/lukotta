@@ -4,6 +4,8 @@
 - v2, this year: FSKit replaces AFP. The FSKit items below belong to it.
 
 - [ ] lint.sh and run-tests.sh leave `/tmp/lukotta-*` on every run; move them into the tmp-root.sh directory.
+- [ ] `ask` waits without end when a program exits but a child it left keeps stdout or stderr open: the pipe never closes. Wait on the pipes for whatever the deadline has left, and close both read ends when giving up.
+- [ ] The helper's dead-mount timer runs `stopIdleMounts` on the main run loop, which can hold it for up to about 40 s (two 10 s readings, then up to 20 s stopping). Run it off the main run loop.
 - [ ] `EngineProcesses.tidyWhatServesNothing` reads the mount table through `mountTable()`, which is empty when `/sbin/mount` cannot run, and then stops every engine from this bundle. Take the table through `ask` and stop nothing unless it finished.
 - [ ] `check-coverage.sh` exits 1 silently at "Harnesses something actually runs" when a script has no row and no caller: `grep -l` finds nothing and fails the pipeline under `pipefail`, before `bad` prints the script's name.
 - [ ] `everyentrywritable` has run on one real drive, NTFS. It needs a real exFAT, FAT, ext4, XFS and btrfs drive each, named in `LUKOTTA_TEST_DEVICES`; the Linux ones also need `sudo -n` to set immutable and append-only flags.
