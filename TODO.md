@@ -12,6 +12,8 @@
 - [ ] `twoatonce` needs two real drives in `LUKOTTA_TEST_DEVICES`; it ran on disk images before, and only one real drive has been attached since.
 - [ ] `every-entry-is-writable.sh` never reads the stored modes back past the patched `vfs_getattr_nosec`, so it would pass vacuously if a chmod stopped reaching the disk. Read them with `ntfsinfo`, `debugfs` or `xfs_db` in the engine shell, which needs root.
 ||||||| parent of ef9aec5 (TODO: a USB APFS drive checked against the main list)
+||||||| parent of 56259b0 (The scan hands the leftover pass a lookup a test can call, so the APFS answer it depends on is checked)
+- [ ] A whole disk admitted to the list stays until its device node goes, so a first scan that misses `APFSContainerReference` (the container attached late, or `diskutil info` failing) keeps a USB APFS disk listed. Drop an adopted whole disk a later scan no longer offers.
 - [ ] A USB APFS drive has not been plugged in with the app open since `aDriveMacOSReadsAsAPFSIsNotOffered`; check the main list leaves it out, mounted and ejected in Finder.
 - [ ] Re-test FSKit on the current macOS. Third-party extensions were broken on
   26.1 and 26.2: `fskitd` rejects unprivileged clients, which breaks Apple's own

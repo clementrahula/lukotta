@@ -365,18 +365,8 @@ public enum DriveScanner {
         // this Mac's own boot disk out of the list -- with nothing answering,
         // every guard that reads it saw `false`, and 1.22.14 offered to unlock
         // /dev/disk0, called it External, and gave it no bus.
-        let apfsPartitions = Set(
-            ((plist["AllDisksAndPartitions"] as? [[String: Any]]) ?? [])
-                .flatMap { ($0["Partitions"] as? [[String: Any]]) ?? [] }
-                .filter { ($0["Content"] as? String) == DriveSurvey.apfsVolume }
-                .compactMap { $0["DeviceIdentifier"] as? String })
-        // And the APFS partitions, whose answer names the container macOS built.
-        let aboutWholeDisks: (String) -> [String: Any] = { identifier in
-            guard wholeDisk(of: identifier) == identifier || apfsPartitions.contains(identifier)
-            else { return [:] }
-            return answers.value(for: identifier) { info(for: identifier) ?? [:] }
-        }
-        let leftovers = unclaimedVolumes(inList: plist, info: aboutWholeDisks)
+        let aboutLeftovers = leftoverAnswers(inList: plist, ask: ask)
+        let leftovers = unclaimedVolumes(inList: plist, info: aboutLeftovers)
         guard !all, !images.isEmpty else { return (found, leftovers) }
         // Everything came back, so the images nobody asked about go now. A
         // partition of disk6 belongs to disk6.
@@ -390,6 +380,24 @@ public enum DriveScanner {
             }
         }
         return (mine(found), mine(leftovers))
+    }
+
+    /// What the leftover pass asks `diskutil info` about: whole disks, and APFS
+    /// partitions, whose answer names the container macOS built. Every other
+    /// partition is answered with nothing, and the table's own words have to do.
+    public static func leftoverAnswers(
+        inList plist: [String: Any], ask: @escaping (String) -> [String: Any]
+    ) -> (String) -> [String: Any] {
+        let apfsPartitions = Set(
+            ((plist["AllDisksAndPartitions"] as? [[String: Any]]) ?? [])
+                .flatMap { ($0["Partitions"] as? [[String: Any]]) ?? [] }
+                .filter { ($0["Content"] as? String) == DriveSurvey.apfsVolume }
+                .compactMap { $0["DeviceIdentifier"] as? String })
+        return { identifier in
+            guard wholeDisk(of: identifier) == identifier || apfsPartitions.contains(identifier)
+            else { return [:] }
+            return ask(identifier)
+        }
     }
 
     /// A name for a volume whose partition table carries no UUID.

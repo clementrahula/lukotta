@@ -1957,6 +1957,18 @@ group("aDriveMacOSReadsAsAPFSIsNotOffered") {
     expect(
         !besideLeftovers.contains { $0.devicePath == "/dev/disk9" },
         "and the disk is still not offered whole")
+
+    // The lookup the scan really hands the leftover pass.
+    let lookup = DriveScanner.leftoverAnswers(inList: physicalOnly, ask: external)
+    expect(
+        (lookup("disk7s2")["APFSContainerReference"] as? String) == "disk8",
+        "the leftover pass is answered for an APFS partition")
+    expect(lookup("disk7s1").isEmpty, "and for no other partition")
+    expect(!lookup("disk7").isEmpty, "and for the whole disk")
+    expect(
+        !DriveScanner.unclaimedVolumes(inList: physicalOnly, info: lookup)
+            .contains { $0.devicePath == "/dev/disk7" },
+        "so through that lookup the disk is not offered whole")
 }
 
 group("aStalePartitionTypeDoesNotHideADrive") {
