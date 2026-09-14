@@ -1,4 +1,4 @@
-- Każdy plik i folder na otwartym dysku można otworzyć, zmienić i usunąć w Finderze, niezależnie od uprawnień zapisanych na dysku.
+- Każdy plik i folder na otwartym dysku można otworzyć, zmienić i usunąć w Finderze.
 - Otwarty dysk pojawia się na pasku bocznym Findera w sekcji Ulubione i znika z niej po wysunięciu dysku.
 - Dysk USB, który macOS odczytuje jako APFS, nie jest już pokazywany jako dysk do odblokowania.
 - Po aktualizacji drugi dysk otwiera się, gdy inny jest nadal otwarty.

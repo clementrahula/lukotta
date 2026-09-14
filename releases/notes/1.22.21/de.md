@@ -1,4 +1,4 @@
-- Jede Datei und jeden Ordner auf einem geöffneten Laufwerk kannst du im Finder öffnen, ändern und löschen, egal welche Rechte das Laufwerk gespeichert hat.
+- Jede Datei und jeden Ordner auf einem geöffneten Laufwerk kannst du im Finder öffnen, ändern und löschen.
 - Ein geöffnetes Laufwerk erscheint in der Finder-Seitenleiste unter Favoriten und verschwindet dort, wenn du es auswirfst.
 - Ein USB-Laufwerk, das macOS als APFS liest, wird nicht mehr als zu entsperrendes Laufwerk angezeigt.
 - Nach einem Update öffnet sich ein zweites Laufwerk, während ein anderes noch geöffnet ist.

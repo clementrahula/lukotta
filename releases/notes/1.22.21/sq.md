@@ -1,4 +1,4 @@
-- Çdo skedar dhe dosje në një disk të hapur mund të hapet, ndryshohet dhe fshihet në Finder, pavarësisht lejeve që ka ruajtur disku.
+- Çdo skedar dhe dosje në një disk të hapur mund të hapet, ndryshohet dhe fshihet në Finder.
 - Disku i hapur shfaqet në shiritin anësor të Finder-it te Favourites dhe zhduket prej andej kur disku nxirret.
 - Një disk USB që macOS e lexon si APFS nuk shfaqet më si disk për t’u shkyçur.
 - Pas një përditësimi, një disk i dytë hapet ndërkohë që një tjetër është ende i hapur.

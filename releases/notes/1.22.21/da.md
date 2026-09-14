@@ -1,4 +1,4 @@
-- Alle filer og mapper på en åben enhed kan åbnes, ændres og slettes i Finder, uanset hvilke tilladelser enheden har gemt.
+- Alle filer og mapper på en åben enhed kan åbnes, ændres og slettes i Finder.
 - En åben enhed vises i Finders indholdsoversigt under Favoritter og forsvinder igen, når enheden skubbes ud.
 - En USB-enhed, som macOS læser som APFS, vises ikke længere som en enhed, der skal låses op.
 - Efter en opdatering åbner en ekstra enhed, mens en anden stadig er åben.

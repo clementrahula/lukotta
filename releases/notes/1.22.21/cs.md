@@ -1,4 +1,4 @@
-- Každý soubor a složku na otevřeném disku lze ve Finderu otevřít, změnit i smazat, ať disk uložil jakákoli oprávnění.
+- Každý soubor a složku na otevřeném disku lze ve Finderu otevřít, změnit i smazat.
 - Otevřený disk se zobrazí v postranním panelu Finderu v části Oblíbené a po vysunutí z něj zmizí.
 - USB disk, který macOS čte jako APFS, se už nezobrazuje jako disk k odemčení.
 - Po aktualizaci se otevře druhý disk, i když je jiný stále otevřený.

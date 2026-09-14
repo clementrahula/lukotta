@@ -1,4 +1,4 @@
-- Ogni file e cartella su un disco aperto si può aprire, modificare ed eliminare nel Finder, qualunque siano i permessi memorizzati sul disco.
+- Ogni file e cartella su un disco aperto si può aprire, modificare ed eliminare nel Finder.
 - Un disco aperto compare nella barra laterale del Finder, sotto Preferiti, e scompare quando viene espulso.
 - Un disco USB che macOS legge come APFS non viene più mostrato come disco da sbloccare.
 - Dopo un aggiornamento, un secondo disco si apre mentre un altro è ancora aperto.

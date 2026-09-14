@@ -1,4 +1,4 @@
-- Orice fișier și dosar de pe un disc deschis poate fi deschis, modificat și șters în Finder, indiferent de permisiunile stocate pe disc.
+- Orice fișier și dosar de pe un disc deschis poate fi deschis, modificat și șters în Finder.
 - Un disc deschis apare în bara laterală Finder, la Favorite, și dispare de acolo când este scos.
 - Un disc USB pe care macOS îl citește ca APFS nu mai este afișat ca disc de deblocat.
 - După o actualizare, un al doilea disc se deschide în timp ce altul este încă deschis.

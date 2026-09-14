@@ -1,4 +1,4 @@
-- Kiekvieną atidaryto disko failą ir aplanką galima atidaryti, keisti ir ištrinti „Finder“, nesvarbu, kokias teises diskas yra išsaugojęs.
+- Kiekvieną atidaryto disko failą ir aplanką galima atidaryti, keisti ir ištrinti „Finder“.
 - Atidarytas diskas rodomas „Finder“ šoninėje juostoje skiltyje „Favourites“ ir iš jos dingsta, kai diskas išstumiamas.
 - USB diskas, kurį „macOS“ skaito kaip APFS, nebėra rodomas kaip diskas, kurį reikia atrakinti.
 - Po atnaujinimo antras diskas atsidaro, kol kitas dar atidarytas.

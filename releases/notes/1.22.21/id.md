@@ -1,4 +1,4 @@
-- Setiap file dan folder di drive yang terbuka dapat dibuka, diubah, dan dihapus di Finder, apa pun izin yang disimpan drive tersebut.
+- Setiap file dan folder di drive yang terbuka dapat dibuka, diubah, dan dihapus di Finder.
 - Drive yang terbuka muncul di bilah samping Finder di bawah Favorit, dan hilang dari sana saat drive dikeluarkan.
 - Drive USB yang dibaca macOS sebagai APFS tidak lagi ditampilkan sebagai drive yang perlu dibuka kuncinya.
 - Setelah pembaruan, drive kedua dapat dibuka saat drive lain masih terbuka.

@@ -1,4 +1,4 @@
-- Chaque fichier et dossier d’un disque ouvert peut être ouvert, modifié et supprimé dans le Finder, quelles que soient les autorisations enregistrées sur le disque.
+- Chaque fichier et dossier d’un disque ouvert peut être ouvert, modifié et supprimé dans le Finder.
 - Un disque ouvert apparaît dans la barre latérale du Finder, sous Favoris, et en disparaît lorsqu’il est éjecté.
 - Un disque USB que macOS lit comme APFS n’est plus proposé comme disque à déverrouiller.
 - Après une mise à jour, un deuxième disque s’ouvre alors qu’un autre est encore ouvert.

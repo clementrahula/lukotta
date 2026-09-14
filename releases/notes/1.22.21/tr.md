@@ -1,4 +1,4 @@
-- Açık bir sürücüdeki her dosya ve klasör, sürücünün sakladığı izinler ne olursa olsun Finder’da açılabilir, değiştirilebilir ve silinebilir.
+- Açık bir sürücüdeki her dosya ve klasör Finder’da açılabilir, değiştirilebilir ve silinebilir.
 - Açık bir sürücü Finder kenar çubuğunda Favoriler altında görünür ve sürücü çıkarıldığında oradan kaybolur.
 - macOS’un APFS olarak okuduğu bir USB sürücü artık kilidi açılacak sürücü olarak listelenmiyor.
 - Güncellemeden sonra başka bir sürücü açıkken ikinci bir sürücü de açılır.

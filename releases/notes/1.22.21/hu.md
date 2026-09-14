@@ -1,4 +1,4 @@
-- A megnyitott meghajtó minden fájlja és mappája megnyitható, módosítható és törölhető a Finderben, bármilyen jogosultságot is tárolt a meghajtó.
+- A megnyitott meghajtó minden fájlja és mappája megnyitható, módosítható és törölhető a Finderben.
 - A megnyitott meghajtó megjelenik a Finder oldalsávján a Kedvencek alatt, és kiadáskor eltűnik onnan.
 - Az olyan USB-meghajtó, amelyet a macOS APFS-ként olvas, már nem jelenik meg feloldandó meghajtóként.
 - Frissítés után egy második meghajtó is megnyílik, miközben egy másik még nyitva van.

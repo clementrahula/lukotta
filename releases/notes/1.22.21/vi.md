@@ -1,4 +1,4 @@
-- Mọi tệp và thư mục trên ổ đĩa đang mở đều có thể mở, thay đổi và xóa trong Finder, bất kể ổ đĩa lưu quyền truy cập nào.
+- Mọi tệp và thư mục trên ổ đĩa đang mở đều có thể mở, thay đổi và xóa trong Finder.
 - Ổ đĩa đang mở xuất hiện ở thanh bên của Finder, dưới Mục ưa thích, và biến mất khi ổ đĩa được tháo ra.
 - Ổ USB mà macOS đọc là APFS không còn được liệt kê là ổ đĩa cần mở khóa.
 - Sau khi cập nhật, ổ đĩa thứ hai mở được trong khi một ổ khác vẫn đang mở.
