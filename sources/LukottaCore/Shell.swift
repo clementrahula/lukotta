@@ -73,21 +73,53 @@ public func ask(
     let err = Pipe()
     process.standardOutput = out
     process.standardError = err
+    // Before it starts: a program that exits first would otherwise never say so.
+    let finished = DispatchSemaphore(value: 0)
+    process.terminationHandler = { _ in finished.signal() }
     do { try process.run() } catch { return .couldNotAsk }
 
-    if let timeout {
-        let finished = DispatchSemaphore(value: 0)
-        process.terminationHandler = { _ in finished.signal() }
-        if finished.wait(timeout: .now() + timeout) == .timedOut {
-            process.terminate()
-            return .silent
+    // Drained while it runs. A program that prints more than a pipe holds
+    // cannot exit until somebody reads, and waiting for it first reads as
+    // silence: `ps -axo args=` is 148 KB on a working Mac.
+    let drained = DispatchGroup()
+    let printed = Collected()
+    let complained = Collected()
+    for (pipe, collected) in [(out, printed), (err, complained)] {
+        let handle = pipe.fileHandleForReading
+        drained.enter()
+        DispatchQueue.global().async {
+            collected.set(handle.readDataToEndOfFile())
+            drained.leave()
         }
     }
 
-    let output = String(decoding: out.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
-    let errors = String(decoding: err.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+    if let timeout, finished.wait(timeout: .now() + timeout) == .timedOut {
+        process.terminate()
+        return .silent
+    }
     process.waitUntilExit()
-    return .finished(CommandOutput(status: process.terminationStatus, out: output, err: errors))
+    drained.wait()
+    return .finished(
+        CommandOutput(
+            status: process.terminationStatus,
+            out: String(decoding: printed.get(), as: UTF8.self),
+            err: String(decoding: complained.get(), as: UTF8.self)))
+}
+
+/// What one pipe gave, written on a reading queue and read on the caller's.
+private final class Collected: @unchecked Sendable {
+    private let lock = NSLock()
+    private var data = Data()
+    func set(_ new: Data) {
+        lock.lock()
+        data = new
+        lock.unlock()
+    }
+    func get() -> Data {
+        lock.lock()
+        defer { lock.unlock() }
+        return data
+    }
 }
 
 /// Run a program and collect what it said.
@@ -96,15 +128,9 @@ public func ask(
 /// the caller decides what that means, since a missing tool and a wedged one
 /// need different sentences. Where those two need telling apart, use `ask`.
 ///
-/// The deadline is watched before the pipes are read. Reading to the end of a
-/// pipe waits for the writing end to close, which a process that will never
-/// finish never does, so a read-then-wait ordering hangs on exactly the case
-/// the deadline exists for.
-///
-/// Output is read after the process ends, which bounds what is collected by
-/// what these programs print: a mount table, a plist, a few lines of status.
-/// A program that fills the pipe buffer without exiting would deadlock, and
-/// none of the callers here run one.
+/// The pipes are drained while the program runs and the deadline is watched
+/// beside them, so neither a long output nor a program that never finishes
+/// holds the caller past it.
 @discardableResult
 public func run(
     _ executable: String,
