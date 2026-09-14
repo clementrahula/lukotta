@@ -4021,29 +4021,29 @@ group("clientRequirement") {
 }
 
 group("guestRuntimeSync") {
-    let now = Date()
-    let older = now.addingTimeInterval(-3600)
+    func at(_ sec: Int, _ nsec: Int) -> timespec { timespec(tv_sec: sec, tv_nsec: nsec) }
 
-    // The engine's own test: size first, then whether the bundled one is
-    // newer.
+    // The engine's own test: size first, then whether the bundled one is newer.
     expect(
         GuestRuntime.needsSync(
-            bundledSize: 100, bundledModified: older, guestSize: 101, guestModified: now),
+            bundledSize: 100, bundledModified: at(1, 0), guestSize: 101, guestModified: at(2, 0)),
         "a different size means the guest copy is stale")
     expect(
         GuestRuntime.needsSync(
-            bundledSize: 100, bundledModified: now, guestSize: 100, guestModified: older),
+            bundledSize: 100, bundledModified: at(2, 0), guestSize: 100, guestModified: at(1, 0)),
         "a newer bundled file means the guest copy is stale")
     expect(
-        !GuestRuntime.needsSync(
-            bundledSize: 100, bundledModified: older, guestSize: 100, guestModified: now),
-        "an older bundled file leaves the guest copy alone")
-
-    // Copying keeps the timestamp, so the two match afterwards. That must read
-    // as settled, or every launch would copy again.
+        GuestRuntime.needsSync(
+            bundledSize: 100, bundledModified: at(2, 333_333_333), guestSize: 100,
+            guestModified: at(2, 333_333_000)),
+        "newer by nanoseconds is newer, as the engine compares")
     expect(
         !GuestRuntime.needsSync(
-            bundledSize: 100, bundledModified: now, guestSize: 100, guestModified: now),
+            bundledSize: 100, bundledModified: at(1, 0), guestSize: 100, guestModified: at(2, 0)),
+        "an older bundled file leaves the guest copy alone")
+    expect(
+        !GuestRuntime.needsSync(
+            bundledSize: 100, bundledModified: at(2, 5), guestSize: 100, guestModified: at(2, 5)),
         "matching size and timestamp is settled, not stale")
 
     // Settled on real files, because what matters is what the engine then reads.
@@ -4055,17 +4055,15 @@ group("guestRuntimeSync") {
     let guest = dir.appendingPathComponent("guest")
     let attribute = "user.containers.override_stat"
     let marker = Data("0:0:0755".utf8)
-    func write(_ url: URL, _ text: String, _ date: Date) {
+    func write(_ url: URL, _ text: String, _ time: timespec) {
         try? Data(text.utf8).write(to: url)
-        try? fm.setAttributes([.modificationDate: date], ofItemAtPath: url.path)
+        var times = [timespec(tv_sec: 0, tv_nsec: Int(UTIME_OMIT)), time]
+        _ = utimensat(AT_FDCWD, url.path, &times, 0)
     }
-    func mtime(_ url: URL) -> Double {
-        ((try? fm.attributesOfItem(atPath: url.path)[.modificationDate]) as? Date)?
-            .timeIntervalSince1970 ?? 0
-    }
-    func inode(_ url: URL) -> Int {
-        ((try? fm.attributesOfItem(atPath: url.path)[.systemFileNumber]) as? NSNumber)?.intValue
-            ?? -1
+    func info(_ url: URL) -> stat {
+        var s = stat()
+        _ = stat(url.path, &s)
+        return s
     }
     func attr(_ url: URL) -> Data? {
         let n = getxattr(url.path, attribute, nil, 0, 0, 0)
@@ -4074,27 +4072,32 @@ group("guestRuntimeSync") {
         let r = d.withUnsafeMutableBytes { getxattr(url.path, attribute, $0.baseAddress, n, 0, 0) }
         return r == n ? d : nil
     }
+    func sameTime(_ a: URL, _ b: URL) -> Bool {
+        info(a).st_mtimespec.tv_sec == info(b).st_mtimespec.tv_sec
+            && info(a).st_mtimespec.tv_nsec == info(b).st_mtimespec.tv_nsec
+    }
 
-    write(bundled, "same bytes", now)
-    write(guest, "same bytes", older)
+    // A nanosecond count a Date rounds down.
+    write(bundled, "same bytes", at(1_789_000_000, 333_333_333))
+    write(guest, "same bytes", at(1_789_000_000, 0))
     _ = marker.withUnsafeBytes {
         setxattr(guest.path, attribute, $0.baseAddress, marker.count, 0, 0)
     }
-    let sameInode = inode(guest)
+    let before = info(guest).st_ino
     expect(
         GuestRuntime.sync(bundled: bundled, guest: guest),
         "identical bytes behind in time are settled")
-    expect(abs(mtime(guest) - mtime(bundled)) < 1, "by the timestamp alone")
-    expect(inode(guest) == sameInode, "without replacing the file a machine may be running from")
+    expect(sameTime(guest, bundled), "to the nanosecond, so the engine finds nothing newer")
+    expect(info(guest).st_ino == before, "without replacing the file a machine may be running from")
     expect(!GuestRuntime.sync(bundled: bundled, guest: guest), "and stay settled")
 
-    write(bundled, "newer bytes", now.addingTimeInterval(60))
+    write(bundled, "newer bytes", at(1_789_000_060, 999_999_999))
     expect(GuestRuntime.sync(bundled: bundled, guest: guest), "different bytes are replaced")
     expect(
         (try? String(contentsOf: guest, encoding: .utf8)) == "newer bytes", "with the bundled bytes"
     )
     expect(attr(guest) == marker, "keeping what the runtime reports for owner and mode")
-    expect(abs(mtime(guest) - mtime(bundled)) < 1, "and the bundled timestamp")
+    expect(sameTime(guest, bundled), "and the bundled timestamp to the nanosecond")
     expect(
         !GuestRuntime.sync(bundled: bundled, guest: guest), "after which there is nothing to copy")
     try? fm.removeItem(at: dir)

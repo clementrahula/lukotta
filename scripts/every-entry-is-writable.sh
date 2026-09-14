@@ -22,6 +22,9 @@ export ANYLINUXFS_HOME="$HOME/Library/Application Support/$APP_ID/engine"
 # for what the guest does not do.
 [ -b "$DEV" ] || { echo "$DEV is not a block device"; exit 2; }
 served() { mount | grep -F "$(basename "$DEV").local:" | grep ' (nfs' | sed -E 's/^.* on (.*) \(nfs.*$/\1/' | head -n 1; }
+# An engine still holding the device, share or no share. Mounting it again beside
+# one would put two machines writing one filesystem.
+engine_on_device() { pgrep -f -- "anylinuxfs mount .*${DEV}\$" || true; }
 WORK="$(mktemp -d)"
 OPENED=0
 FROZEN=0
@@ -35,19 +38,23 @@ cleanup() {
   fi
   [ "$OPENED" = 1 ] && "$APP" --drive eject="$DEV" >/dev/null 2>&1
   if [ "$FROZEN" = 1 ]; then
-    for _ in $(seq 1 120); do [ -z "$(served)" ] && break; sleep 1; done
+    for _ in $(seq 1 120); do [ -z "$(served)" ] && [ -z "$(engine_on_device)" ] && break; sleep 1; done
+    if [ -n "$(engine_on_device)" ]; then
+      echo "  the flagged fixture was left on $DEV: its engine is still running"
+    else
     sudo -n env ANYLINUXFS_HOME="$ANYLINUXFS_HOME" "$ENGINE" shell "$DEV" -c '
 fs=$(blkid -o value -s TYPE /dev/vda)
 mkdir -p /tmp/m && mount -t $fs /dev/vda /tmp/m || exit 1
 [ -d /tmp/m/lukotta-rosnap ] && btrfs subvolume delete /tmp/m/lukotta-rosnap
 if [ -d /tmp/m/lukotta-frozen ]; then chattr -R -i -a /tmp/m/lukotta-frozen; rm -rf /tmp/m/lukotta-frozen; fi
 umount /tmp/m' >/dev/null 2>&1 || echo "  the flagged fixture could not be taken off $DEV"
+    fi
   fi
   rm -rf "$WORK"
 }
 trap cleanup EXIT
 
-[ -z "$(served)" ] || { echo "$DEV is open; eject it first"; exit 2; }
+[ -z "$(served)" ] && [ -z "$(engine_on_device)" ] || { echo "$DEV is open; eject it first"; exit 2; }
 
 # The flags root cannot override, set where they are stored, on the filesystems
 # that store them. NTFS, FAT and exFAT keep no such flag on the disk. The guest

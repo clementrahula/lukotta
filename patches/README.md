@@ -496,8 +496,9 @@ reported modes alone 0777 over NFS and AFP, AFP still refused a folder stored
 read-only btrfs snapshot still refuse and nothing else does. `check_sticky()`
 and `inode_owner_or_capable()` grant. `IS_APPEND()` and `IS_IMMUTABLE()` hold
 only on `SB_NOUSER` superblocks, the kernel's internal pseudo filesystems,
-which assert the flag; ext4's check that a symlink carries neither flag reads
-`i_flags` directly, so it still catches corruption. `vfs_getattr_nosec()` adds read and write for everyone to every regular
+which rely on it. The checks that it is set on pidfs and nsfs inodes, and
+ext4's that a symlink carries neither flag, read `i_flags` directly, so the
+first stays quiet and the second still catches corruption. `vfs_getattr_nosec()` adds read and write for everyone to every regular
 file, and read, write and search to every folder. Nothing is written to the
 disk: modes and flags stay as stored, and chmod and chattr still set them.
 

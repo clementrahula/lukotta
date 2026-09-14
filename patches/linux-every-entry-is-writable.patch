@@ -9,8 +9,9 @@ against the mode stored.
 inode_permission() keeps only the refusals that protect data: a read-only
 mount, a filesystem's own EROFS (a read-only btrfs snapshot) and EIO. Ownership,
 the sticky bit and immutable and append-only flags refuse nothing, except on
-the kernel's internal pseudo filesystems, which rely on the flag. ext4 still
-treats either flag on a symlink as corruption. vfs_getattr_nosec(), where stat,
+the kernel's internal pseudo filesystems, which rely on the flag, and the
+checks that the flag is set on pidfs and nsfs inodes, and ext4's that it is
+not set on a symlink, read it directly. vfs_getattr_nosec(), where stat,
 statx and nfsd read attributes for every filesystem including FUSE, adds read
 and write for everyone, and search on folders. Nothing is written to the disk.
 
@@ -109,6 +110,17 @@ and write for everyone, and search on folders. Nothing is written to the disk.
  			ext4_error_inode(inode, function, line, 0,
  					 "iget: immutable or append flags "
  					 "not allowed on symlinks");
+--- a/fs/libfs.c
++++ b/fs/libfs.c
+@@ -2156,7 +2156,7 @@
+ 
+ 	/* Notice when this is changed. */
+ 	WARN_ON_ONCE(!S_ISREG(inode->i_mode));
+-	WARN_ON_ONCE(!IS_IMMUTABLE(inode));
++	WARN_ON_ONCE(!(inode->i_flags & S_IMMUTABLE));
+ 
+ 	dentry = d_alloc_anon(sb);
+ 	if (!dentry) {
 --- a/fs/stat.c
 +++ b/fs/stat.c
 @@ -162,12 +162,20 @@
