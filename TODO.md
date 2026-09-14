@@ -6,6 +6,7 @@
 - [ ] lint.sh and run-tests.sh leave `/tmp/lukotta-*` on every run; move them into the tmp-root.sh directory.
 - [ ] `check-coverage.sh` exits 1 silently at "Harnesses something actually runs" when a script has no row and no caller: `grep -l` finds nothing and fails the pipeline under `pipefail`, before `bad` prints the script's name.
 - [ ] `everyentrywritable` has run on one real drive, NTFS. It needs a real exFAT, FAT, ext4, XFS and btrfs drive each, named in `LUKOTTA_TEST_DEVICES`; the Linux ones also need `sudo -n` to set immutable and append-only flags.
+- [ ] `twoatonce` needs two real drives in `LUKOTTA_TEST_DEVICES`; it ran on disk images before, and only one real drive has been attached since.
 - [ ] `every-entry-is-writable.sh` never reads the stored modes back past the patched `vfs_getattr_nosec`, so it would pass vacuously if a chmod stopped reaching the disk. Read them with `ntfsinfo`, `debugfs` or `xfs_db` in the engine shell, which needs root.
 - [ ] Re-test FSKit on the current macOS. Third-party extensions were broken on
   26.1 and 26.2: `fskitd` rejects unprivileged clients, which breaks Apple's own

@@ -28,15 +28,17 @@ public enum GuestRuntime {
         EnginePaths.engineRoot?.appendingPathComponent("anylinuxfs/libexec/vmproxy")
     }
 
-    /// The engine's own test, reproduced: size first, then "is the bundled one
-    /// newer". Equal timestamps do not count as different, which is what lets a
-    /// copy that keeps the timestamp settle the question for good.
+    /// The engine's own test, reproduced: size first, then whether the bundled
+    /// one is newer, to the nanosecond, as the engine compares them.
     public static func needsSync(
-        bundledSize: Int64, bundledModified: Date,
-        guestSize: Int64, guestModified: Date
+        bundledSize: Int64, bundledModified: timespec,
+        guestSize: Int64, guestModified: timespec
     ) -> Bool {
         if bundledSize != guestSize { return true }
-        return bundledModified > guestModified
+        if bundledModified.tv_sec != guestModified.tv_sec {
+            return bundledModified.tv_sec > guestModified.tv_sec
+        }
+        return bundledModified.tv_nsec > guestModified.tv_nsec
     }
 
     /// Bring the guest copy up to date, if it is out of date.
@@ -49,27 +51,19 @@ public enum GuestRuntime {
     }
 
     public static func sync(bundled: URL, guest: URL) -> Bool {
-        let fm = FileManager.default
-        guard fm.fileExists(atPath: bundled.path), fm.fileExists(atPath: guest.path),
-            let bundledAttrs = try? fm.attributesOfItem(atPath: bundled.path),
-            let guestAttrs = try? fm.attributesOfItem(atPath: guest.path),
-            let bundledSize = (bundledAttrs[.size] as? NSNumber)?.int64Value,
-            let guestSize = (guestAttrs[.size] as? NSNumber)?.int64Value,
-            let bundledModified = bundledAttrs[.modificationDate] as? Date,
-            let guestModified = guestAttrs[.modificationDate] as? Date
-        else { return false }
-
-        guard
+        var bundledInfo = stat()
+        var guestInfo = stat()
+        guard stat(bundled.path, &bundledInfo) == 0, stat(guest.path, &guestInfo) == 0,
             needsSync(
-                bundledSize: bundledSize, bundledModified: bundledModified,
-                guestSize: guestSize, guestModified: guestModified)
+                bundledSize: bundledInfo.st_size, bundledModified: bundledInfo.st_mtimespec,
+                guestSize: guestInfo.st_size, guestModified: guestInfo.st_mtimespec)
         else { return false }
 
-        if bundledSize == guestSize, fm.contentsEqual(atPath: bundled.path, andPath: guest.path) {
-            return
-                (try? fm.setAttributes(
-                    [.modificationDate: bundledModified], ofItemAtPath: guest.path))
-                != nil
+        let fm = FileManager.default
+        if bundledInfo.st_size == guestInfo.st_size,
+            fm.contentsEqual(atPath: bundled.path, andPath: guest.path)
+        {
+            return setModificationTime(bundledInfo.st_mtimespec, of: guest)
         }
 
         // The attribute tells the runtime what owner and mode to report. A guest
@@ -83,14 +77,20 @@ public enum GuestRuntime {
         try? fm.removeItem(at: staging)
         guard (try? fm.copyItem(at: bundled, to: staging)) != nil,
             setExtendedAttribute(overrideStatAttribute, to: override, of: staging),
-            (try? fm.setAttributes([.modificationDate: bundledModified], ofItemAtPath: staging.path))
-                != nil,
+            setModificationTime(bundledInfo.st_mtimespec, of: staging),
             rename(staging.path, guest.path) == 0
         else {
             try? fm.removeItem(at: staging)
             return false
         }
         return true
+    }
+
+    /// The exact time, nanoseconds included: a Date rounds to microseconds, and
+    /// rounded down the engine still finds its own copy newer.
+    static func setModificationTime(_ time: timespec, of url: URL) -> Bool {
+        var times = [timespec(tv_sec: 0, tv_nsec: Int(UTIME_OMIT)), time]
+        return utimensat(AT_FDCWD, url.path, &times, 0) == 0
     }
 
     // MARK: Extended attributes

@@ -45,7 +45,7 @@ goal6	goal	long	every other format the app advertises	FIXTURES="ntfs-vectors ext
 goal7	goal	slow	a dirty NTFS volume is repaired, data intact	bash scripts/dirty-ntfs-repair.sh
 corpus	goal	long	83 deliberately corrupted NTFS images, none scribbled on	bash scripts/corrupt-corpus.sh
 guestfresh	goal	fast	the unpacked Linux environment is the one the app carries	bash scripts/guest-matches-the-bundle.sh
-twoatonce	goal	fast	a second drive opens while a first one is open	bash scripts/two-at-once.sh
+twoatonce	goal	slow	a second real drive opens while a first one is open	set -- ${LUKOTTA_TEST_DEVICES:?set it to at least two real test drives}; [ $# -ge 2 ] || { echo "needs two real test drives"; exit 2; }; bash scripts/two-at-once.sh "$1" "$2"
 ntfsck	integrity	slow	the checker repairs an interrupted copy, damaged before and clean after	bash scripts/ntfsck-repairs.sh
 ntfsckapp	integrity	slow	a damaged volume opens writable through the app, and a healthy one is not scanned	bash scripts/repairs-through-the-app.sh
 goal8	goal	long	a dozen volumes under 8 GB of pressure, still served	bash scripts/twelve-under-pressure.sh
