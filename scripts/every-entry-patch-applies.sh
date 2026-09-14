@@ -18,7 +18,8 @@ TARBALL="vendor/.cache/$KERNEL.tar.xz"
 
 WORK="$(mktemp -d)"
 trap '/bin/rm -rf "$WORK"' EXIT
-tar -xJf "$TARBALL" -C "$WORK" "$KERNEL/fs/stat.c" "$KERNEL/include/linux/fs.h" \
+tar -xJf "$TARBALL" -C "$WORK" "$KERNEL/fs/stat.c" "$KERNEL/fs/namei.c" "$KERNEL/fs/inode.c" \
+  "$KERNEL/include/linux/fs.h" \
   || { echo "could not unpack $KERNEL"; exit 2; }
 out="$(patch -p1 --fuzz=0 --dry-run -d "$WORK/$KERNEL" < "$PATCH" 2>&1)"
 rc=$?
