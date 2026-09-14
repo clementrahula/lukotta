@@ -1354,7 +1354,7 @@ group("mountStages") {
     for kind in [VolumeKind.linux, .microsoft] {
         let generated = MountScript.build(sampleInputs(kind: kind))
         let file = URL(fileURLWithPath: NSTemporaryDirectory())
-            .appendingPathComponent("lukotta-script-\(kind.rawValue).sh")
+            .appendingPathComponent("lukotta-script-\(kind.rawValue)-\(UUID().uuidString).sh")
         try? generated.write(to: file, atomically: true, encoding: .utf8)
         let check = Process()
         check.executableURL = URL(fileURLWithPath: "/bin/sh")
@@ -1363,6 +1363,7 @@ group("mountStages") {
         try? check.run()
         check.waitUntilExit()
         expect(check.terminationStatus == 0, "the \(kind.rawValue) script is valid shell")
+        try? FileManager.default.removeItem(at: file)
         try? FileManager.default.removeItem(at: file)
     }
 
@@ -3590,7 +3591,7 @@ group("theMountScriptIsValidShell") {
     // shell that cannot parse it exits 2 before anything happens, which the app
     // reports as a drive that would not open.
     let dir = URL(fileURLWithPath: NSTemporaryDirectory())
-        .appendingPathComponent("lukotta-script-check", isDirectory: true)
+        .appendingPathComponent("lukotta-script-check-\(UUID().uuidString)", isDirectory: true)
     try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
     for (name, script) in [
         ("write, microsoft", MountScript.build(sampleInputs(kind: .microsoft, readOnly: false))),
@@ -6053,7 +6054,7 @@ group("theRepairRefusesWhatItWouldDamage") {
     // checks the two refusals are real: a non-zero exit fails the before_mount
     // action, which fails the attempt, which opens the drive read-only.
     let dir = URL(fileURLWithPath: NSTemporaryDirectory())
-        .appendingPathComponent("lukotta-repair-guard", isDirectory: true)
+        .appendingPathComponent("lukotta-repair-guard-\(UUID().uuidString)", isDirectory: true)
     let bin = dir.appendingPathComponent("bin", isDirectory: true)
     try? FileManager.default.removeItem(at: dir)
     try? FileManager.default.createDirectory(at: bin, withIntermediateDirectories: true)
