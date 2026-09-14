@@ -6,26 +6,30 @@ Mac, an immutable or append-only flag. They refused twice: the client judged
 the mode it was handed, and a server acting as anyone but root was judged
 against the mode stored.
 
-inode_permission() grants everything a read-only mount does not refuse, and
-neither ownership, the sticky bit nor immutable and append-only flags refuse a
-change. vfs_getattr_nosec(), where stat, statx and nfsd read attributes for
-every filesystem including FUSE, adds read and write for everyone, and search
-on folders. Nothing is written to the disk: modes and flags stay as stored.
+inode_permission() keeps only the refusals that protect data: a read-only
+mount, a filesystem's own EROFS (a read-only btrfs snapshot) and EIO. Ownership,
+the sticky bit and immutable and append-only flags refuse nothing, except on
+the kernel's internal pseudo filesystems, which rely on the flag. ext4 still
+treats either flag on a symlink as corruption. vfs_getattr_nosec(), where stat,
+statx and nfsd read attributes for every filesystem including FUSE, adds read
+and write for everyone, and search on folders. Nothing is written to the disk.
 
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -2308,8 +2308,8 @@
+@@ -2308,8 +2308,10 @@
  #define IS_I_VERSION(inode)	__IS_FLG(inode, SB_I_VERSION)
  
  #define IS_NOQUOTA(inode)	((inode)->i_flags & S_NOQUOTA)
 -#define IS_APPEND(inode)	((inode)->i_flags & S_APPEND)
 -#define IS_IMMUTABLE(inode)	((inode)->i_flags & S_IMMUTABLE)
-+#define IS_APPEND(inode)	((void)(inode), 0)
-+#define IS_IMMUTABLE(inode)	((void)(inode), 0)
++#define IS_APPEND(inode)	(((inode)->i_flags & S_APPEND) && \
++				 ((inode)->i_sb->s_flags & SB_NOUSER))
++#define IS_IMMUTABLE(inode)	(((inode)->i_flags & S_IMMUTABLE) && \
++				 ((inode)->i_sb->s_flags & SB_NOUSER))
  
  #ifdef CONFIG_FS_POSIX_ACL
  #define IS_POSIXACL(inode)	__IS_FLG(inode, SB_POSIXACL)
-@@ -3650,10 +3650,7 @@
+@@ -3650,10 +3652,7 @@
  static inline int check_sticky(struct mnt_idmap *idmap,
  			       struct inode *dir, struct inode *inode)
  {
@@ -39,16 +43,10 @@ on folders. Nothing is written to the disk: modes and flags stay as stored.
  static inline void inode_has_no_xattr(struct inode *inode)
 --- a/fs/namei.c
 +++ b/fs/namei.c
-@@ -510,37 +510,7 @@
- int inode_permission(struct mnt_idmap *idmap,
- 		     struct inode *inode, int mask)
- {
--	int retval;
--
--	retval = sb_permission(inode->i_sb, inode, mask);
--	if (retval)
--		return retval;
--
+@@ -516,31 +516,10 @@
+ 	if (retval)
+ 		return retval;
+ 
 -	if (unlikely(mask & MAY_WRITE)) {
 -		/*
 -		 * Nobody gets write access to an immutable file.
@@ -65,16 +63,17 @@ on folders. Nothing is written to the disk: modes and flags stay as stored.
 -			return -EACCES;
 -	}
 -
--	retval = do_inode_permission(idmap, inode, mask);
+ 	retval = do_inode_permission(idmap, inode, mask);
 -	if (retval)
--		return retval;
++	if (retval == -EROFS || retval == -EIO)
+ 		return retval;
 -
 -	retval = devcgroup_inode_permission(inode, mask);
 -	if (retval)
 -		return retval;
 -
 -	return security_inode_permission(inode, mask);
-+	return sb_permission(inode->i_sb, inode, mask);
++	return 0;
  }
  EXPORT_SYMBOL(inode_permission);
  
@@ -99,6 +98,17 @@ on folders. Nothing is written to the disk: modes and flags stay as stored.
  }
  EXPORT_SYMBOL(inode_owner_or_capable);
  
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5044,7 +5044,7 @@
+ 		inode->i_fop = &ext4_dir_operations;
+ 	} else if (S_ISLNK(inode->i_mode)) {
+ 		/* VFS does not allow setting these so must be corruption */
+-		if (IS_APPEND(inode) || IS_IMMUTABLE(inode)) {
++		if (inode->i_flags & (S_APPEND | S_IMMUTABLE)) {
+ 			ext4_error_inode(inode, function, line, 0,
+ 					 "iget: immutable or append flags "
+ 					 "not allowed on symlinks");
 --- a/fs/stat.c
 +++ b/fs/stat.c
 @@ -162,12 +162,20 @@

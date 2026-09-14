@@ -548,6 +548,7 @@
             let servedBefore = MountTableEntry.all(in: LukottaCore.mountTable())
                 .filter(\.isEngineMount).count
 
+            GuestRuntime.syncIfNeeded()
             var answer: (status: Int32, transcript: String)??
             Task { @MainActor in
                 answer = await helper.mount(

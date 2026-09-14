@@ -1696,11 +1696,6 @@ final class AppModel: ObservableObject {
             }
             guard settled else { return }
 
-            // Before anything is mounted, while the engine's lock is still
-            // available. It declines once a drive is open, which is both when it
-            // would matter and when it would be unsafe.
-            GuestRuntime.syncIfNeeded()
-
             // Clear anything left mounted by a virtual machine that is no
             // longer running. Until it is cleared, macOS keeps asking about a
             // server that cannot answer, and the drive cannot be opened again
@@ -3125,6 +3120,7 @@ final class AppModel: ObservableObject {
             let logsBefore = Housekeeping.EngineLogs.present()
             mountTask = Task {
                 defer { Housekeeping.EngineLogs.claimAppeared(since: logsBefore) }
+                GuestRuntime.syncIfNeeded()
                 let outcome = await helper.mount(
                     drive: drive, aliasPath: aliasPath, volume: nil, credential: credential,
                     readOnly: readOnly)

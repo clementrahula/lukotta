@@ -21,21 +21,38 @@ export ANYLINUXFS_HOME="$HOME/Library/Application Support/$APP_ID/engine"
 # A real drive only. An image is backed by a file, and the host's cache covers
 # for what the guest does not do.
 [ -b "$DEV" ] || { echo "$DEV is not a block device"; exit 2; }
+served() { mount | grep -F "$(basename "$DEV").local:" | grep ' (nfs' | sed -E 's/^.* on (.*) \(nfs.*$/\1/' | head -n 1; }
 WORK="$(mktemp -d)"
 OPENED=0
+FROZEN=0
+nfs=""
+TREE=""
+# Whatever ends the run, nothing of it is left on the drive: the tree through the
+# mount, and the flagged fixture, which only root in the guest can take away.
 cleanup() {
+  if [ "$OPENED" = 1 ] && [ -n "$nfs" ] && [ -n "$TREE" ] && [ -d "$nfs/$TREE" ]; then
+    rm -rf "${nfs:?}/${TREE:?}"
+  fi
   [ "$OPENED" = 1 ] && "$APP" --drive eject="$DEV" >/dev/null 2>&1
+  if [ "$FROZEN" = 1 ]; then
+    for _ in $(seq 1 120); do [ -z "$(served)" ] && break; sleep 1; done
+    sudo -n env ANYLINUXFS_HOME="$ANYLINUXFS_HOME" "$ENGINE" shell "$DEV" -c '
+fs=$(blkid -o value -s TYPE /dev/vda)
+mkdir -p /tmp/m && mount -t $fs /dev/vda /tmp/m || exit 1
+[ -d /tmp/m/lukotta-rosnap ] && btrfs subvolume delete /tmp/m/lukotta-rosnap
+if [ -d /tmp/m/lukotta-frozen ]; then chattr -R -i -a /tmp/m/lukotta-frozen; rm -rf /tmp/m/lukotta-frozen; fi
+umount /tmp/m' >/dev/null 2>&1 || echo "  the flagged fixture could not be taken off $DEV"
+  fi
   rm -rf "$WORK"
 }
 trap cleanup EXIT
 
-served() { mount | grep -F "$(basename "$DEV").local:" | grep ' (nfs' | sed -E 's/^.* on (.*) \(nfs.*$/\1/' | head -n 1; }
 [ -z "$(served)" ] || { echo "$DEV is open; eject it first"; exit 2; }
 
 # The flags root cannot override, set where they are stored, on the filesystems
 # that store them. NTFS, FAT and exFAT keep no such flag on the disk. The guest
-# reads a raw device only as root.
-FROZEN=0
+# reads a raw device only as root. On btrfs a read-only snapshot is made too: it
+# protects data, so it must still refuse.
 kind="$(diskutil info "$DEV" 2>/dev/null | awk -F: '/Type \(Bundle\)/ {gsub(/ /, "", $2); print $2}')"
 case "$kind" in
   ntfs | msdos | exfat) echo "  $kind stores no immutable or append-only flag" ;;
@@ -43,16 +60,22 @@ case "$kind" in
     sudo -n true 2>/dev/null || { echo "setting flags on a Linux filesystem needs sudo without a prompt"; exit 2; }
     prep="$(sudo -n env ANYLINUXFS_HOME="$ANYLINUXFS_HOME" "$ENGINE" shell "$DEV" -c '
 fs=$(blkid -o value -s TYPE /dev/vda)
+echo "fs=$fs"
 case "$fs" in ext4|xfs|btrfs) ;; *) echo "no-flags $fs"; exit 0 ;; esac
 command -v chattr >/dev/null || { echo "no chattr in the guest"; exit 1; }
 mkdir -p /tmp/m && mount -t $fs /dev/vda /tmp/m || { echo "prep mount failed"; exit 1; }
 d=/tmp/m/lukotta-frozen
 mkdir -p $d && echo frozen > $d/immutable.txt && echo appended > $d/append.txt
 chattr +i $d/immutable.txt && chattr +a $d/append.txt && lsattr $d && echo flags-set
+if [ "$fs" = btrfs ]; then btrfs subvolume snapshot -r /tmp/m /tmp/m/lukotta-rosnap >/dev/null && echo snapshot-set; fi
 umount /tmp/m' 2>&1)"
     printf '%s\n' "$prep" | sed 's/^/  guest: /'
-    if printf '%s\n' "$prep" | grep -qx 'flags-set'; then
-      FROZEN=1
+    [ "$(printf '%s\n' "$prep" | grep -cx 'flags-set')" -gt 0 ] && FROZEN=1
+    if [ "$FROZEN" = 1 ]; then
+      if [ "$(printf '%s\n' "$prep" | grep -cx 'fs=btrfs')" -gt 0 ] \
+        && [ "$(printf '%s\n' "$prep" | grep -cx 'snapshot-set')" = 0 ]; then
+        echo "the read-only snapshot fixture could not be made"; exit 1
+      fi
     elif ! printf '%s\n' "$prep" | grep -q '^no-flags '; then
       echo "the immutable and append-only fixture could not be made"; exit 1
     fi
@@ -72,8 +95,10 @@ finder_volume() {
   local afp; afp="$(mount | grep -F "@$HOST/" | grep afpfs | sed -E 's/^.* on (.*) \([^()]*\)$/\1/' | head -n 1)"
   if [ -n "$afp" ]; then echo "$afp"; else served; fi
 }
+opens=0
 open_drive() {
-  timeout 900 "$APP" --drive open="$DEV" >/dev/null 2>&1 || { echo "the drive did not open"; exit 1; }
+  opens=$((opens + 1))
+  timeout 900 "$APP" --drive open="$DEV" > "$WORK/open-$opens.log" 2>&1 || { echo "the drive did not open"; exit 1; }
   OPENED=1
   point=""; nfs=""
   for _ in $(seq 1 240); do
@@ -87,7 +112,8 @@ open_drive() {
 open_drive
 owner_listing() {
   find "$nfs" -mindepth 1 -maxdepth 2 ! -name 'lukotta-writable-*' ! -path '*/lukotta-writable-*' \
-    ! -name 'lukotta-frozen' ! -path '*/lukotta-frozen/*' ! -name '.Trashes' ! -path '*/.Trashes/*' \
+    ! -name 'lukotta-frozen' ! -path '*/lukotta-frozen/*' ! -name 'lukotta-rosnap' ! -path '*/lukotta-rosnap/*' \
+    ! -name '.Trashes' ! -path '*/.Trashes/*' \
     ! -name '.lukotta-*' ! -name '._*' ! -name '.DS_Store' -printf '%y %s %p\n' 2>/dev/null | LC_ALL=C sort
 }
 owner_before="$(owner_listing)"
@@ -161,7 +187,15 @@ finder_delete() {
   if [ -z "$err" ] && [ ! -e "$1" ]; then ok "Finder deletes ${1#"$point"/}"; else fail "Finder does not delete ${1#"$point"/}: ${err:-still there}"; fi
 }
 for d in sealed stamped readonly; do finder_delete "$T/$d/inside.txt"; done
-if [ "$FROZEN" = 1 ]; then finder_delete "$F/immutable.txt"; finder_delete "$F/append.txt"; finder_delete "$F"; fi
+if [ "$FROZEN" = 1 ]; then
+  finder_delete "$F/immutable.txt"; finder_delete "$F/append.txt"; finder_delete "$F"
+  R="$point/lukotta-rosnap/lukotta-frozen/immutable.txt"
+  if [ -e "$point/lukotta-rosnap" ]; then
+    osascript -e 'on run argv' -e 'tell application "Finder"' -e 'with timeout of 120 seconds' \
+      -e 'delete (POSIX file (item 1 of argv) as alias)' -e 'end timeout' -e 'end tell' -e 'end run' "$R" >/dev/null 2>&1
+    if [ -e "$R" ]; then ok "a read-only btrfs snapshot refuses a delete"; else fail "a read-only btrfs snapshot gave up a file"; fi
+  fi
+fi
 finder_delete "$T"
 dialogs=$(( $("$WORK/finder-windows") - before ))
 if [ "$dialogs" -le 0 ]; then ok "no dialog"; else fail "$dialogs Finder windows opened"; fi
@@ -173,10 +207,19 @@ if [ -n "$owner_before" ]; then
   "$APP" --drive eject="$DEV" >/dev/null 2>&1; OPENED=0
   for _ in $(seq 1 120); do [ -z "$(served)" ] && break; sleep 1; done
   open_drive
-  if mount | grep -F "$(basename "$DEV").local:" | grep -q 'read-only'; then
+  if [ "$(mount | grep -F "$(basename "$DEV").local:" | grep -c 'read-only')" -gt 0 ]; then
     fail "the drive opened read-only afterwards"
   else
     ok "the drive opens writable afterwards"
+  fi
+  # A check, repair or fallback the first open did not need means this run left
+  # the volume in a state the app had to mend, which reopening writable would hide.
+  mended() { grep -cE 'LUKOTTA_STAGE:(checking|checked|read-only)|lukotta: ntfsck|trying ntfsfix|__by_ntfs3g=1' "$1"; }
+  if [ "$(mended "$WORK/open-$opens.log")" -le "$(mended "$WORK/open-1.log")" ]; then
+    ok "the reopen needed no check, repair or fallback the first open did not"
+  else
+    fail "the reopen needed a check, repair or fallback:"
+    grep -E 'LUKOTTA_STAGE:|lukotta: |__by_ntfs3g' "$WORK/open-$opens.log" | head -10 | sed 's/^/         /'
   fi
   if [ "$(owner_listing)" = "$owner_before" ]; then
     ok "everything else on the drive is as it was, $(printf '%s\n' "$owner_before" | wc -l) entries"

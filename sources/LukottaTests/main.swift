@@ -4046,6 +4046,59 @@ group("guestRuntimeSync") {
             bundledSize: 100, bundledModified: now, guestSize: 100, guestModified: now),
         "matching size and timestamp is settled, not stale")
 
+    // Settled on real files, because what matters is what the engine then reads.
+    let fm = FileManager.default
+    let dir = fm.temporaryDirectory.appendingPathComponent("lukotta-guestsync-\(getpid())")
+    try? fm.removeItem(at: dir)
+    try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
+    let bundled = dir.appendingPathComponent("bundled")
+    let guest = dir.appendingPathComponent("guest")
+    let attribute = "user.containers.override_stat"
+    let marker = Data("0:0:0755".utf8)
+    func write(_ url: URL, _ text: String, _ date: Date) {
+        try? Data(text.utf8).write(to: url)
+        try? fm.setAttributes([.modificationDate: date], ofItemAtPath: url.path)
+    }
+    func mtime(_ url: URL) -> Double {
+        ((try? fm.attributesOfItem(atPath: url.path)[.modificationDate]) as? Date)?
+            .timeIntervalSince1970 ?? 0
+    }
+    func inode(_ url: URL) -> Int {
+        ((try? fm.attributesOfItem(atPath: url.path)[.systemFileNumber]) as? NSNumber)?.intValue
+            ?? -1
+    }
+    func attr(_ url: URL) -> Data? {
+        let n = getxattr(url.path, attribute, nil, 0, 0, 0)
+        guard n >= 0 else { return nil }
+        var d = Data(count: n)
+        let r = d.withUnsafeMutableBytes { getxattr(url.path, attribute, $0.baseAddress, n, 0, 0) }
+        return r == n ? d : nil
+    }
+
+    write(bundled, "same bytes", now)
+    write(guest, "same bytes", older)
+    _ = marker.withUnsafeBytes {
+        setxattr(guest.path, attribute, $0.baseAddress, marker.count, 0, 0)
+    }
+    let sameInode = inode(guest)
+    expect(
+        GuestRuntime.sync(bundled: bundled, guest: guest),
+        "identical bytes behind in time are settled")
+    expect(abs(mtime(guest) - mtime(bundled)) < 1, "by the timestamp alone")
+    expect(inode(guest) == sameInode, "without replacing the file a machine may be running from")
+    expect(!GuestRuntime.sync(bundled: bundled, guest: guest), "and stay settled")
+
+    write(bundled, "newer bytes", now.addingTimeInterval(60))
+    expect(GuestRuntime.sync(bundled: bundled, guest: guest), "different bytes are replaced")
+    expect(
+        (try? String(contentsOf: guest, encoding: .utf8)) == "newer bytes", "with the bundled bytes"
+    )
+    expect(attr(guest) == marker, "keeping what the runtime reports for owner and mode")
+    expect(abs(mtime(guest) - mtime(bundled)) < 1, "and the bundled timestamp")
+    expect(
+        !GuestRuntime.sync(bundled: bundled, guest: guest), "after which there is nothing to copy")
+    try? fm.removeItem(at: dir)
+
     // The raw engine string is not something to show anyone.
     let advice = Diagnosis.summarise(
         "macOS: Error: another instance is already running", fallback: "x")
