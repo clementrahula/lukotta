@@ -450,6 +450,14 @@ public enum DriveScanner {
         guard let allDisks = plist["AllDisksAndPartitions"] as? [[String: Any]] else { return [] }
 
         var drives: [Drive] = []
+        // Disks under an APFS container macOS has built. It builds one only from
+        // a container it has read, so what is on such a disk is macOS's to
+        // serve, mounted or not, and its volumes are mounted from the container
+        // rather than from the disk.
+        let apfsStores = Set(
+            allDisks.flatMap { ($0["APFSPhysicalStores"] as? [[String: Any]]) ?? [] }
+                .compactMap { $0["DeviceIdentifier"] as? String }
+                .map { wholeDisk(of: $0) })
         for disk in allDisks {
             let wholeIdent = disk["DeviceIdentifier"] as? String
             let wholeInfo = wholeIdent.map(info) ?? [:]
@@ -468,6 +476,7 @@ public enum DriveScanner {
 
             let partitions = disk["Partitions"] as? [[String: Any]]
             let apfs = disk["APFSVolumes"] as? [[String: Any]]
+            let holdsAPFS = wholeIdent.map { apfsStores.contains($0) } ?? false
 
             // A disk with no partition table at all is one volume filling the
             // whole disk: a stick somebody ran cryptsetup over, a raw image, a
@@ -534,7 +543,9 @@ public enum DriveScanner {
                     // unpartitioned disk is -- a neutral guess the first sector
                     // overrules -- and marked as telling us nothing, so no row
                     // claims a format nobody has read.
-                    guard !internalDisk, isWholeDisk || declared == nil else { continue }
+                    guard !internalDisk, !holdsAPFS, isWholeDisk || declared == nil else {
+                        continue
+                    }
                     kind = .linux
                 }
 
