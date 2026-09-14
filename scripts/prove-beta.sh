@@ -239,6 +239,7 @@ fi
 
 prove_drive bitlocker "$BITLOCKER"
 pass "keys: $PROC offered the saved key for $BITLOCKER on both opens"
+[ "$NTFS" = "$BITLOCKER" ] && say "NOTE ntfs: the NTFS volume inside $BITLOCKER; one drive, the owner's decision"
 prove_drive ntfs "$NTFS"
 
 t0=$(now)
