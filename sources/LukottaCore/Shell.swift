@@ -76,29 +76,43 @@ public func ask(
     // Before it starts: a program that exits first would otherwise never say so.
     let finished = DispatchSemaphore(value: 0)
     process.terminationHandler = { _ in finished.signal() }
-    do { try process.run() } catch { return .couldNotAsk }
 
-    // Drained while it runs. A program that prints more than a pipe holds
-    // cannot exit until somebody reads, and waiting for it first reads as
-    // silence: `ps -axo args=` is 148 KB on a working Mac.
-    let drained = DispatchGroup()
+    // Collected as it arrives, so a program that prints more than a pipe holds
+    // can finish (`ps -axo args=` is 148 KB on a working Mac), and no thread
+    // waits on a pipe: one a timed-out program's child keeps open would hold
+    // that thread for ever, and a helper that never restarts runs out of them.
     let printed = Collected()
     let complained = Collected()
-    for (pipe, collected) in [(out, printed), (err, complained)] {
-        let handle = pipe.fileHandleForReading
-        drained.enter()
-        DispatchQueue.global().async {
-            collected.set(handle.readDataToEndOfFile())
-            drained.leave()
+    let outClosed = DispatchSemaphore(value: 0)
+    let errClosed = DispatchSemaphore(value: 0)
+    for (pipe, collected, closed) in [(out, printed, outClosed), (err, complained, errClosed)] {
+        pipe.fileHandleForReading.readabilityHandler = { handle in
+            let chunk = handle.availableData
+            if chunk.isEmpty {
+                handle.readabilityHandler = nil
+                closed.signal()
+            } else {
+                collected.append(chunk)
+            }
         }
+    }
+    let stopReading = {
+        out.fileHandleForReading.readabilityHandler = nil
+        err.fileHandleForReading.readabilityHandler = nil
+    }
+    do { try process.run() } catch {
+        stopReading()
+        return .couldNotAsk
     }
 
     if let timeout, finished.wait(timeout: .now() + timeout) == .timedOut {
         process.terminate()
+        stopReading()
         return .silent
     }
     process.waitUntilExit()
-    drained.wait()
+    outClosed.wait()
+    errClosed.wait()
     return .finished(
         CommandOutput(
             status: process.terminationStatus,
@@ -106,13 +120,13 @@ public func ask(
             err: String(decoding: complained.get(), as: UTF8.self)))
 }
 
-/// What one pipe gave, written on a reading queue and read on the caller's.
+/// What one pipe gave, appended as it arrives and read once it has closed.
 private final class Collected: @unchecked Sendable {
     private let lock = NSLock()
     private var data = Data()
-    func set(_ new: Data) {
+    func append(_ chunk: Data) {
         lock.lock()
-        data = new
+        data.append(chunk)
         lock.unlock()
     }
     func get() -> Data {
