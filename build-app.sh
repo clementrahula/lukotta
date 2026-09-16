@@ -171,7 +171,7 @@ printf 'Building %s %s (build %s)\n' "$APP_NAME" "$VERSION" "$BUILD"
 # The harnesses go into no build anybody is given.
 #
 # They were in everything except the release, which stopped describing the beta
-# the moment the beta went to other people: it carried --e2e, --snapshots and
+# the moment the beta went to other people: it carried --e2e and
 # --update-test, and the last of those points at any feed it is handed. Sparkle
 # still checks the signature of whatever arrives, so this was surface rather
 # than a hole, but a pre-release is an app somebody else runs.

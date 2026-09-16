@@ -6,8 +6,7 @@ name: Checks
 #
 # Everything here is what can be checked
 # without a real drive: the package builds, the unit checks pass, the bundle is
-# assembled, every screen is drawn and compared with its baseline, the binary
-# starts, and the whole lot is linted.
+# assembled, the binary starts, and the whole lot is linted.
 #
 # Two things are deliberately not here, and cannot be.
 #
