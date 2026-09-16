@@ -149,9 +149,9 @@ struct RememberFrame: NSViewRepresentable {
             // picture the size of whatever this machine last left the app at,
             // captured into a bitmap of the size that was asked for -- so the
             // small ones were a crop of the large ones rather than a layout at
-            // the smallest size the window goes to, and the baselines only
-            // matched on the machine that recorded them.
-            guard !CommandLine.arguments.contains("--snapshots") else { return }
+            // the smallest size the window goes to, and the pictures depended
+            // on the machine that drew them.
+            guard !CommandLine.arguments.contains("--screenshots") else { return }
             guard let saved = UserDefaults.standard.string(forKey: key) else {
                 // Nothing remembered, which is every first launch. Centred on
                 // the display the pointer is on -- where the person is looking

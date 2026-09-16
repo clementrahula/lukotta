@@ -22,7 +22,6 @@ paths = [
   # that trusts no update at all.
   '''\.sparkle-public-key''',
   # Rendered screens and artwork: no text, and 192 of them.
-  '''tests/snapshots/.*\.png''',
   '''assets/.*''',
   # Twenty-two languages of interface strings.
   '''resources/Localizable\.xcstrings''',

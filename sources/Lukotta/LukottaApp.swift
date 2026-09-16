@@ -474,7 +474,7 @@ struct LukottaApp: App {
         #if DEVTOOLS
             MainActor.assumeIsolated { HeadlessDrive.runIfAsked() }
             MainActor.assumeIsolated { EndToEnd.runIfAsked() }
-            MainActor.assumeIsolated { Snapshots.runIfAsked() }
+            MainActor.assumeIsolated { Screenshots.runIfAsked() }
             MainActor.assumeIsolated { UpdateHarness.runIfAsked() }
             MainActor.assumeIsolated { UXCheck.runIfAsked() }
         #endif

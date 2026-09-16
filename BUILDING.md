@@ -214,7 +214,7 @@ LUKOTTA_BRANDING=official ./build-app.sh      # build as Lukotta
 ```
 
 - `LUKOTTA_DEVTOOLS=1` compiles in the headless harnesses: `--drive`, `--e2e`,
-  `--snapshots`, `--update-test`, `--ux-check`. Without it they exist only in an
+  `--update-test`, `--ux-check`. Without it they exist only in an
   unbranded build. A branded build handed one launches, hides its window, prints
   nothing and never exits.
 - Development build: `LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1 ./build-app.sh`.
