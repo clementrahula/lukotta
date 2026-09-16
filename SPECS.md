@@ -105,7 +105,9 @@ in the guest. Finder is given the AFP volume, under `/Volumes`, and the NFS
 mount it is served from is hidden. A drive opened read-only, and every other
 filesystem, reaches Finder over NFS alone.
 
-AFP: macOS 26 and below. v2 replaces it with FSKit.
+AFP: macOS 26 and below. Where macOS has no AFP client the guest starts no
+netatalk and writes no share, and the drive reaches Finder over NFS. v2 replaces
+AFP with FSKit.
 
 **A disk image** is opened without privilege. A raw image is attached by macOS
 first; every other format is handed to the engine as a path, which the engine

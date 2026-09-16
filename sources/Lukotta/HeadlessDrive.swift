@@ -84,7 +84,7 @@
             // driving the engine by hand installs exactly what the app does
             // rather than its own approximation of it.
             if CommandLine.arguments.contains("actions") {
-                print(MountScript.microsoftActionsTOML)
+                print(MountScript.microsoftActionsTOML(servingAFP: AfpShare.clientExists))
                 exit(0)
             }
 

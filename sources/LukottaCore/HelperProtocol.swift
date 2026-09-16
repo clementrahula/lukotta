@@ -141,7 +141,8 @@ public enum HelperInfo {
     /// 82: AFP only where macOS still has its client; NFS on macOS 27.
     /// 83: mounts run off the connection's queue; Finder's volume follows the hidden one at once.
     /// 84: a drive this engine already serves is reported open, not refused.
-    public static let contract = 84
+    /// 85: netatalk starts only where the volume is served over AFP.
+    public static let contract = 85
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"
