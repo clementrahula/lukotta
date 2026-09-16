@@ -3,7 +3,7 @@
 
 // The test harnesses are built into the pre-release and into a plain local
 // build, and out of the app people are given: nobody running Lukotta has a use
-// for a flag that renders every screen or opens every fixture, and what is not
+// for a flag that draws the README pictures or opens every fixture, and what is not
 // compiled in cannot be reached by passing one.
 #if DEVTOOLS
 
@@ -169,7 +169,7 @@
             let frame = NSRect(origin: .zero, size: size)
             // Which way round the interface goes is a property of the language the
             // run was given. AppKit works it out once an application has finished
-            // launching, and a snapshot process never does: without this every
+            // launching, and a screenshot process never does: without this every
             // language draws left to right, including the two the mirroring exists
             // for, and the pictures would show Arabic in a Latin layout.
             let language = Locale.preferredLanguages.first ?? "en"
@@ -242,7 +242,7 @@
     ///
     /// AppKit drags ordinary windows back onto a display, and `constrainFrameRect`
     /// is what does it — which is why an off-screen origin alone was not enough.
-    /// The snapshot windows were being pulled to the edge of the screen and shown
+    /// The screenshot windows were being pulled to the edge of the screen and shown
     /// there, once per picture.
     private final class OffScreenWindow: NSWindow {
         override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect {

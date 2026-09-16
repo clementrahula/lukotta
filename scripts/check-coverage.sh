@@ -5,9 +5,8 @@
 #
 #   ./scripts/check-coverage.sh
 #
-# Tests rot by omission rather than by breaking: a screen is added and no
-# baseline is recorded for it, a rule is written and nothing exercises it, a
-# format is claimed and no end-to-end run opens one. Each of those leaves the
+# Tests rot by omission rather than by breaking: a rule is written and nothing
+# exercises it, a format is claimed and no end-to-end run opens one. Each of those leaves the
 # suite green and the thing untested, and nobody notices for months.
 #
 # So this looks for the omissions themselves. It is deliberately narrow: every
@@ -296,7 +295,7 @@ if [ "$FAIL" = "1" ]; then
   printf 'Something is not covered. Add the missing check rather than the exception.\n'
   exit 1
 fi
-# 10. Every harness is reachable from the registry, directly or through one
+# 8. Every harness is reachable from the registry, directly or through one
 #     that is.
 #
 #     A harness that runs nowhere is prose with a shebang. corrupt-corpus.sh put

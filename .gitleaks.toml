@@ -21,7 +21,7 @@ paths = [
   # Sparkle's public key. Public by design: a clone without it builds an app
   # that trusts no update at all.
   '''\.sparkle-public-key''',
-  # Rendered screens and artwork: no text, and 192 of them.
+  # Rendered screens and artwork: no text.
   '''assets/.*''',
   # Twenty-two languages of interface strings.
   '''resources/Localizable\.xcstrings''',
