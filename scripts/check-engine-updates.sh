@@ -33,7 +33,6 @@ have="$(field anylinuxfs version)"
 if latest="$(/usr/bin/curl -fsSL --max-time 30 \
   https://api.github.com/repos/nohajc/anylinuxfs/releases/latest 2>/dev/null \
   | /usr/bin/python3 -c 'import json,sys;print(json.load(sys.stdin)["tag_name"].lstrip("v"))' 2>/dev/null)"; then
-  # Declined the way a crate is, below: stated and passing, until a newer one appears.
   declined="$(field anylinuxfs _declined)"
   if [ "$have" = "$latest" ]; then
     printf '  anylinuxfs    %-14s current\n' "$have"

@@ -18,7 +18,7 @@
     "bottle_url": "https://github.com/nohajc/homebrew-anylinuxfs/releases/download/v0.19.0/anylinuxfs-0.19.0.arm64_sequoia.bottle.tar.gz",
     "bottle_sha256": "723586666ffae512c543546356678f30de45d341595b9028f4058969dfb32dac",
     "_declined": "0.20.0",
-    "_why_declined": "0.20.0 exists and is deliberately not taken. Its 26 commits add anylinuxfs vm attach/exec over telnet with port-forward and socket hardening, FreeBSD kernel and mirror fixes, qcow2 probing before choosing a Linux or FreeBSD guest, vmnet config parsing on macOS 14 with vmnet-helper cleanup when that parsing fails, proxy variables forwarded to init VMs, and gRPC updates. Lukotta runs Linux guests only, ships its own guest image and needs macOS 15. Nothing in 0.20.0 is known to fix anything this app hits."
+    "_why_declined": "No fix this app needs. Changes: vm attach/exec, FreeBSD, qcow2 guest-OS probe, macOS 14 vmnet parsing, proxy forwarding, gRPC."
   },
   "imago": {
     "_why": "Reads the image formats. Patched to add VDI and VHD drivers.",
@@ -27,7 +27,7 @@
     "source_url": "https://static.crates.io/crates/imago/imago-0.2.3.crate",
     "source_sha256": "ae7cfee876c698a1a2ed9c705ab18f21acbed82110f19b51cc458de73426fe2c",
     "_declined": "0.2.5",
-    "_why_declined": "0.2.5 exists and is deliberately not taken, as 0.2.4 was. Two of this project's three imago patches fail against it: 1 of 20 hunks in imago-sparse-vmdk, 1 of 2 in imago-vdi-vhd-and-vhdx; imago-flush-device-nodes applies. Its 21 commits are on_disk_struct macros for qcow2 metadata, dropping bincode, lint silences, an io_buffers optimisation, a Windows zero-range fix, skipping alignment probes on buffered (non-O_DIRECT) files, a constructor for pre-opened files, and 'keep image size after tail discard' -- the shrinking image docs/engine.md works around, which only formatting an image file inside the guest reaches. Porting the patches is a re-vendoring job with qemu-img checks behind it, per BUILDING.md, not a version bump."
+    "_why_declined": "Breaks imago-sparse-vmdk (1/20 hunks) and imago-vdi-vhd-and-vhdx (1/2). No fix this app needs."
   },
   "krun-devices": {
     "_why": "libkrun's block device. Patched to ask imago for VDI and VHD.",
