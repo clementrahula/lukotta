@@ -18,11 +18,6 @@ name: Checks
 #
 # scripts/e2e.sh is not run. It needs that same virtual machine and Full Disk
 # Access besides. It runs on a real Mac.
-#
-# The screens are not compared here either. A baseline is a picture of what one
-# machine drew: a runner has a different macOS build and draws every screen
-# differently, so all of them differ and none of the differences mean anything.
-# scripts/snapshots.sh compares them where they were recorded.
 
 # Not on every push. A macOS runner is billed at ten times the rate of a Linux
 # one while this repository is private, and a run for each of eight commits in
