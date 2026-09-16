@@ -2183,13 +2183,16 @@ public enum MountScript {
     public static let smbServe = """
         exec >/tmp/lukotta-smb.log 2>&1
         V=$(basename "$ALFS_VM_MOUNT_POINT")
-        mkdir -p /etc/ksmbd
-        # The engine's own apk route unpacks a custom package without its modes:
-        # every file it added arrived 0600, directories included, so the server
-        # could not be executed and the script failed where nothing reads its
-        # output. Measured against the base image, whose daemons are all 0755.
-        chmod 0755 /etc/ksmbd /usr/libexec/ksmbd.tools 2>/dev/null
-        cat > /etc/ksmbd/ksmbd.conf <<EOF
+        # /tmp, because the guest root is read-only: writing the config to /etc
+        # fails with "Read-only file system", ksmbd then starts with no share at
+        # all, and nothing listens. The AFP script above writes to /tmp for the
+        # same reason. Measured in a guest shell on 2026-09-16.
+        #
+        # The engine's own apk route also unpacks a custom package without its
+        # modes -- every file it added arrived 0600, directories included -- so
+        # the server is made executable before it is started.
+        chmod 0755 /usr/libexec/ksmbd.tools 2>/dev/null
+        cat > /tmp/ksmbd.conf <<EOF
         [global]
           server string = lukotta
           map to guest = Bad User
@@ -2203,7 +2206,7 @@ public enum MountScript {
           force user = root
           force group = root
         EOF
-        ksmbd.mountd --config /etc/ksmbd/ksmbd.conf
+        ksmbd.mountd --config /tmp/ksmbd.conf
         for i in $(seq 1 60); do netstat -ltn | grep -q ':445 ' && break; sleep 0.25; done
         netstat -ltn | grep -E ':(445|2049) '
         true
