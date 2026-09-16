@@ -2184,6 +2184,11 @@ public enum MountScript {
         exec >/tmp/lukotta-smb.log 2>&1
         V=$(basename "$ALFS_VM_MOUNT_POINT")
         mkdir -p /etc/ksmbd
+        # The engine's own apk route unpacks a custom package without its modes:
+        # every file it added arrived 0600, directories included, so the server
+        # could not be executed and the script failed where nothing reads its
+        # output. Measured against the base image, whose daemons are all 0755.
+        chmod 0755 /etc/ksmbd /usr/libexec/ksmbd.tools 2>/dev/null
         cat > /etc/ksmbd/ksmbd.conf <<EOF
         [global]
           server string = lukotta
