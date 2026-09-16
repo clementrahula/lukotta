@@ -7218,7 +7218,7 @@ group("anNTFSVolumeReachesFinderOverAFP") {
         MountScript.shareServe.contains("volume name = $V"), "netatalk keeps the name's case")
     expect(
         MountScript.shareServe.contains("grep -q ':548 '")
-            && MountScript.microsoftActionsTOML.contains(
+            && MountScript.microsoftActionsTOML(servingAFP: true).contains(
                 "& sh \(MountScript.shareScriptPath) >/dev/null 2>&1'"),
         "AFP is listening before the engine exports NFS, so Finder's volume follows at once")
     let served =
@@ -7288,6 +7288,65 @@ group("theAFPRouteIsTakenOnlyWhereMacOSHasItsClient") {
     }
     expect(withClient == 4, "four of the forty take it: NTFS, BitLocker, LUKS and unrecognised")
     expect(withoutClient == 0, "none of the forty take it with no AFP client on the Mac")
+}
+
+group("nothingAFPIsStartedInTheGuestWhereMacOSHasNoClient") {
+    var serving = sampleInputs(kind: .microsoft)
+    serving.hiddenFromFinder = true
+    let onTwentySix = MountScript.build(serving)
+    var quiet = sampleInputs(kind: .microsoft)
+    quiet.hiddenFromFinder = false
+    let onTwentySeven = MountScript.build(quiet)
+
+    // What macOS 26 generates, frozen: the two fragments written out, not
+    // composed, so a change to either fails here rather than shipping.
+    let writesTheShare = "; \(MountScript.writeShareScript)"
+    let runsTheShare = " sh /tmp/lukotta-afp >/dev/null 2>&1"
+    expect(
+        onTwentySix.contains(
+            "after_mount = 'nohup sh /tmp/lukotta-reclaim >/dev/null 2>&1 &"
+                + " sh /tmp/lukotta-afp >/dev/null 2>&1'"),
+        "macOS 26 runs the reclaim walk and then serves the volume over AFP")
+    expect(
+        onTwentySix.components(separatedBy: writesTheShare).count == 4
+            && onTwentySix.components(separatedBy: runsTheShare).count == 4,
+        "all three NTFS actions write the share script and run it, as they did")
+
+    // Byte for byte: the macOS 27 script is the macOS 26 one without the AFP
+    // share, without the mount point kept out of /Volumes and without
+    // nobrowse -- the three things Finder's own AFP volume was there for.
+    let stripped =
+        onTwentySix
+        .replacingOccurrences(of: writesTheShare, with: "")
+        .replacingOccurrences(of: runsTheShare, with: "")
+        .replacingOccurrences(of: "ALFS_MOUNT_BASE='\(AfpShare.hiddenBase)' ", with: "")
+        .replacingOccurrences(of: ",nobrowse", with: "")
+    expect(stripped == onTwentySeven, "and nothing else differs between the two")
+
+    expect(
+        !onTwentySeven.contains("/tmp/lukotta-afp")
+            && !onTwentySeven.contains(MountScript.writeShareScript),
+        "macOS 27 writes no share script and starts no netatalk")
+    expect(
+        onTwentySeven.contains("after_mount = 'nohup sh /tmp/lukotta-reclaim >/dev/null 2>&1 &'"),
+        "and still frees the names an interrupted copy poisoned")
+    expect(
+        MountScript.microsoftActionsTOML(servingAFP: false).contains("[custom_actions.")
+            && !MountScript.microsoftActionsTOML(servingAFP: false).contains("lukotta-afp"),
+        "the guest is tuned and repaired as before, with nothing AFP in it")
+
+    // Both are run as root, and the one with a fragment taken out of a quoted
+    // TOML value is the one that would break silently.
+    let dir = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appendingPathComponent("lukotta-afp-script-\(UUID().uuidString)", isDirectory: true)
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: dir) }
+    for (name, script) in [("macOS 26", onTwentySix), ("macOS 27", onTwentySeven)] {
+        let file = dir.appendingPathComponent("check.sh")
+        try? script.write(to: file, atomically: true, encoding: .utf8)
+        let out = run("/bin/sh", ["-n", file.path])
+        expect(out?.ok == true, "the \(name) script parses: \(out?.err ?? "sh did not run")")
+    }
 }
 
 group("aDriveIsCalledWhatItWasCalledWhenItWasOpen") {
