@@ -2172,6 +2172,11 @@ public enum MountScript {
 
     public static let smbScriptPath = "/tmp/lukotta-smb"
 
+    // Nothing here cats this script's own log. The AFP script above cats afpd's
+    // separate file; pointing cat at the file the script is itself writing grew it
+    // until the guest's tmpfs was full, and the engine then could not write
+    // /tmp/exports: the volume mounted, the export failed, and the drive came back
+    // read-only. Measured on 2026-09-16 against a real NTFS stick.
     // The same volume, served over SMB by ksmbd in the guest, for a Mac with no
     // AFP client to mount an AFP share with. The guest kernel carries the server
     // built in; ksmbd-tools supplies the user-space half.
@@ -2196,7 +2201,6 @@ public enum MountScript {
         ksmbd.mountd --config /etc/ksmbd/ksmbd.conf
         for i in $(seq 1 60); do netstat -ltn | grep -q ':445 ' && break; sleep 0.25; done
         netstat -ltn | grep -E ':(445|2049) '
-        cat /tmp/lukotta-smb.log
         true
         """
 
