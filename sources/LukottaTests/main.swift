@@ -1039,6 +1039,51 @@ group("mountStages") {
     expect(
         checkedMS.contains("{ __slipped && sleep 2 &&"),
         "the retry happens only where the log says the machinery slipped")
+    // Read-only only for a filesystem that refused writes. Every read-only attempt
+    // in the first ladder is asked whether writes were already taken; the settled
+    // look further down is not, because it follows a writable mount that demoted
+    // itself, which is the filesystem refusing.
+    expect(checkedMS.contains("__took_writes() {"), "the script can ask whether writes were taken")
+    expect(
+        checkedMS.components(separatedBy: "{ ! __took_writes && ").count - 1 == 2,
+        "both read-only attempts of the first ladder ask first")
+    let settled =
+        checkedMS.components(separatedBy: "if [ -n \"${__by_ntfs3g:-}\" ]; then").last ?? ""
+    expect(
+        !settled.contains("__took_writes"),
+        "the settled look still falls back, since that mount demoted itself")
+    expect(
+        !MountScript.build(sampleInputs(kind: .microsoft, readOnly: true)).contains(
+            "__took_writes"),
+        "a drive asked for read-only never falls back, so never asks")
+    // Run, not read: the words are the guest's, and a pattern that never matches
+    // would put every machinery fault back on the read-only route.
+    func tookWrites(_ log: String) -> Bool {
+        let file = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("lukotta-took-writes-\(UUID().uuidString).log")
+        try? log.write(to: file, atomically: true, encoding: .utf8)
+        defer { try? FileManager.default.removeItem(at: file) }
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/bin/sh")
+        p.arguments = ["-c", MountScript.tookWrites(logQ: "'\(file.path)'") + "\n__took_writes"]
+        try? p.run()
+        p.waitUntilExit()
+        return p.terminationStatus == 0
+    }
+    expect(
+        tookWrites(
+            "Linux: '/dev/vda' mounted successfully on '/mnt/SANDISK', filesystem ntfs.\n"
+                + "Linux: Effective mount options: rw,relatime,uid=501,gid=20,iocharset=utf8\n"
+                + "Linux: Error: Failed to write to /tmp/exports: No space left on device (os error 28)\n"
+        ),
+        "a writable mount that failed at the export took writes")
+    expect(
+        !tookWrites("Linux: Effective mount options: ro,relatime,uid=501,gid=20,iocharset=utf8\n"),
+        "a read-only mount did not")
+    expect(
+        !tookWrites("ntfs3: volume is dirty and mounting is refused\n"),
+        "nor did a filesystem that refused the mount")
+    expect(!tookWrites(""), "nor an empty log")
     expect(
         checkedMS.contains("if [ -n \"${__by_ntfs3g:-}\" ]; then\n  sleep 3"),
         "the settled look waits only after a mount ntfs-3g made, which alone demotes itself later")

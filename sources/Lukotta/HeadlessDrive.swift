@@ -636,7 +636,22 @@
                 // and finding nothing it was allowed to touch.
                 for point in servedBy(drive.devicePath) { OpenedHere.add(point) }
                 SidebarFavourites.reconcile()
-                say("opened \(drive.name)")
+                // Said, not left for the next write to find out. A drive asked
+                // for read-write that came back read-only used to print the same
+                // line as one that opened writable, and a harness went on to
+                // measure a volume it could not write to.
+                let table = MountTableEntry.all(in: LukottaCore.mountTable())
+                let cameBackReadOnly =
+                    !readOnly
+                    && servedBy(drive.devicePath).contains { point in
+                        table.first { $0.mountPoint == point }?.options.contains("read-only")
+                            ?? false
+                    }
+                if cameBackReadOnly {
+                    say("opened \(drive.name) read-only, though read-write was asked for")
+                } else {
+                    say("opened \(drive.name)")
+                }
                 exit(0)
             }
             if outcome.status == 0 {
