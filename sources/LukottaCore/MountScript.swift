@@ -2199,6 +2199,9 @@ public enum MountScript {
           guest account = nobody
           netbios name = LUKOTTA
           server min protocol = SMB3_00
+          smb2 max read = 8388608
+          smb2 max write = 8388608
+          smb2 max trans = 8388608
         [$V]
           path = $ALFS_VM_MOUNT_POINT
           read only = no
