@@ -636,10 +636,7 @@
                 // and finding nothing it was allowed to touch.
                 for point in servedBy(drive.devicePath) { OpenedHere.add(point) }
                 SidebarFavourites.reconcile()
-                // Said, not left for the next write to find out. A drive asked
-                // for read-write that came back read-only used to print the same
-                // line as one that opened writable, and a harness went on to
-                // measure a volume it could not write to.
+                // A read-only fallback is reported, not printed as a plain open.
                 let table = MountTableEntry.all(in: LukottaCore.mountTable())
                 let cameBackReadOnly =
                     !readOnly

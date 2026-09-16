@@ -1039,10 +1039,7 @@ group("mountStages") {
     expect(
         checkedMS.contains("{ __slipped && sleep 2 &&"),
         "the retry happens only where the log says the machinery slipped")
-    // Read-only only for a filesystem that refused writes. Every read-only attempt
-    // in the first ladder is asked whether writes were already taken; the settled
-    // look further down is not, because it follows a writable mount that demoted
-    // itself, which is the filesystem refusing.
+    // Only a filesystem that refused writes falls back read-only.
     expect(checkedMS.contains("__took_writes() {"), "the script can ask whether writes were taken")
     expect(
         checkedMS.components(separatedBy: "{ ! __took_writes && ").count - 1 == 2,
@@ -1056,8 +1053,7 @@ group("mountStages") {
         !MountScript.build(sampleInputs(kind: .microsoft, readOnly: true)).contains(
             "__took_writes"),
         "a drive asked for read-only never falls back, so never asks")
-    // Run, not read: the words are the guest's, and a pattern that never matches
-    // would put every machinery fault back on the read-only route.
+    // Run against real guest log lines.
     func tookWrites(_ log: String) -> Bool {
         let file = URL(fileURLWithPath: NSTemporaryDirectory())
             .appendingPathComponent("lukotta-took-writes-\(UUID().uuidString).log")
