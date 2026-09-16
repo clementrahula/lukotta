@@ -640,11 +640,9 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 // filesystem rather than by the family it belongs to.
                 format: probed)
             if durability.stableWrites { inputs.askForStableWrites() }
-            if kind == .microsoft, volume == nil, !readOnly, probed != .exfat,
-                AfpShare.clientExists
-            {
-                inputs.hiddenFromFinder = true
-            }
+            inputs.hiddenFromFinder = AfpShare.servesOverAFP(
+                kind: kind, volume: volume, readOnly: readOnly, probed: probed,
+                clientExists: AfpShare.clientExists)
             let script = MountScript.build(inputs)
 
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")
