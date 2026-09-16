@@ -7221,6 +7221,20 @@ group("anNTFSVolumeReachesFinderOverAFP") {
             && MountScript.microsoftActionsTOML(servingAFP: true).contains(
                 "& sh \(MountScript.shareScriptPath) >/dev/null 2>&1'"),
         "AFP is listening before the engine exports NFS, so Finder's volume follows at once")
+    // Asked of the generator rather than of this machine: which server the guest
+    // runs differs by whether macOS still has an AFP client, and only one of the
+    // two can be observed from whichever Mac the tests run on.
+    expect(
+        MountScript.smbServe.contains("grep -q ':445 '")
+            && MountScript.microsoftActionsTOML(servingAFP: false, servingSMB: true).contains(
+                "& sh \(MountScript.smbScriptPath) >/dev/null 2>&1'"),
+        "where macOS has no AFP client, the guest serves the volume over SMB instead")
+    expect(
+        !MountScript.microsoftActionsTOML(servingAFP: true, servingSMB: false)
+            .contains(MountScript.smbScriptPath)
+            && !MountScript.microsoftActionsTOML(servingAFP: false, servingSMB: false)
+                .contains(MountScript.smbScriptPath),
+        "and no SMB server is started for a volume that is served over AFP or over NFS alone")
     let served =
         "disk5.local:/mnt/FIELD on /Volumes/FIELD (nfs, nodev, nosuid, nobrowse, mounted by someone)"
     expect(
