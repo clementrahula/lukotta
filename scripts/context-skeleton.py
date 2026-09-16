@@ -33,7 +33,7 @@ SCREEN_OF_FILE = {
     "Appearance.swift": "settings", "LoginItem.swift": "settings",
     "Drives.swift": "drive-list", "SharedViews.swift": "notices",
     "EngineStatus.swift": "notices", "MountScript.swift": "notices",
-    "VolumeSpace.swift": "notices", "Snapshots.swift": "drive-list",
+    "VolumeSpace.swift": "notices", "Screenshots.swift": "drive-list",
     "Localisation.swift": "notices", "Language.swift": "settings",
 }
 

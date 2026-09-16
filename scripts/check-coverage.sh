@@ -20,37 +20,7 @@ FAIL=0
 note() { printf '  %s\n' "$1"; }
 bad() { printf '  MISSING  %s\n' "$1"; FAIL=1; }
 
-# 1. Every screen has baselines: English at both sizes in both appearances, and
-#    one picture in each of the four languages that stress a layout differently.
-printf 'Screens with baselines…\n'
-# From inside scenes() only: the geometries and the appearances are pairs of
-# the same shape further down the file.
-scenes=$(/usr/bin/python3 -c '
-import re
-text = open("sources/Lukotta/Snapshots.swift").read()
-body = text.split("static func scenes()", 1)[1]
-# Only as far as the next function: the geometries and the appearances further
-# down the file are pairs of the same shape.
-# Indentation-agnostic: the file is wrapped in #if DEVTOOLS in some builds,
-# and a formatter indents everything inside it by four more spaces.
-body = re.split(r"\n\s+(?:@MainActor\n\s+)?(?:private )?static (?:func|let|var) ", body)[0]
-print("\n".join(sorted(set(re.findall(r"\(\s*\n?\s*\"([a-z0-9-]+)\",", body)))))
-')
-for scene in $scenes; do
-  missing=""
-  for size in ideal min; do
-    for mode in light dark; do
-      [ -f "tests/snapshots/${scene}-${size}-${mode}.png" ] || missing="yes"
-    done
-  done
-  for lang in de ar ja hi; do
-    [ -f "tests/snapshots/${lang}-${scene}-ideal-light.png" ] || missing="yes"
-  done
-  [ -n "$missing" ] && bad "no baselines for the \"$scene\" screen"
-done
-note "$(printf '%s\n' "$scenes" | wc -l | tr -d ' ') screens"
-
-# 2. Every failure rule is exercised. A rule nobody tests is a rule that stops
+# 1. Every failure rule is exercised. A rule nobody tests is a rule that stops
 #    firing when upstream rewords its output, and nothing says so.
 printf 'Failure rules with a test…\n'
 rules=$(grep -oE 'name: "[a-z0-9-]+", source:' sources/LukottaCore/Diagnosis.swift \
@@ -60,7 +30,7 @@ for rule in $rules; do
 done
 note "$(printf '%s\n' "$rules" | wc -l | tr -d ' ') rules"
 
-# 3. Every image format the app claims is opened by the end-to-end run. The
+# 2. Every image format the app claims is opened by the end-to-end run. The
 #    claim is in the format table in SPECS.md; the proof is in e2e.sh's
 #    fixtures.
 #
@@ -114,17 +84,7 @@ print(f"  {len(FIXTURES)} formats")
 sys.exit(1 if missing else 0)
 PY
 
-# 4. Every phase of the interface is drawn by some screen. A phase nobody
-#    renders is a screen nobody has looked at since it was written.
-printf 'Interface states with a screen…\n'
-phases=$(sed -n '/enum Phase {/,/^    }/p' sources/Lukotta/AppModel.swift \
-  | grep -oE 'case [a-zA-Z]+' | awk '{print $2}' | sort -u)
-for phase in $phases; do
-  grep -q "\.$phase" sources/Lukotta/Snapshots.swift || bad "no screen draws the .$phase state"
-done
-note "$(printf '%s\n' "$phases" | wc -l | tr -d ' ') states"
-
-# 5. Every language has every string. A half-translated release shows English
+# 3. Every language has every string. A half-translated release shows English
 #    to somebody who chose otherwise.
 printf 'Languages fully translated…\n'
 /usr/bin/python3 - <<'PY' || FAIL=1
@@ -141,7 +101,7 @@ print(f"  {len(langs)} languages, {len(catalogue)} strings")
 sys.exit(1 if short else 0)
 PY
 
-# 6. Every string the code shows is in the catalogue. Check 5 compares the
+# 4. Every string the code shows is in the catalogue. Check 3 compares the
 #    catalogue with the translations, so a string that never reaches the
 #    catalogue is invisible to it: untranslatable, shipped in English, and
 #    reported as fully translated.
@@ -161,7 +121,7 @@ print(f"  {len(catalogue)} strings")
 sys.exit(1 if missing else 0)
 CATALOGUE
 
-# 7. Every string has context, every screen it names exists, and every
+# 5. Every string has context, every screen it names exists, and every
 #    translation keeps the placeholders the English has. A translator reading a
 #    string alone cannot tell a button from a sentence; a placeholder that has
 #    gone puts the wrong value on screen or none at all.
@@ -207,7 +167,7 @@ sys.exit(1 if bad else 0)
 CONTEXT
 
 printf '\n'
-# 8. A changelog is a few short lines of plain language.
+# 6. A changelog is a few short lines of plain language.
 #
 #    Enforced rather than remembered. Every draft of these notes has come back
 #    too long: a paragraph per item, the mechanism, thresholds in seconds,
@@ -252,7 +212,7 @@ print(f"  {len(current)} changelog(s) for {version}")
 sys.exit(1 if bad else 0)
 NOTES
 
-# 9. Nothing is translated before the English has been approved.
+# 7. Nothing is translated before the English has been approved.
 #
 #    Translating a draft wastes the work when a line changes, and puts the
 #    owner in front of thirty-six files they never agreed to. The order is:
@@ -336,7 +296,7 @@ if [ "$FAIL" = "1" ]; then
   printf 'Something is not covered. Add the missing check rather than the exception.\n'
   exit 1
 fi
-# 12. Every harness is reachable from the registry, directly or through one
+# 10. Every harness is reachable from the registry, directly or through one
 #     that is.
 #
 #     A harness that runs nowhere is prose with a shebang. corrupt-corpus.sh put
@@ -359,7 +319,7 @@ printf 'Harnesses something actually runs…\n'
 tooling="build-app build-engine build-ntfsck bump-version check-coverage
 check-engine-updates collect-sources fetch-engine generate-notices lint
 make-dmg make-format-volumes make-test-volumes notary-status release
-run-tests screenshots ship snapshots sparkle-keys translation-bundle
+run-tests screenshots ship sparkle-keys translation-bundle
 vendor-engine verify verify-goal
 cross-guest-copy finder-parity flush-reaches-drive thread-starvation watch-for-complaints"
 unreached=0

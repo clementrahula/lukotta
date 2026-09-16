@@ -60,7 +60,7 @@ ALLOWED = {
     "7A2E4F10-3C58-4D9B-A6E1-2F7C05B34D88",
 }
 
-SKIP_DIRS = ("tests/snapshots/", "assets/", "resources/", "translations/", "vendor/")
+SKIP_DIRS = ("assets/", "resources/", "translations/", "vendor/")
 # Nothing is exempt, this file included. It was, briefly, because it contained
 # examples of what it hunts for; an account name in a comment then went in
 # under that exemption. The rules are written so they do not match themselves

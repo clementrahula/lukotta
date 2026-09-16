@@ -49,9 +49,7 @@ best you have.
 A user-interface change is done when it has been run in the built application
 and every way a person can reach it has been tried: from a cold start, by each
 condition that shows it, by each button that dismisses it, and again after
-quitting and launching. A snapshot proves a scene draws. It proves nothing
-about when the scene appears, when it goes, or what it leaves behind, and that
-is where the faults are.
+quitting and launching.
 
 Before a UI change is called done:
 
@@ -161,7 +159,7 @@ itself as root.
 - A check belongs to the `group` it is written in. `group` does not nest: the
   inner name replaces the outer one and is not restored.
 - To check compilation: `swift build -c release --product Lukotta`. A bundle is
-  needed only for snapshots, `--smoke-test` and end-to-end runs.
+  needed only for `--smoke-test` and end-to-end runs.
 - `build-app.sh` refuses to build on a failing test, so a tree broken on purpose
   can leave the previous binary in place. Check the binary's timestamp changed.
 - `lint.sh` runs swift-format, shellcheck, `check-private.py`, `check-casks.sh`,
@@ -263,29 +261,6 @@ it. Real engine, real helper, real `hdiutil`.
   updates through Sparkle against a feed served from this Mac: a full archive, a
   delta, one offered while a drive is open, and a build that cannot start being
   put back.
-
-## Snapshots
-
-Snapshots are not run, recorded or re-recorded.
-
-- `./scripts/snapshots.sh` renders every screen from the built unbranded app and
-  compares it with `tests/snapshots/`. It needs `./build-app.sh`; `run-tests.sh`
-  skips it when there is no app.
-- Baselines belong to the unbranded build: the header draws the app's own name.
-- `--look` draws every screen into a temporary directory and leaves the
-  baselines alone. `--look hu` draws one language.
-- `--record` replaces baselines, and refuses a change wider than sixteen without
-  `--all`. One screen is eight: English at two sizes in two appearances, and one
-  picture each in German, Arabic, Japanese and Hindi.
-- Those four languages are the four ways a layout breaks: text that runs long,
-  an interface that turns round, lines that break without spaces, a script
-  taller than its box.
-- A capture is taken once two captures agree. SwiftUI settles over a turn of the
-  run loop, and an SF Symbol drawn for the first time in a process later still.
-- Scenes are hosted in an off-screen `NSWindow`. `ImageRenderer` returns the
-  inside of a `ScrollView` empty.
-- `dynamicTypeSize` does nothing on macOS: `.accessibility3` rendered
-  byte-identical to `.large`. The second axis is window size.
 
 ## Code
 
