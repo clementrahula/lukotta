@@ -7243,6 +7243,53 @@ group("anNTFSVolumeReachesFinderOverAFP") {
     expect(MountScript.shareServe.contains("netatalk -F"), "the guest serves the volume over AFP")
 }
 
+group("theAFPRouteIsTakenOnlyWhereMacOSHasItsClient") {
+    // macOS 27 has no AFP client and macOS 26 cannot be run any more, so what
+    // each of them does is decided by one function rather than by the machine
+    // the code happens to be on, and both answers are put to it here.
+    let inside = LogicalVolume(
+        identifier: "lukottavg:disk4s1:root", label: "ROOT", filesystem: "ext4", size: "40 GB")
+    func serves(
+        _ kind: VolumeKind = .microsoft, volume: LogicalVolume? = nil, readOnly: Bool = false,
+        probed: VolumeFormat = .ntfs, client: Bool = true
+    ) -> Bool {
+        AfpShare.servesOverAFP(
+            kind: kind, volume: volume, readOnly: readOnly, probed: probed, clientExists: client)
+    }
+    expect(serves(), "a writable NTFS volume of its own reaches Finder over AFP")
+    expect(serves(probed: .bitlocker), "and a BitLocker one, which is NTFS once it is unlocked")
+    expect(!serves(.linux), "a Linux volume does not")
+    expect(!serves(volume: inside), "nor one volume of a container: netatalk has no share for it")
+    expect(!serves(readOnly: true), "nor one opened read-only")
+    expect(!serves(probed: .exfat), "nor exFAT")
+    expect(!serves(client: false), "and not the one volume that would, where macOS has no client")
+
+    // Every combination, both ways round: one of them takes the route where
+    // the client exists, and none of them takes it where it does not.
+    var withClient = 0, withoutClient = 0
+    for kind in [VolumeKind.microsoft, .linux] {
+        for volume in [nil, inside] {
+            for readOnly in [false, true] {
+                for probed in [VolumeFormat.ntfs, .bitlocker, .exfat, .luks, .unknown] {
+                    let at =
+                        "\(kind.rawValue), \(volume == nil ? "whole" : "inside")"
+                        + ", \(readOnly ? "read-only" : "writable"), \(probed.rawValue)"
+                    let taken = serves(kind, volume: volume, readOnly: readOnly, probed: probed)
+                    let theOne =
+                        kind == .microsoft && volume == nil && !readOnly && probed != .exfat
+                    expect(taken == theOne, "with the client: \(at)")
+                    if taken { withClient += 1 }
+                    let without = serves(
+                        kind, volume: volume, readOnly: readOnly, probed: probed, client: false)
+                    if without { withoutClient += 1 }
+                }
+            }
+        }
+    }
+    expect(withClient == 4, "four of the forty take it: NTFS, BitLocker, LUKS and unrecognised")
+    expect(withoutClient == 0, "none of the forty take it with no AFP client on the Mac")
+}
+
 group("aDriveIsCalledWhatItWasCalledWhenItWasOpen") {
     let file = FileManager.default.temporaryDirectory
         .appendingPathComponent("memory-\(UUID().uuidString).json")

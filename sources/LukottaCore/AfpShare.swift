@@ -12,6 +12,23 @@ public enum AfpShare {
         FileManager.default.isExecutableFile(atPath: "/sbin/mount_afp")
     }
 
+    /// Whether this volume reaches Finder over AFP rather than over NFS alone.
+    ///
+    /// Each condition is a refusal established elsewhere: netatalk serves one
+    /// volume at one mount point, so a container whose volumes are bound under
+    /// a single point has nothing to share; a read-only drive is not written to
+    /// at all and gains nothing from the transport; exFAT is not what the AFP
+    /// path was measured on. The last is the machine's, and it is why this is a
+    /// parameter rather than a filesystem read: macOS 26 answers true and
+    /// cannot be run any more, so what it did is decided here, in one place a
+    /// test can put both answers to.
+    public static func servesOverAFP(
+        kind: VolumeKind, volume: LogicalVolume?, readOnly: Bool, probed: VolumeFormat,
+        clientExists: Bool
+    ) -> Bool {
+        clientExists && kind == .microsoft && volume == nil && !readOnly && probed != .exfat
+    }
+
     public static func isHidden(_ entry: MountTableEntry) -> Bool {
         entry.isEngineMount && entry.options.contains("nobrowse")
     }
