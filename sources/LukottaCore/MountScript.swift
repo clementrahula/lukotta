@@ -678,13 +678,7 @@ public enum MountScript {
                 }
                 """
             lines.append(slipped)
-            // A drive whose filesystem already took a writable mount did not
-            // refuse writes. What stopped it came afterwards -- the export, the
-            // machine, an action -- and falling through to the read-only
-            // attempts handed back a drive nobody asked to be read-only, under
-            // a sentence telling them its filesystem needed repairing. Measured
-            // on 2026-09-16: the guest mounted an NTFS stick read-write, failed
-            // to write its NFS export, and the drive came back read-only.
+            // A drive that mounted writable did not refuse writes: never demote it.
             lines.append(tookWrites(logQ: logQ))
             // Every attempt again, not the first one only. A Microsoft drive
             // has two: ntfs3, which refuses a volume Windows left dirty, and
@@ -2562,11 +2556,7 @@ public enum MountScript {
             """
     }
 
-    /// Whether any attempt got as far as the filesystem accepting a writable mount.
-    ///
-    /// The guest says so in its own words once the mount is made. Asked before
-    /// the read-only attempts, so that only a filesystem that refused writes is
-    /// opened read-only. Public so a test runs it against a log of its own.
+    /// Whether any attempt mounted writable. Public for tests.
     public static func tookWrites(logQ: String) -> String {
         """
         __took_writes() {

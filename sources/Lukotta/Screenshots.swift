@@ -11,8 +11,7 @@
     import LukottaCore
     import SwiftUI
 
-    /// The README's pictures of the app, drawn off screen from the app's own views,
-    /// behind `--screenshots`. `scripts/screenshots.sh` drives it.
+    /// README pictures, behind `--screenshots`.
     enum Screenshots {
 
         /// The drive list as the app is meant to be seen: one screen
@@ -105,16 +104,13 @@
         static func runIfAsked() {
             guard let index = CommandLine.arguments.firstIndex(of: "--screenshots") else { return }
 
-            // Nothing this process draws is for anybody to look at while it is
-            // drawing it: no Dock icon, no activation, and no window a display
-            // server is willing to put on a screen.
+            // Headless: no Dock icon, no window on screen.
             NSApplication.shared.setActivationPolicy(.prohibited)
 
-            // The notice presents itself as a sheet, which is a real window
-            // AppKit puts on a screen, whatever the capture window says.
+            // The notice is a sheet: a real on-screen window.
             UserDefaults.standard.set(true, forKey: AppModel.earlyNoticeKey)
 
-            // A flag is not a directory: one was once taken as the name of one.
+            // A flag is not a directory.
             guard CommandLine.arguments.count > index + 1,
                 !CommandLine.arguments[index + 1].hasPrefix("-")
             else {

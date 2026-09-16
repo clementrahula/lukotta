@@ -144,10 +144,7 @@ struct RememberFrame: NSViewRepresentable {
         }
 
         private func restore(into window: NSWindow) {
-            // A README picture is drawn at the size `render()` gives its
-            // window. Restoring a remembered frame over it would draw the size
-            // this machine last left the app at, cropped into the bitmap that
-            // was asked for.
+            // README pictures keep the size render() gives them.
             guard !CommandLine.arguments.contains("--screenshots") else { return }
             guard let saved = UserDefaults.standard.string(forKey: key) else {
                 // Nothing remembered, which is every first launch. Centred on
