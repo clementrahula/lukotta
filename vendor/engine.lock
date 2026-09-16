@@ -27,7 +27,7 @@
     "source_url": "https://static.crates.io/crates/imago/imago-0.2.3.crate",
     "source_sha256": "ae7cfee876c698a1a2ed9c705ab18f21acbed82110f19b51cc458de73426fe2c",
     "_declined": "0.2.5",
-    "_why_declined": "0.2.5 exists and is deliberately not taken, as 0.2.4 was. Both of this project's patches still fail against it: 1 of 20 hunks in imago-sparse-vmdk, 1 of 2 in imago-vdi-vhd-and-vhdx. Its 21 commits are on_disk_struct macros for qcow2 metadata, dropping bincode, lint silences, an io_buffers optimisation, Windows zero-range and alignment-probe fixes, and 'keep image size after tail discard' -- the shrinking image docs/engine.md works around, which only formatting inside the guest reaches. Porting the patches is a re-vendoring job with qemu-img checks behind it, per BUILDING.md, not a version bump."
+    "_why_declined": "0.2.5 exists and is deliberately not taken, as 0.2.4 was. Two of this project's three imago patches fail against it: 1 of 20 hunks in imago-sparse-vmdk, 1 of 2 in imago-vdi-vhd-and-vhdx; imago-flush-device-nodes applies. Its 21 commits are on_disk_struct macros for qcow2 metadata, dropping bincode, lint silences, an io_buffers optimisation, a Windows zero-range fix, skipping alignment probes on buffered (non-O_DIRECT) files, a constructor for pre-opened files, and 'keep image size after tail discard' -- the shrinking image docs/engine.md works around, which only formatting an image file inside the guest reaches. Porting the patches is a re-vendoring job with qemu-img checks behind it, per BUILDING.md, not a version bump."
   },
   "krun-devices": {
     "_why": "libkrun's block device. Patched to ask imago for VDI and VHD.",
