@@ -643,6 +643,14 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             inputs.hiddenFromFinder = AfpShare.servesOverAFP(
                 kind: kind, volume: volume, readOnly: readOnly, probed: probed,
                 clientExists: AfpShare.clientExists)
+            // The same volumes, where this Mac has no AFP client to mount the share
+            // with. Asked with the client forced true and then denied by the real
+            // answer, so a volume that would never have been served over AFP -- a
+            // container's, a read-only one, exFAT -- starts no server here either.
+            inputs.servesSMB =
+                AfpShare.servesOverAFP(
+                    kind: kind, volume: volume, readOnly: readOnly, probed: probed,
+                    clientExists: true) && !AfpShare.clientExists
             let script = MountScript.build(inputs)
 
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")
