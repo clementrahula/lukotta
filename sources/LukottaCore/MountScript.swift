@@ -678,6 +678,14 @@ public enum MountScript {
                 }
                 """
             lines.append(slipped)
+            // A drive whose filesystem already took a writable mount did not
+            // refuse writes. What stopped it came afterwards -- the export, the
+            // machine, an action -- and falling through to the read-only
+            // attempts handed back a drive nobody asked to be read-only, under
+            // a sentence telling them its filesystem needed repairing. Measured
+            // on 2026-09-16: the guest mounted an NTFS stick read-write, failed
+            // to write its NFS export, and the drive came back read-only.
+            lines.append(tookWrites(logQ: logQ))
             // Every attempt again, not the first one only. A Microsoft drive
             // has two: ntfs3, which refuses a volume Windows left dirty, and
             // ntfs-3g, which mounts it. Where the refusal is real and the
@@ -739,7 +747,7 @@ public enum MountScript {
             // `a` succeeded, and every writable mount would report itself as
             // read-only.
             chain += retry.map {
-                "{ \($0) && echo \"\(stageMarker)read-only\" >> \(logQ) ; }"
+                "{ ! __took_writes && \($0) && echo \"\(stageMarker)read-only\" >> \(logQ) ; }"
             }
         }
         lines.append(chain.joined(separator: " || "))
@@ -2552,6 +2560,19 @@ public enum MountScript {
               cat \(mergedQ) > \(configQ)
             }
             """
+    }
+
+    /// Whether any attempt got as far as the filesystem accepting a writable mount.
+    ///
+    /// The guest says so in its own words once the mount is made. Asked before
+    /// the read-only attempts, so that only a filesystem that refused writes is
+    /// opened read-only. Public so a test runs it against a log of its own.
+    public static func tookWrites(logQ: String) -> String {
+        """
+        __took_writes() {
+          grep -q 'Effective mount options: rw' \(logQ) 2>/dev/null
+        }
+        """
     }
 
     /// What counts as the guest kernel talking about a filesystem.
