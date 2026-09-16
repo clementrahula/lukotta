@@ -12,7 +12,7 @@ final class AppModel: ObservableObject {
     ///
     /// Started from the window when there is a window, and from the delegate
     /// when the app was opened at login and there is none. Both need the same
-    /// instance, and tests and snapshots make their own.
+    /// instance, and tests make their own.
     static let shared = AppModel()
 
     // MARK: What is on screen
@@ -397,11 +397,6 @@ final class AppModel: ObservableObject {
             }
             self.imageOpening = .handedToMacOS(file, point)
         }
-    }
-
-    /// For the snapshots, which need this state without a drive going away.
-    func showDeparted(name: String, index: Int) {
-        departed = [Departed(id: "snapshot", name: name, index: index)]
     }
 
     /// The scratch directory a mount was given, once the mount is over.

@@ -15,8 +15,7 @@
     /// Drive a whole flow through the real app, without a person and without a
     /// window.
     ///
-    /// The unit tests cover decisions and the snapshots cover what is drawn.
-    /// Neither covers a sequence: open a container, unlock it, rebuild the list,
+    /// The unit tests cover decisions, not a sequence: open a container, unlock it, rebuild the list,
     /// eject it. Every fault found in that flow has been one step undoing an
     /// earlier one, such as a scan dropping a row or a save recording the wrong
     /// frame, and only running the steps in order finds those.
