@@ -2,6 +2,15 @@
 
 Goal: replace the NFS export with an FSKit volume. Linux drivers stay; no filesystem is written here.
 
+## Decision
+
+| macOS | Route |
+| --- | --- |
+| 15–26 | Existing: microVM, NFS, AFP for writable NTFS. Unchanged |
+| 27+ | FSKit adapter |
+
+One app. The route is chosen at run time; the deployment target stays macOS 15.
+
 ## Why
 
 Measured 2026-09-16, macOS 27.0, SANDISK stick, Finder via `scripts/finder-parity.sh`:
@@ -35,6 +44,27 @@ FSKit cost on this Mac, Apple's exFAT module, 5,000 files on an SSD image: 0.21 
 
 Transport: libkrun maps guest vsock ports to Unix sockets on the host. The extension is sandboxed: socket in an app group container.
 
+## FSKit on macOS 27: what is new
+
+From the macOS 27.0 SDK headers on this Mac (`FSKIT_API_AVAILABILITY_V3`). Earlier work in the archives used the macOS 26 API.
+
+| API | What it gives |
+| --- | --- |
+| `FSVolume.Handler` and result classes | Results carry item attributes; FSKit caches every attribute returned. Replaces `FSVolume.Operations` |
+| `FSVolume.DataCacheHandler` | Kernel data caching per open file: read cache, write-through, write-back; deferred close; lease-break actions (push dirty, invalidate) |
+| `FSVolume.ReadWriteHandler` | Data I/O through the module |
+| `FSVolume.KernelOffloadedIOHandler` | Kernel does I/O on block extents; read-only extent type new. Block-device volumes only |
+| `FSVolume.SeekRegionHandler` | `SEEK_DATA`/`SEEK_HOLE`: sparse files |
+| `FSVolume.XattrHandler` | Extended attributes |
+| `FSVolume.RenameHandler`, `PreallocateHandler`, `AccessCheckHandler`, `OpenCloseHandler`, `ItemDeactivationHandler` | Handler forms of the same operations |
+| `FSContext` | Caller real and effective uid/gid |
+| `FSFreeSpace` | Free space with sequence numbers |
+| `FSItem.tryReclaim` | Item reclaim control |
+| `FSClient.mountSingleVolume` | Load, activate, mount under `/Volumes`; `com.apple.developer.fskit.mount` |
+| `FSClient.openFileSystemExtensionsSettings` | Opens the enable pane. `FSModuleIdentity.isEnabled` stays read-only |
+
+For route A: the data cache and cached attributes keep repeat reads, stats and listings in the kernel, off the vsock round trip; seek-region and xattr handlers cover holes and `._` files.
+
 ## FSKit on macOS 27, constraints
 
 | Item | Fact |
@@ -42,7 +72,7 @@ Transport: libkrun maps guest vsock ports to Unix sockets on the host. The exten
 | Enable | Per user, System Settings → Login Items & Extensions → File System Extensions. No API. `FSClient.openFileSystemExtensionsSettings()` opens the pane |
 | Mount | `FSClient.mountSingleVolume` with `com.apple.developer.fskit.mount`; `FSGenericURLResource` for a non-device backend |
 | Shape | One resource, one volume. LVM: one URL per logical volume |
-| Update | App update de-registered the appex on 26 (`archive/v3-fskit`, architecture_v2.md §13); `pluginkit -a` restores |
+| Update | App update de-registered the appex on macOS 26 (`archive/v3-fskit`, architecture_v2.md §13); `pluginkit -a` restores. Not checked on 27 |
 | Update while mounted | Force-unmount (FB21287341) |
 | Reported on 27 beta 5, SMB-on-FSKit developer | `RENAME_SWAP` destroys destination; `fsync`/`F_FULLFSYNC` on URL volumes never reach the module |
 | Outside changes | No `vnode_notify` (r.177724575) |
@@ -53,7 +83,7 @@ Transport: libkrun maps guest vsock ports to Unix sockets on the host. The exten
 
 | Tag | Path | Use |
 | --- | --- | --- |
-| `archive/v3-fskit` | `sources/LukottaFS/FileSystem.swift`, `Volume.swift` | `FSUnaryFileSystem` skeleton |
+| `archive/v3-fskit` | `sources/LukottaFS/FileSystem.swift`, `Volume.swift` | `FSUnaryFileSystem` skeleton; macOS 26 `Operations` protocols, port to 27 handlers |
 | `archive/v3-fskit` | `sources/LukottaCore/ExtensionRegistration.swift`, `ExtensionMount.swift` | registration, re-register after update, mount |
 | `archive/v3-fskit` | `sources/LukottaCore/FSBacking.swift`, `FSPassthrough*.swift` | backing interface; passthrough for measuring FSKit alone |
 | `archive/v3-fskit` | `build-app.sh` appex wiring | `Contents/Extensions/LukottaFS.appex` |
@@ -64,8 +94,8 @@ Transport: libkrun maps guest vsock ports to Unix sockets on the host. The exten
 
 Stop at the first failing step.
 
-1. Rebuild the `LukottaFS` skeleton against the macOS 27 SDK. Mount a `FSGenericURLResource` with `mountSingleVolume` over a passthrough directory. Record: enable path, re-registration after an update.
-2. Passthrough baseline: `finder-parity.sh` on the FSKit volume against the same directory natively.
+1. Port the `LukottaFS` skeleton to the macOS 27 handler protocols, behind `#available(macOS 27, *)`. Mount a `FSGenericURLResource` with `mountSingleVolume` over a passthrough directory. Record: enable path, re-registration after an update.
+2. Passthrough baseline: `finder-parity.sh` on the FSKit volume against the same directory natively, with and without `DataCacheHandler` write-back.
 3. Transport: request round trip, extension ↔ guest over the libkrun vsock socket.
 4. A1: libnfs in the extension against the existing guest nfsd, SANDISK. Finder numbers against the table above.
 5. Faults: `RENAME_SWAP`, `fsync` reaching the drive (`scripts/flush-reaches-drive.sh`, `scripts/kill-durability.sh`), `._` files, holes, 6,000- and 40,000-file deletes, readdir during a copy.
