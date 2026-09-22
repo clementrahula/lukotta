@@ -153,7 +153,7 @@ if [ "$CHANNEL" = "release" ]; then
   [ "${WRITTEN:-0}" -ge "${SPOKEN:-0}" ] || die \
     "the notes are in $WRITTEN of $SPOKEN languages. Write releases/notes/$FULL/<lang>.md
        for each language in translations/, then ./scripts/notes-audit.py $FULL"
-  /usr/bin/python3 scripts/notes-audit.py "$FULL" >/dev/null \
+  /usr/bin/python3 scripts/notes-audit.py "$FULL" \
     || die "the translated notes are refused; run scripts/notes-audit.py $FULL"
   echo "    notes in $WRITTEN languages"
 fi
