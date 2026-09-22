@@ -81,9 +81,7 @@ printf '                checked for advisories by the audit workflow\n'
 
 printf '\n'
 if [ "$MOVED" = "1" ]; then
-  printf 'Something has moved. Bumping the engine means reading what changed and\n'
-  printf 'looking at Diagnosis.enginesChecked, since the rules match on the words\n'
-  printf 'the engine prints.\n'
+  printf 'Something has moved.\n'
   exit 1
 fi
 if [ "$UNKNOWN" = "1" ]; then

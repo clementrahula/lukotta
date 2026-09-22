@@ -205,9 +205,14 @@ if command -v gh >/dev/null 2>&1; then
   # one refused a release over a superseded build, which is exactly the kind of
   # thing that must never stand between a finished build and somebody being
   # able to install it.
+  # SCRIBE: say why Engine updates is passed over here -- it reports that a
+  # part pinned in vendor/engine.lock moved upstream, which says nothing about
+  # whether this build is sound, and refusing a release over somebody else's
+  # release is the obstacle described above.
   CI="$(gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --status completed \
-    --limit 15 --json conclusion \
-    -q '[.[].conclusion | select(. == "success" or . == "failure")][0]' 2>/dev/null || true)"
+    --limit 15 --json conclusion,workflowName \
+    -q '[.[] | select(.workflowName != "Engine updates") | .conclusion
+         | select(. == "success" or . == "failure")][0]' 2>/dev/null || true)"
   case "${CI:-unknown}" in
     success) echo "    the checks are green" ;;
     unknown|null)
@@ -237,8 +242,9 @@ if command -v gh >/dev/null 2>&1; then
     *)
       echo "    the checks are ${CI}. Fixing that comes before shipping:" >&2
       gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --status completed \
-        --limit 15 --json databaseId,conclusion \
-        -q '[.[] | select(.conclusion == "failure")][0].databaseId' 2>/dev/null \
+        --limit 15 --json databaseId,conclusion,workflowName \
+        -q '[.[] | select(.workflowName != "Engine updates")
+             | select(.conclusion == "failure")][0].databaseId' 2>/dev/null \
         | xargs -I{} gh run view {} --log-failed 2>/dev/null | tail -20 >&2
       die "the checks are ${CI}"
       ;;
