@@ -22,7 +22,10 @@ permissions:
   contents: read
 
 jobs:
-  check:
+  # SCRIBE: say why this job is not called check: main requires a status check
+  # by that name, and a second check run called check on the same commit -- red
+  # for drift while the build's own is green -- is a gate nobody can read.
+  engine:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
