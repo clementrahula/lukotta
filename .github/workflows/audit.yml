@@ -9,12 +9,15 @@ name: Audit
 #   Rust       the crates the engine is built from, checked by cargo-audit
 #   Alpine     the 66 packages of the Linux guest, checked by Trivy
 #
-# Weekly, because an advisory can be published for code that has not changed,
-# and on demand.
+# SCRIBE: say that this runs whenever main moves and on request, and what that
+# costs: an advisory can be published against code that has not changed, so the
+# answer is as old as the last push rather than a week old. Say that a red run
+# here does stop a release, unlike Engine updates -- it is about the soundness
+# of what is being shipped, which is what scripts/ship.sh asks before it tags.
 
 on:
-  schedule:
-    - cron: "0 6 * * 1"
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
