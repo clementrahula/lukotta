@@ -209,10 +209,20 @@ if command -v gh >/dev/null 2>&1; then
   # part pinned in vendor/engine.lock moved upstream, which says nothing about
   # whether this build is sound, and refusing a release over somebody else's
   # release is the obstacle described above.
+  #
+  # SCRIBE: say why it is the latest run of each workflow and not simply the
+  # latest run. A push starts Checks, Audit and CodeQL together and they finish
+  # minutes apart, so "the last one to conclude" is whichever was slowest, and
+  # a red audit sat behind a green build for three weeks without this ever
+  # seeing it. Thirty runs is several pushes of all of them.
   CI="$(gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --status completed \
-    --limit 15 --json conclusion,workflowName \
-    -q '[.[] | select(.workflowName != "Engine updates") | .conclusion
-         | select(. == "success" or . == "failure")][0]' 2>/dev/null || true)"
+    --limit 30 --json conclusion,workflowName \
+    -q '[.[] | select(.workflowName != "Engine updates")
+         | select(.conclusion == "success" or .conclusion == "failure")]
+        | group_by(.workflowName) | map(.[0])
+        | if length == 0 then empty
+          elif any(.conclusion == "failure") then "failure"
+          else "success" end' 2>/dev/null || true)"
   case "${CI:-unknown}" in
     success) echo "    the checks are green" ;;
     unknown|null)
