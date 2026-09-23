@@ -75,12 +75,16 @@ def rows_from_notices(lines, table, after):
     return rows
 
 
-def rewrite(lines, start, table, after, end, rows):
+def rewrite(lines, start, table, after, end, rows, path):
     rendered = [HEADER, RULE] + [f"| {n} | {v} | {lic} |" for n, v, lic in rows]
     updated = lines[:table] + rendered + lines[after:]
     shift = len(rendered) - (after - table)
+    stated = 0
     for i in range(start, end + shift):
-        updated[i] = COUNT.sub(f"following {len(rows)} packages", updated[i])
+        updated[i], found = COUNT.subn(f"following {len(rows)} packages", updated[i])
+        stated += found
+    if not stated:
+        sys.exit(f"error: {path} has no package count under '{HEADING}'")
     return updated
 
 
@@ -96,7 +100,8 @@ def main(argv):
         original = fh.read()
     lines = original.split("\n")
     start, end, table, after = section_bounds(lines, notices_path)
-    updated = "\n".join(rewrite(lines, start, table, after, end, rows))
+    updated = "\n".join(
+        rewrite(lines, start, table, after, end, rows, notices_path))
 
     if updated == original:
         print(f"{notices_path}: {len(rows)} packages, agreeing with {sbom_path}")

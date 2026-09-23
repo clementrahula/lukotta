@@ -69,6 +69,14 @@ License 2.0. The modifications are supplied as patches under `patches/`, and are
 included in the corresponding source alongside the unmodified upstream archives
 to which they apply.
 
+SCRIBE: this paragraph now covers guest components too, and one fact in it is
+wrong: the afpd patches are under `vendor/patches/`, not `patches/`, so naming
+a single directory is incomplete. The sentence about each modified file
+carrying its own notice is also wider than what the patches do -- nine of the
+twenty-one add no such line -- so say what is true of the patch set rather than
+of every file in it. Closing that gap is a change to the patches, not to this
+document.
+
 | Component | Licence | Date | Modification |
 | --- | --- | --- | --- |
 | anylinuxfs | GPL-3.0-or-later | 2026-08-22 | Recognition of the VMDK, VDI, VHD and VHDX disk-image formats |
@@ -82,6 +90,11 @@ to which they apply.
 | imago | MIT | 2026-09-02 | Flushing of a device node with `DKIOCSYNCHRONIZECACHE`, the call a device node accepts, in place of `fsync` and `F_FULLFSYNC` |
 | krun-devices | Apache-2.0 | 2026-08-22 | Selection of the VDI, VHD and VHDX drivers by disk-format number |
 | krun-devices | Apache-2.0 | 2026-09-02 | Passing of the guest's flush through to a raw device, which was previously answered without being carried out |
+| afpd (netatalk) | GPL-2.0-or-later | 2026-09-11 | SCRIBE: from `vendor/patches/netatalk-listing-per-folder.patch`. afpd held one enumeration state for the whole connection, so a Finder delete walking several folders lost a folder's place between batches and skipped files; the listing is kept per folder instead. |
+| afpd (netatalk) | GPL-2.0-or-later | 2026-09-12 | SCRIBE: from `vendor/patches/netatalk-a-decomposed-name-is-found.patch`. `mtoupath()` composed every name before it reached the disk, so a name the volume stores decomposed was listed and then never resolved; the composition is no longer forced. |
+| Linux kernel | GPL-2.0-only | 2026-09-11 | SCRIBE: from `patches/linux-nfsd-commit-is-durable.patch`. An NFS COMMIT is carried through to the device, so a write the client has been told is committed survives the machine dying. |
+| Linux kernel | GPL-2.0-only | 2026-09-11 | SCRIBE: from `patches/linux-ntfs3-readdir-survives-deletion.patch`. A directory read while it is being emptied, which is what a Finder delete does, gives every entry once and leaves none behind. |
+| Linux kernel | GPL-2.0-only | 2026-09-14 | SCRIBE: from `patches/linux-every-entry-is-writable.patch`. Every entry on a served volume is readable and writable whatever mode or flag the disk stores, a read-only snapshot still refusing. |
 
 Files added to imago by these modifications are licensed under the MIT terms of
 that crate and carry a notice recording it. Lukotta's own source is not
@@ -100,7 +113,7 @@ and `Image-4K` are Linux kernel binaries supplied by libkrunfw.
 | imago | 0.2.3, modified | MIT | https://gitlab.com/hreitz/imago |
 | krun-devices | 0.1.0-1.19.3, modified | Apache-2.0 | https://github.com/containers/libkrun |
 | libkrun and libkrunfw | as embedded | GPL-2.0-only AND LGPL-2.1-only | https://github.com/containers/libkrun |
-| Linux kernel | 6.12.62 | GPL-2.0-only | https://www.kernel.org/ |
+| Linux kernel | 6.12.62, modified | GPL-2.0-only | https://www.kernel.org/ |
 | util-linux (libblkid) | as embedded | LGPL-2.1-or-later | https://github.com/util-linux/util-linux |
 | gvisor-tap-vsock (gvproxy) | as embedded | Apache-2.0 | https://github.com/containers/gvisor-tap-vsock |
 | vmnet-helper | as embedded | Apache-2.0 | https://github.com/nirs/vmnet-helper |
@@ -208,6 +221,22 @@ package owns them: `zfs.ko` and `spl.ko` are part of the base image's module
 tree, so dropping the `zfs` and `zfs-libs` packages removes the userspace and
 leaves the modules behind. `scripts/trim-image.py` removes `lib/modules/*/fs/zfs`
 explicitly, and the packed archive is checked to contain neither.
+
+SCRIBE: introduce the table below. What it is for: the table above is the
+image's Alpine package list and nothing else, rendered from the same inventory
+the audit scans, so a program this project compiles and places inside the guest
+has no row there and would be removed from one. `ntfsck` is such a program --
+Alpine packages no NTFS checker at all, `scripts/build-ntfsck.sh` builds one
+from ntfsprogs-plus for the guest's architecture and libc, and
+`scripts/vendor-engine.sh` installs it at `/usr/sbin/ntfsck`. It is
+redistributed unmodified, at the revision named, and its source accompanies the
+release like every other component here. Say also that an application built
+without that step simply has no checker, which is why the binary is absent from
+some builds.
+
+| Component | Version | Licence | Source |
+| --- | --- | --- | --- |
+| ntfsprogs-plus (ntfsck) | revision 3fe8904 | GPL-2.0-only | https://github.com/ntfsprogs-plus/ntfsprogs-plus |
 
 ## Notes on the Listings
 
