@@ -195,18 +195,17 @@ fi
 # nothing here ever looked. Noticing is not a thing to remember to do; it is a
 # step, and it is this one.
 #
-# SCRIBE: this paragraph said runs in flight are never waited for, and that is
-# no longer true of one of them. What replaces it: the thing worth catching is
-# a failure that has already happened, so Checks in flight is not waited for --
-# it queues for hours and this script can run what it runs instead -- while the
-# audit in flight is, because it is minutes and nothing here can stand in.
+# The thing worth catching is a failure that has already happened, so Checks in
+# flight is not waited for: it queues for hours, and what it would have run can
+# be run here instead. The audit in flight is waited for. It takes minutes, and
+# nothing here can stand in for it.
 if command -v gh >/dev/null 2>&1; then
-  # The last run that concluded anything, not the last that stopped. Pushing
-  # twice in a minute cancels the first run, and a cancelled run is not a
-  # failure -- it is a run that never finished having an opinion. Reading it as
-  # one refused a release over a superseded build, which is exactly the kind of
-  # thing that must never stand between a finished build and somebody being
-  # able to install it.
+  # A cancelled run is not a failure. Pushing twice in a minute cancels the
+  # first run, and what it leaves behind is a run that never finished having an
+  # opinion. Read as a failure it refused a release over a superseded build,
+  # which is exactly the kind of thing that must never stand between a finished
+  # build and somebody being able to install it. So it counts as no answer,
+  # like a run still in flight.
   #
   # Checks and Audit are named, rather than everything else being excluded.
   # The branch also carries runs that are nobody's file in this repository --
@@ -222,14 +221,17 @@ if command -v gh >/dev/null 2>&1; then
   # three weeks without this ever seeing it. Thirty runs is several pushes of
   # both.
   #
-  # SCRIBE: say why the runs have to be this commit's and why a gate that has
-  # not answered is not green. Cover: the push is at the end of this script, so
-  # the newest run on the branch can belong to the commit before the one being
-  # tagged; a gate named and then not found said nothing, and green was read
-  # out of the one that did answer, which a superseded run made ordinary --
-  # cancelled and in flight are both "no opinion", and two pushes a minute
-  # apart leave the audit as neither. Whichever gate did not answer is named on
-  # the terminal and sends this to the arm below.
+  # The runs have to be this commit's. The push is at the end of this script,
+  # so the newest run on the branch can belong to the commit before the one
+  # being tagged, and a verdict on other code is not a verdict on this one.
+  # Matching a run's head against HEAD is what ties the two together.
+  #
+  # And a gate that did not answer is not green. Named and then not found, it
+  # said nothing; green was read out of the one gate that did answer, which is
+  # green read out of half the question. A superseded run makes that ordinary
+  # rather than rare: cancelled and in flight are both no opinion, and two
+  # pushes a minute apart leave the audit as neither. Whichever gate did not
+  # answer is named on the terminal and sends this to the arm below.
   GATES='["Checks", "Audit"]'
   BRANCH_NOW="$(git rev-parse --abbrev-ref HEAD)"
   SHA_NOW="$(git rev-parse HEAD)"
@@ -242,12 +244,11 @@ if command -v gh >/dev/null 2>&1; then
           | .[] | \"\(.workflowName) \(.status) \(.conclusion)\"" 2>/dev/null || true
   }
 
-  # SCRIBE: say why this one waits where the rest of the script refuses to.
-  # Cover: the audit is three ubuntu jobs and has taken between 2.4 and 3.2
-  # minutes on its last six runs, and there is nothing this Mac can run in its
-  # place -- where Checks, which queues for hours on a scarce macOS runner, is
-  # answered below by running lint and the unit checks here. Ten minutes, and
-  # then it is a gate that did not answer like any other.
+  # This waits, where the rest of the script refuses to. The audit is three
+  # ubuntu jobs and takes a few minutes, and there is nothing this Mac can run
+  # in its place -- where Checks, which queues for hours on a scarce macOS
+  # runner, is answered below by running lint and the unit checks here. Ten
+  # minutes, and after that it is a gate that did not answer like any other.
   for i in $(seq 1 40); do
     case "$(gates_now | /usr/bin/awk '$1 == "Audit" { print $2 }')" in
       queued|in_progress)
@@ -282,15 +283,17 @@ if command -v gh >/dev/null 2>&1; then
       # than an oddity. Reading that as permission to go on means every release
       # of a busy day ships with nothing behind it.
       #
-      # Waiting for the queue is not the answer either: that is an obstacle
-      # between a finished build and somebody being able to install it, and
-      # those are not allowed. So the same two things the workflow runs are run
-      # here, where there is no queue.
-      # SCRIBE: say what the line below names and what it does not promise.
-      # Cover: lint and the unit checks are what Checks would have run, so that
-      # gate is answered here; nothing on this Mac stands in for the audit, so
-      # when it is the one that did not answer the release goes out with that
-      # said out loud, and pushing this commit first is what gets it read.
+      # Waiting out that queue is not the answer either: hours of it is an
+      # obstacle between a finished build and somebody being able to install
+      # it, and those are not allowed. So the same two things the workflow runs
+      # are run here, where there is no queue.
+      #
+      # The line below names whichever gate was silent, and promises only what
+      # can be run here. Lint and the unit checks are what Checks would have
+      # run, so that gate is answered. Nothing on this Mac stands in for the
+      # audit: when it is the one that did not answer, the release goes out
+      # with that said out loud, and pushing this commit is what gets it read
+      # at all.
       echo "    ${UNREAD:-nothing} did not answer for this commit; running what can be run here"
       if ! bash scripts/lint.sh > "$HERE/.lint.log" 2>&1; then
         tail -20 "$HERE/.lint.log" >&2
@@ -320,11 +323,11 @@ if command -v gh >/dev/null 2>&1; then
              | select(.workflowName as \$w | $GATES | index(\$w))
              | select(.conclusion == \"failure\")][0].databaseId" 2>/dev/null \
         | xargs -I{} gh run view {} --log-failed 2>/dev/null | tail -20 >&2 || true
-      # SCRIBE: say why that pipeline cannot be allowed to decide anything
-      # either: a run whose log has expired makes gh fail, xargs leaves 123,
-      # and under -e and pipefail the ship would stop between the sentence
-      # above and the reason below, having printed a colon and nothing after
-      # it.
+      # That pipeline decides nothing either. A run whose log has expired makes
+      # gh fail, xargs leaves 123, and under -e and pipefail the ship would
+      # stop between the sentence above and the reason below, having printed a
+      # colon and nothing after it. The excerpt is a help; the die is the
+      # verdict.
       die "the checks are ${CI}"
       ;;
   esac
@@ -466,15 +469,12 @@ esac
 # 000000, matches nothing here, and kills a release that is perfectly fine over
 # a moment of no network. 000 is this Mac failing to reach GitHub, which is the
 # site check's kind of trouble and not the release's; a 403 or a 404 is the
-# file itself.
+# file itself. A 5xx is neither: the host answering badly about a file it
+# holds, an outage that dying here would not fix and that whoever shipped
+# cannot act on, so it is said and not fatal, like a status never received.
 code="$(curl -sSL -o /dev/null -r 0-0 -w '%{http_code}' --max-time 60 "$offered" 2>/dev/null || true)"
 case "$code" in
   200|206) echo "    $offered can be fetched" ;;
-  # SCRIBE: add the server's own bad minute to the paragraph above. A 5xx is
-  # the CDN answering badly about a file it holds, not the file being absent;
-  # it is GitHub's outage, which dying here does not fix and which whoever
-  # shipped cannot act on, so it is said and not fatal. A 403 or a 404 is still
-  # the file itself, and still stops this.
   000|""|5[0-9][0-9])
     echo "    could not get an answer for $offered (${code:-no status})" >&2
     echo "    the release is out; whether it can be downloaded is unanswered" >&2
@@ -496,10 +496,10 @@ if [ "$CHANNEL" = "release" ]; then
   # the case this loop exists to wait out.
   for i in $(seq 1 20); do
     page="$(curl -sS --max-time 15 "https://lukotta.com/?ship=$i" 2>/dev/null || true)"
-    # SCRIBE: say why the page is searched for this version rather than for
-    # something version-shaped: the pattern was anchored to a major 1, so the
-    # first release of 2.0 would have waited the whole five minutes and then
-    # reported a site that was perfectly correct as behind.
+    # The page is searched for this version, not for something version-shaped.
+    # The pattern was anchored to a major 1, so the first release of 2.0 would
+    # have waited the whole five minutes and then called a site that was
+    # perfectly correct behind.
     shown="$(/usr/bin/awk -v want="$FULL" 'index($0, want) { print want; exit }' <<<"$page")"
     if [ "$shown" = "$FULL" ]; then
       echo "    lukotta.com offers $FULL"

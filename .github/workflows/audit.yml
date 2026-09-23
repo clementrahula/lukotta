@@ -14,14 +14,12 @@ name: Audit
 # the commit, and a release is cut from whatever branch it is cut from. Graded
 # on main alone, the verdict was about a different commit, and a ship from a
 # working branch found no run at all and read green over a three-week-old red.
-# What it cannot catch: an advisory can be published against code that has not
-# changed, so this answer is only ever as fresh as the last push.
-#
-# SCRIBE: one sentence into the paragraph above, so it does not read as though
-# this file settles the whole question. What it settles is that every pushed
-# commit gets a run; whether the commit being tagged is one of them is
-# scripts/ship.sh's, and is answered where it matches a run's head against its
-# own HEAD and treats anything else as a gate that did not answer.
+# What this file settles is that every pushed commit gets a run; whether the
+# commit being tagged is one of them is scripts/ship.sh's question, answered
+# there by matching a run's head against its own HEAD and treating anything
+# else as a gate that did not answer. What neither can catch: an advisory can
+# be published against code that has not changed, so this answer is only ever
+# as fresh as the last push.
 #
 # A red run here does stop a release, where Engine updates does not. This is
 # about the soundness of what is being shipped, which is what scripts/ship.sh
