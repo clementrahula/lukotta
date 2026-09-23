@@ -192,8 +192,9 @@ fi
 # The commit is pushed before it is graded. This script makes the commit it
 # ships -- the tree it found, and the approval recorded above it -- so until it
 # is pushed no workflow has ever seen it, and a gate that insists on runs for
-# this commit finds none: the last eight releases took the unaudited arm for no
-# other reason. Grading a commit by what CI said about it means CI has to have
+# this commit finds none: the last eight released commits carry no CI run at
+# all, so the gate as it stands would have read both gates unread on every one
+# of them. Grading a commit by what CI said about it means CI has to have
 # been given it. The tag stays where it is, after the checks. What goes out
 # early is the commit, which was going to be pushed either way.
 UNAUDITED=""
@@ -263,8 +264,8 @@ if command -v gh >/dev/null 2>&1; then
   # minutes, and after that it is a gate that did not answer like any other.
   # What is waited for is anything not finished, rather than a list of the
   # states gh has today: it also says requested, waiting and pending, and a list
-  # that named three of the six let the other three fall straight through, so
-  # the wait never happened. No run at all is given a minute to appear, because
+  # naming queued and in_progress let those three fall straight through
+  # alongside completed, so the wait never happened. No run at all is given a minute to appear, because
   # the push above is seconds old and GitHub does not always register it at
   # once; after that, a run that has not started is one that is not going to.
   for i in $(seq 1 44); do
