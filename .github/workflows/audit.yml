@@ -7,7 +7,7 @@ name: Audit
 #
 #   Swift      the packages the app links, checked by OSV
 #   Rust       the crates the engine is built from, checked by cargo-audit
-#   Alpine     the 66 packages of the Linux guest, checked by Trivy
+#   Alpine     the packages of the Linux guest, checked by Trivy
 #
 # It runs on a push to any branch, not only main. What it reads --
 # Package.resolved, vendor/engine.lock, vendor/guest-sbom.json -- are files in
@@ -109,19 +109,18 @@ jobs:
       # It used to be the base image pulled from the registry by the digest in
       # engine.lock. That is not the thing that ships. "anylinuxfs init" boots
       # that image and installs into it, and trim-image.py takes packages back
-      # out again; the registry copy holds 16 packages and the guest holds 66.
+      # out again; the registry copy holds a fraction of what the guest ships.
       # CVE-2026-14456 was caught only because OpenSSL happens to sit in the
       # base layer -- an advisory against nfs-utils, cryptsetup, krb5-libs,
       # python3 or sqlite-libs would have gone unseen. Scanning the inventory
       # instead needs no macOS and no engine, which is what the registry scan
       # was for.
       - name: Check the inventory is the one the notices describe
-        # SCRIBE: say that the notices table is rendered from this same SBOM,
-        # so the check here is the render compared against what is committed --
-        # the same script the release gate runs, not a second implementation of
-        # the same idea that can be corrected in one place and not the other.
-        # A stale SBOM is worse than no SBOM: it is a green tick over an image
-        # nobody scanned.
+        # The notices table is rendered from this same SBOM, so what is checked
+        # here is that render against what is committed. It runs the script the
+        # release gate runs, rather than a second implementation of it that
+        # could be corrected in one place and not the other. A stale SBOM is
+        # worse than no SBOM: it is a green tick over an image nobody scanned.
         run: bash scripts/generate-notices.sh --check
 
       - name: Trivy

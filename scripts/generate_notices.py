@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Clement Rahula
-"""SCRIBE: say that this rewrites the guest package table inside
-THIRD_PARTY_NOTICES.md from vendor/guest-sbom.json and touches nothing else in
-the document; that the SBOM is committed, so this runs from a bare checkout
-with no vendor tree and no macOS build; that --check renders the table and
-reports what differs instead of writing; and that it is the document, not this
-script, that holds the prose -- an earlier version generated the whole file
-from a hardcoded copy of it, which is how seven modification statements the
-licences require came to be one edit away from deletion."""
+"""Rewrite the guest package table inside THIRD_PARTY_NOTICES.md from
+vendor/guest-sbom.json, and touch nothing else in the document.
+
+The SBOM is committed, so this runs from a bare checkout: no vendor tree, no
+macOS build. --check renders the table and reports what differs instead of
+writing it.
+
+The prose belongs to the document, not to this script. A version that
+generated the whole file held its own copy of that prose, which left seven
+modification statements the licences require one run away from deletion."""
 import json
 import re
 import sys
@@ -27,8 +29,8 @@ def rows_from_sbom(path):
     except FileNotFoundError:
         sys.exit(
             f"error: no SBOM at {path}\n"
-            "       SCRIBE: say that vendor-engine.sh writes it when it packs "
-            "a guest, and that it is committed.")
+            "       vendor-engine.sh writes it when it packs a guest, and it "
+            "is committed.")
     except json.JSONDecodeError as bad:
         sys.exit(f"error: {path} is not valid JSON: {bad}")
     rows = set()
@@ -117,9 +119,8 @@ def main(argv):
                           f" says {COUNT.search(line).group(1)}")
         sys.exit(
             f"error: {notices_path} does not describe the image in {sbom_path}.\n"
-            "       SCRIBE: say that the document is brought back into "
-            "agreement by running scripts/generate-notices.sh, which needs "
-            "nothing but this checkout.")
+            "       Run scripts/generate-notices.sh to bring it back into "
+            "agreement. It needs nothing but this checkout.")
 
     with open(notices_path, "w", encoding="utf-8") as fh:
         fh.write(updated)

@@ -1,6 +1,6 @@
 # Building Lukotta from Source
 
-<!-- covers: build-app.sh, scripts/fetch-engine.sh, scripts/vendor-engine.sh, scripts/build-engine.sh, scripts/build-guest-kernel.sh, scripts/build-ntfsck.sh, scripts/trim-image.py, scripts/collect-sources.sh, scripts/guest-sbom.py, scripts/lowest-macos.py, scripts/release.sh, scripts/ship.sh, scripts/release-notes.py, scripts/notary-status.sh, scripts/preflight.sh, scripts/e2e.sh, scripts/run-tests.sh, scripts/lint.sh, scripts/make-test-volumes.sh checked: 2026-09-11 -->
+<!-- covers: build-app.sh, scripts/fetch-engine.sh, scripts/vendor-engine.sh, scripts/build-engine.sh, scripts/build-guest-kernel.sh, scripts/build-ntfsck.sh, scripts/trim-image.py, scripts/collect-sources.sh, scripts/guest-sbom.py, scripts/generate-notices.sh, scripts/lowest-macos.py, scripts/release.sh, scripts/ship.sh, scripts/release-notes.py, scripts/notary-status.sh, scripts/preflight.sh, scripts/e2e.sh, scripts/run-tests.sh, scripts/lint.sh, scripts/make-test-volumes.sh checked: 2026-09-11 -->
 
 Lukotta is GPL-3.0-or-later. Anyone who receives the app is entitled to its
 source and to the scripts that build it. This covers the whole path, from a
@@ -612,19 +612,13 @@ That assembles source for the engine and for every package in the guest image
 into `dist/sources`, matched to what is shipped rather than to what upstream
 offers.
 
-SCRIBE: the two paragraphs that stood here described the arrangement that let
-the two files drift, and have to be rewritten for the one that replaced it.
-What is true now: `vendor/guest-sbom.json` is the package database of the
-trimmed image as a CycloneDX SBOM, written by `scripts/guest-sbom.py` during
-`vendor-engine.sh`, and it is one of the two tracked files under `vendor/`
-because the audit workflow scans it on a Linux runner with no vendor tree and
-no macOS build. `THIRD_PARTY_NOTICES.md` is a document kept by hand whose guest
-package table alone is rendered from that SBOM by
-`scripts/generate-notices.sh`, which `vendor-engine.sh` now runs itself, so a
-repack cannot write one file and leave the other. The same script with
-`--check` is what the audit workflow and the `noticesmatchtheimage` row both
-run, and it needs nothing but a checkout. What has to go is the old claim that
-the notices are generated whole and cannot drift: the generator held its own
-copy of the document's prose, so running it would have deleted seven
-modification statements the licences require, which is why for three weeks
-nobody ran it and the package table went nine packages stale.
+`vendor/guest-sbom.json` is the package database of the trimmed image as a
+CycloneDX SBOM, written by `scripts/guest-sbom.py` during `vendor-engine.sh`.
+It is one of the two tracked files under `vendor/`, because the audit workflow
+scans it on a Linux runner that has no vendor tree and no macOS build.
+
+`THIRD_PARTY_NOTICES.md` is kept by hand. Its guest package table alone is
+rendered from that SBOM by `scripts/generate-notices.sh`, which
+`vendor-engine.sh` runs itself, so a repack cannot write one file and leave the
+other. The same script with `--check` is what the audit workflow and the
+`noticesmatchtheimage` row run, and it needs nothing but a checkout.

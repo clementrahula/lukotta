@@ -8,14 +8,14 @@
 The audit workflow used to point Trivy at the base image in the registry,
 which is not what ships: "anylinuxfs init" boots that image and installs into
 it, and trim-image.py then takes packages back out. The registry copy carries
-16 packages; the guest carries 66. Scanning it answered a question nobody had
-asked, and left the other 50 unwatched.
+a fraction of what the guest does. Scanning it answered a question nobody had
+asked, and left the rest unwatched.
 
-So the inventory is published instead. The source is the same Alpine package
-database THIRD_PARTY_NOTICES.md is built from -- the one captured from the
-image that ships -- and the result is committed, because the audit runs on a
-Linux runner from a bare checkout and cannot see a vendor tree or a macOS
-build.
+So the inventory is published instead. The source is the Alpine package
+database captured from the image that ships, and the guest package table in
+THIRD_PARTY_NOTICES.md is rendered from the result. The result is committed,
+because the audit runs on a Linux runner from a bare checkout and cannot see a
+vendor tree or a macOS build.
 
 Two fields matter more than they look:
 

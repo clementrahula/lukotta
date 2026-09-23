@@ -166,8 +166,8 @@ def main():
 
     if dry: return
 
-    # Record the removal so the notices can state it from data rather than from
-    # a hand-written list that drifts every time the roots change.
+    # Record what was taken out, beside the image it was taken out of, so the
+    # removal can be read off the build rather than reconstructed from it.
     manifest = os.path.join(os.path.dirname(rootfs), "removed-packages.txt")
     try:
         with open(manifest, "w") as fh:
