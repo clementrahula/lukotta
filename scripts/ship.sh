@@ -206,24 +206,29 @@ if command -v gh >/dev/null 2>&1; then
   # thing that must never stand between a finished build and somebody being
   # able to install it.
   #
-  # Engine updates is passed over by name. It reports that a part pinned in
-  # vendor/engine.lock moved upstream, which says nothing about whether this
-  # build is sound, and refusing a release over somebody else's release is that
-  # same obstacle.
+  # SCRIBE: the paragraph passing over Engine updates by name is replaced by
+  # why only Checks and Audit are graded. Cover: naming what gates rather than
+  # what does not, because the branch also carries runs that are nobody's file
+  # in this repository -- Dependabot Updates, CodeQL's default setup -- whose
+  # red says their own machinery had a bad day, not that this build is unsound;
+  # Checks says the build is sound and Audit says what it ships is not known to
+  # be vulnerable, and those two are the release's own gates. Keep that Engine
+  # updates is not among them for the reason it is a workflow of its own.
   #
   # The latest run of each workflow, not simply the latest run. A push starts
-  # Checks, Audit and CodeQL together and they finish minutes apart, so "the
-  # last one to conclude" is whichever was slowest: a red audit sat behind a
-  # green build for three weeks without this ever seeing it. Thirty runs is
-  # several pushes of all of them.
+  # Checks and Audit together and they finish minutes apart, so "the last one to
+  # conclude" is whichever was slowest: a red audit sat behind a green build for
+  # three weeks without this ever seeing it. Thirty runs is several pushes of
+  # both.
+  GATES='["Checks", "Audit"]'
   CI="$(gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --status completed \
     --limit 30 --json conclusion,workflowName \
-    -q '[.[] | select(.workflowName != "Engine updates")
-         | select(.conclusion == "success" or .conclusion == "failure")]
+    -q "[.[] | select(.workflowName as \$w | $GATES | index(\$w))
+         | select(.conclusion == \"success\" or .conclusion == \"failure\")]
         | group_by(.workflowName) | map(.[0])
         | if length == 0 then empty
-          elif any(.conclusion == "failure") then "failure"
-          else "success" end' 2>/dev/null || true)"
+          elif any(.conclusion == \"failure\") then \"failure\"
+          else \"success\" end" 2>/dev/null || true)"
   case "${CI:-unknown}" in
     success) echo "    the checks are green" ;;
     unknown|null)
@@ -245,7 +250,11 @@ if command -v gh >/dev/null 2>&1; then
         die "the lint checks fail; fixing that comes before shipping"
       fi
       if ! ./scripts/run-tests.sh > "$HERE/.tests.log" 2>&1; then
-        grep -E "FAIL|error:" "$HERE/.tests.log" | head -20 >&2
+        # SCRIBE: say why the grep cannot be allowed to decide anything: a
+        # suite that crashed before printing FAIL or error: matches nothing,
+        # grep leaves 1, and under this script's -e the die below never runs --
+        # the ship stops with the reason on screen nowhere.
+        grep -E "FAIL|error:" "$HERE/.tests.log" | head -20 >&2 || true
         die "the unit checks fail; fixing that comes before shipping"
       fi
       echo "    lint and unit checks pass here"
@@ -253,9 +262,9 @@ if command -v gh >/dev/null 2>&1; then
     *)
       echo "    the checks are ${CI}. Fixing that comes before shipping:" >&2
       gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --status completed \
-        --limit 15 --json databaseId,conclusion,workflowName \
-        -q '[.[] | select(.workflowName != "Engine updates")
-             | select(.conclusion == "failure")][0].databaseId' 2>/dev/null \
+        --limit 30 --json databaseId,conclusion,workflowName \
+        -q "[.[] | select(.workflowName as \$w | $GATES | index(\$w))
+             | select(.conclusion == \"failure\")][0].databaseId" 2>/dev/null \
         | xargs -I{} gh run view {} --log-failed 2>/dev/null | tail -20 >&2
       die "the checks are ${CI}"
       ;;
@@ -393,9 +402,19 @@ case "$offered" in
   *"$FULL"*) ;;
   *) die "the feed's $FULL item offers $offered, which is not $FULL" ;;
 esac
-code="$(curl -sSL -o /dev/null -r 0-0 -w '%{http_code}' --max-time 60 "$offered" 2>/dev/null || printf '000')"
+# SCRIBE: say why 000 is a line on the terminal and a status is a death. Cover:
+# -w prints 000 itself when curl never got an answer, so `|| printf 000` wrote
+# 000000 and every unreachable moment died with a sentence about nobody being
+# able to install a release that is perfectly fine; and that 000 is this Mac's
+# network failing to reach GitHub, which is the site check's kind of trouble
+# and not the release's, where a 403 or a 404 is the file itself.
+code="$(curl -sSL -o /dev/null -r 0-0 -w '%{http_code}' --max-time 60 "$offered" 2>/dev/null || true)"
 case "$code" in
   200|206) echo "    $offered can be fetched" ;;
+  000|"")
+    echo "    could not reach $offered from here" >&2
+    echo "    the release is out; whether it can be downloaded is unanswered" >&2
+    ;;
   *) die "$offered answers $code; the release is out and nobody can install it" ;;
 esac
 
@@ -406,9 +425,20 @@ esac
 # about a file on this Mac.
 if [ "$CHANNEL" = "release" ]; then
   say "Waiting for the site to say it"
+  # SCRIBE: say why this reads the page with awk like the feed above it. Cover:
+  # `grep -oE | head -1` matching nothing leaves 1, and under this script's -e
+  # and pipefail the assignment takes the release out at that line -- so the
+  # five-minute message below, the one written for exactly that morning, could
+  # never print; and that a page whose version is missing is the case this
+  # exists to wait out.
   for i in $(seq 1 20); do
-    shown="$(curl -sS --max-time 15 "https://lukotta.com/?ship=$i" 2>/dev/null \
-      | /usr/bin/grep -oE '1\.[0-9]+\.[0-9]+' | head -1)"
+    page="$(curl -sS --max-time 15 "https://lukotta.com/?ship=$i" 2>/dev/null || true)"
+    shown="$(/usr/bin/awk '
+      match($0, /1\.[0-9]+\.[0-9]+/) {
+        print substr($0, RSTART, RLENGTH)
+        exit
+      }
+    ' <<<"$page")"
     if [ "$shown" = "$FULL" ]; then
       echo "    lukotta.com offers $FULL"
       break
