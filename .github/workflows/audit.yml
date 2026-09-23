@@ -9,13 +9,12 @@ name: Audit
 #   Rust       the crates the engine is built from, checked by cargo-audit
 #   Alpine     the 66 packages of the Linux guest, checked by Trivy
 #
-# SCRIBE: the paragraph saying this runs when main moves is wrong now, and
-# what replaces it is why it runs on a push to any branch. What it reads --
+# It runs on a push to any branch, not only main. What it reads --
 # Package.resolved, vendor/engine.lock, vendor/guest-sbom.json -- are files in
-# the commit, and a release is cut from whatever branch it is cut from: on main
-# alone the verdict was about a different commit, and a ship from a working
-# branch found no run at all and read green over a three-week-old red. Keep
-# what it costs: an advisory can be published against code that has not
+# the commit, and a release is cut from whatever branch it is cut from. Graded
+# on main alone, the verdict was about a different commit, and a ship from a
+# working branch found no run at all and read green over a three-week-old red.
+# What it cannot catch: an advisory can be published against code that has not
 # changed, so this answer is only ever as fresh as the last push.
 #
 # A red run here does stop a release, where Engine updates does not. This is
@@ -27,10 +26,10 @@ on:
     branches: ['**']
   workflow_dispatch:
 
-# SCRIBE: say why a burst of pushes collapses to one run here while Checks has
-# no such group: these are ubuntu jobs, so cancelling a superseded one costs
-# nothing and saves a runner, where the group over scarce macOS runners wedged
-# and pushes created no run at all.
+# A burst of pushes collapses to one run: only the newest commit is worth a
+# verdict. These are ubuntu jobs, where cancelling a superseded run costs
+# nothing and frees a runner. Checks has no such group because its macOS
+# runners are scarce: the group wedged there and pushes created no run at all.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

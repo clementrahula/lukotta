@@ -206,14 +206,13 @@ if command -v gh >/dev/null 2>&1; then
   # thing that must never stand between a finished build and somebody being
   # able to install it.
   #
-  # SCRIBE: the paragraph passing over Engine updates by name is replaced by
-  # why only Checks and Audit are graded. Cover: naming what gates rather than
-  # what does not, because the branch also carries runs that are nobody's file
-  # in this repository -- Dependabot Updates, CodeQL's default setup -- whose
-  # red says their own machinery had a bad day, not that this build is unsound;
-  # Checks says the build is sound and Audit says what it ships is not known to
-  # be vulnerable, and those two are the release's own gates. Keep that Engine
-  # updates is not among them for the reason it is a workflow of its own.
+  # Checks and Audit are named, rather than everything else being excluded.
+  # The branch also carries runs that are nobody's file in this repository --
+  # Dependabot Updates, CodeQL's default setup -- and a red one of those says
+  # their own machinery had a bad day, not that this build is unsound. Checks
+  # says the build is sound and Audit says what it ships is not known to be
+  # vulnerable: those two are the release's gates. Engine updates is not among
+  # them, for the reason it is a workflow of its own.
   #
   # The latest run of each workflow, not simply the latest run. A push starts
   # Checks and Audit together and they finish minutes apart, so "the last one to
@@ -250,10 +249,10 @@ if command -v gh >/dev/null 2>&1; then
         die "the lint checks fail; fixing that comes before shipping"
       fi
       if ! ./scripts/run-tests.sh > "$HERE/.tests.log" 2>&1; then
-        # SCRIBE: say why the grep cannot be allowed to decide anything: a
-        # suite that crashed before printing FAIL or error: matches nothing,
-        # grep leaves 1, and under this script's -e the die below never runs --
-        # the ship stops with the reason on screen nowhere.
+        # The grep decides nothing. A suite that crashed before printing FAIL
+        # or error: matches nothing, grep leaves 1, and under this script's -e
+        # the die below would never run: the ship would stop with its reason
+        # on screen nowhere.
         grep -E "FAIL|error:" "$HERE/.tests.log" | head -20 >&2 || true
         die "the unit checks fail; fixing that comes before shipping"
       fi
@@ -402,12 +401,12 @@ case "$offered" in
   *"$FULL"*) ;;
   *) die "the feed's $FULL item offers $offered, which is not $FULL" ;;
 esac
-# SCRIBE: say why 000 is a line on the terminal and a status is a death. Cover:
-# -w prints 000 itself when curl never got an answer, so `|| printf 000` wrote
-# 000000 and every unreachable moment died with a sentence about nobody being
-# able to install a release that is perfectly fine; and that 000 is this Mac's
-# network failing to reach GitHub, which is the site check's kind of trouble
-# and not the release's, where a 403 or a 404 is the file itself.
+# 000 is a line on the terminal; a status is a death. curl's -w prints 000
+# itself when it never got an answer, so a `|| printf 000` fallback writes
+# 000000, matches nothing here, and kills a release that is perfectly fine over
+# a moment of no network. 000 is this Mac failing to reach GitHub, which is the
+# site check's kind of trouble and not the release's; a 403 or a 404 is the
+# file itself.
 code="$(curl -sSL -o /dev/null -r 0-0 -w '%{http_code}' --max-time 60 "$offered" 2>/dev/null || true)"
 case "$code" in
   200|206) echo "    $offered can be fetched" ;;
@@ -425,12 +424,11 @@ esac
 # about a file on this Mac.
 if [ "$CHANNEL" = "release" ]; then
   say "Waiting for the site to say it"
-  # SCRIBE: say why this reads the page with awk like the feed above it. Cover:
-  # `grep -oE | head -1` matching nothing leaves 1, and under this script's -e
-  # and pipefail the assignment takes the release out at that line -- so the
-  # five-minute message below, the one written for exactly that morning, could
-  # never print; and that a page whose version is missing is the case this
-  # exists to wait out.
+  # Read with awk, like the feed above. `grep -oE | head -1` matching nothing
+  # leaves 1, and under this script's -e and pipefail the assignment takes the
+  # release out at that line, so the five-minute message below -- written for
+  # exactly that case -- could never print. A page not yet naming a version is
+  # the case this loop exists to wait out.
   for i in $(seq 1 20); do
     page="$(curl -sS --max-time 15 "https://lukotta.com/?ship=$i" 2>/dev/null || true)"
     shown="$(/usr/bin/awk '

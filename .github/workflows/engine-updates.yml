@@ -11,10 +11,9 @@ name: Engine updates
 #
 # It stays a workflow of its own because a red run here does not mean the build
 # is bad. It means a part pinned in vendor/engine.lock moved upstream, which is
-# somebody else's release. scripts/ship.sh reads the latest completed run of
-# each workflow on the branch as the verdict on what it is about to ship, and
-# passes over this one by name; drift reported inside Checks would instead
-# stand between a finished build and somebody installing it.
+# somebody else's release. scripts/ship.sh grades Checks and Audit and not this
+# workflow; drift reported inside Checks would instead stand between a finished
+# build and somebody installing it.
 #
 # It clears by bumping the lock, or by recording the new version as _declined.
 
@@ -23,10 +22,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# SCRIBE: say why a burst of pushes to main collapses to one run here: the
-# answer is about what is upstream rather than about the commit, so a run that
-# a newer push supersedes has nothing left to say, and cancelling it saves a
-# runner and saves the owner the same mail twice.
+# A burst of pushes to main collapses to one run. The answer is about what is
+# upstream rather than about the commit, so a run a newer push supersedes has
+# nothing left to say; cancelling it frees a runner and spares whoever watches
+# the same mail twice.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
