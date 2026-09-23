@@ -347,11 +347,8 @@ for script in scripts/*.sh; do
   # before it can name the orphan it was written to catch.
   callers="$(/usr/bin/grep -l -- "$name\.sh" scripts/*.sh 2>/dev/null \
     | /usr/bin/grep -v "scripts/$name.sh" | wc -l | tr -d ' ' || true)"
-  # This guard and the verdict below are if/then rather than `[ … ] && continue`.
-  # Not because the && form would end the run: bash exempts every command of an
-  # && list but the last, so the failing test is exempt, and the assignment
-  # above was the whole fault. They are if/then so that seeing the rule can
-  # speak does not require knowing that exemption.
+  # SCRIBE: two lines at most. `[ … ] && continue` would work here -- bash
+  # exempts it from `set -e` -- and if/then says so without the reader knowing.
   if [ "${callers:-0}" -gt 0 ]; then continue; fi
   bad "nothing runs $name.sh: it is in no row and no harness calls it"
   unreached=$((unreached + 1))

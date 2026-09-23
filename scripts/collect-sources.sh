@@ -101,29 +101,36 @@ fetch "https://github.com/nohajc/anylinuxfs/archive/refs/tags/v${ANYLINUXFS_VER}
 # corresponding source along with the original. The patches are also inside the
 # Lukotta archive above and are copied out here so that they sit beside the
 # tarball they apply to.
-# copy_patches counts what it copied. Copying a glob and listing whatever
-# appeared records success by not failing: a renamed directory or a changed
-# extension leaves an archive with no patches in it, a manifest still telling
-# the reader where to apply them, and a run that reports Complete. What is
-# redistributed modified has to carry its modifications, so an empty copy fails
-# here like any other, and the where-to-apply notes print only on success.
+# SCRIBE: describe what copy_patches does, because the comment that stood here
+# described what it was meant to do and the next reader would have believed it.
+# What is true: it counts the patches in the source and the ones it copied out
+# of it, and succeeds only when the two are equal and not zero. It counts what
+# it took and never what is sitting in the destination -- counting the
+# destination passed three ways in silence. A missing or renamed source
+# directory is zero against zero, which fails rather than returning early. A
+# partial copy is one against two. And a file left behind by an earlier run was
+# reported as copied and made up the count, when nothing this run had read it.
+# Each of the three left an archive without the modifications a modified
+# component has to carry, a manifest still telling the reader where to apply
+# them, and a run reporting Complete. The where-to-apply notes print only on
+# success.
 copy_patches() {
-  src="$1"; dest="$2"
-  [ -d "$src" ] || return 0
-  mkdir -p "$OUT/$dest"
-  cp "$src"/*.patch "$OUT/$dest/" 2>/dev/null || true
-  landed=0
-  for p in "$OUT/$dest"/*.patch; do
-    [ -e "$p" ] || continue
-    note "  OK   $dest/$(basename "$p")  <- this repository"
-    landed=$((landed + 1))
+  local from="$1" into="$2" wanted=0 landed=0 patch
+  mkdir -p "$OUT/$into"
+  for patch in "$from"/*.patch; do
+    [ -f "$patch" ] || continue
+    wanted=$((wanted + 1))
+    if cp "$patch" "$OUT/$into/" 2>/dev/null; then
+      note "  OK   $into/$(basename "$patch")  <- this repository"
+      landed=$((landed + 1))
+    fi
   done
-  if [ "$landed" -eq 0 ]; then
-    note "  FAIL $dest/  <- no patch was copied from $src"
-    printf '%s\n' "$dest" >> "$FAILED"
-    return 1
+  if [ "$wanted" -gt 0 ] && [ "$landed" -eq "$wanted" ]; then
+    return 0
   fi
-  return 0
+  note "  FAIL $into/  <- $landed of $wanted patch(es) copied from $from"
+  printf '%s\n' "$into" >> "$FAILED"
+  return 1
 }
 
 if copy_patches "$HERE/patches" anylinuxfs-patches; then
