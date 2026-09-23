@@ -54,10 +54,10 @@ for crate in imago krun-devices; do
     -H 'User-Agent: lukotta-engine-check' 2>/dev/null \
     | /usr/bin/python3 -c 'import json,sys;print(json.load(sys.stdin)["crate"]["max_version"])' 2>/dev/null)"; then
     # A version already looked at and deliberately not taken is recorded in
-    # the lock as _declined. Reporting it every Monday is not a reminder, it is
-    # a thing to learn to ignore -- and the week it says something new, nobody
-    # reads it. So a declined version is stated and passes; anything past it
-    # has not been assessed and is reported.
+    # the lock as _declined. Reporting it on every push is not a reminder, it
+    # is a thing to learn to ignore -- and the run that says something new goes
+    # unread with it. So a declined version is stated and passes; anything past
+    # it has not been assessed and is reported.
     declined="$(field "$crate" _declined)"
     if [ "$have" = "$latest" ]; then
       printf '  %-13s %-14s current\n' "$crate" "$have"

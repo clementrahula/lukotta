@@ -9,11 +9,13 @@ name: Audit
 #   Rust       the crates the engine is built from, checked by cargo-audit
 #   Alpine     the 66 packages of the Linux guest, checked by Trivy
 #
-# SCRIBE: say that this runs whenever main moves and on request, and what that
-# costs: an advisory can be published against code that has not changed, so the
-# answer is as old as the last push rather than a week old. Say that a red run
-# here does stop a release, unlike Engine updates -- it is about the soundness
-# of what is being shipped, which is what scripts/ship.sh asks before it tags.
+# It runs whenever main moves and on request. What that costs is age: an
+# advisory can be published against code that has not changed, so this answer
+# is only ever as fresh as the last push.
+#
+# A red run here does stop a release, where Engine updates does not. This is
+# about the soundness of what is being shipped, which is what scripts/ship.sh
+# asks before it tags.
 
 on:
   push:

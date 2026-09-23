@@ -5,13 +5,18 @@ name: Engine updates
 # Diagnosis.enginesChecked, because the rules that explain a failure match on
 # the words the engine prints.
 #
-# SCRIBE: say why this runs on pushes to main and on request rather than on a
-# schedule; why it stays a workflow of its own rather than becoming a job in
-# Checks -- a red run here means a pinned part moved upstream, not that the
-# build is bad, and scripts/ship.sh reads the last completed run on the branch
-# as the verdict on what is being shipped, so a drift failure inside Checks
-# would stand between a finished build and somebody installing it; and that it
-# clears by bumping the lock or recording the new version as _declined.
+# It runs when main moves and on request, not on a clock: the answer is worth
+# having when somebody is here to act on it, and a drift is reported by failing
+# this run and nowhere else.
+#
+# It stays a workflow of its own because a red run here does not mean the build
+# is bad. It means a part pinned in vendor/engine.lock moved upstream, which is
+# somebody else's release. scripts/ship.sh reads the latest completed run of
+# each workflow on the branch as the verdict on what it is about to ship, and
+# passes over this one by name; drift reported inside Checks would instead
+# stand between a finished build and somebody installing it.
+#
+# It clears by bumping the lock, or by recording the new version as _declined.
 
 on:
   push:
@@ -22,17 +27,17 @@ permissions:
   contents: read
 
 jobs:
-  # SCRIBE: say why this job is not called check: main requires a status check
-  # by that name, and a second check run called check on the same commit -- red
-  # for drift while the build's own is green -- is a gate nobody can read.
+  # Not called check. main requires a status check by that name, and a second
+  # run called check on the same commit -- red for drift while the build's own
+  # is green -- is a gate nobody can read.
   engine:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      # SCRIBE: say that a source that could not be reached is not drift and
-      # does not fail this, because the next push asks again.
+      # A source that could not be reached is not drift, so it does not fail
+      # this. The next push asks again.
       - name: What has moved
         run: |
           status=0

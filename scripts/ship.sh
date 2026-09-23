@@ -195,9 +195,9 @@ fi
 # nothing here ever looked. Noticing is not a thing to remember to do; it is a
 # step, and it is this one.
 #
-# The last completed run on this branch, not a run in flight: a release that
-# waits for the checks to finish would wait ten minutes on every ship, and the
-# thing worth catching is a failure that has already happened.
+# Completed runs on this branch, not runs in flight: a release that waits for
+# the checks to finish would wait ten minutes on every ship, and the thing
+# worth catching is a failure that has already happened.
 if command -v gh >/dev/null 2>&1; then
   # The last run that concluded anything, not the last that stopped. Pushing
   # twice in a minute cancels the first run, and a cancelled run is not a
@@ -205,16 +205,17 @@ if command -v gh >/dev/null 2>&1; then
   # one refused a release over a superseded build, which is exactly the kind of
   # thing that must never stand between a finished build and somebody being
   # able to install it.
-  # SCRIBE: say why Engine updates is passed over here -- it reports that a
-  # part pinned in vendor/engine.lock moved upstream, which says nothing about
-  # whether this build is sound, and refusing a release over somebody else's
-  # release is the obstacle described above.
   #
-  # SCRIBE: say why it is the latest run of each workflow and not simply the
-  # latest run. A push starts Checks, Audit and CodeQL together and they finish
-  # minutes apart, so "the last one to conclude" is whichever was slowest, and
-  # a red audit sat behind a green build for three weeks without this ever
-  # seeing it. Thirty runs is several pushes of all of them.
+  # Engine updates is passed over by name. It reports that a part pinned in
+  # vendor/engine.lock moved upstream, which says nothing about whether this
+  # build is sound, and refusing a release over somebody else's release is that
+  # same obstacle.
+  #
+  # The latest run of each workflow, not simply the latest run. A push starts
+  # Checks, Audit and CodeQL together and they finish minutes apart, so "the
+  # last one to conclude" is whichever was slowest: a red audit sat behind a
+  # green build for three weeks without this ever seeing it. Thirty runs is
+  # several pushes of all of them.
   CI="$(gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --status completed \
     --limit 30 --json conclusion,workflowName \
     -q '[.[] | select(.workflowName != "Engine updates")
@@ -343,12 +344,12 @@ say "Waiting for the feed to serve it"
 URL="https://updates.lukotta.com/appcast.xml"
 [ "$CHANNEL" = "beta" ] && URL="https://updates.lukotta.com/beta/appcast.xml"
 TAG_VERSION="<sparkle:shortVersionString>"
-# SCRIBE: say why the feed is kept in a variable and read with awk. Cover: the
-# body is wanted twice, once for the version and once for what that item
-# offers; and `grep -o | head -1` under this script's pipefail aborts the run
-# once grep's output outgrows the pipe before its input ends -- measured clean
-# on today's 27-item feed over 20 runs and failing 40 times out of 40 at 2,000
-# items, so it is a release that dies of nothing, later.
+# The body is kept, because it is wanted twice: once for the version served,
+# and again below for what that item offers. It is read with awk rather than
+# `grep -o | head -1`, which under this script's pipefail aborts the run as
+# soon as grep's output outgrows the pipe before its input ends -- clean over
+# 20 runs on a 27-item feed, and failing 40 times out of 40 at 2,000 items. A
+# release that dies of nothing, later.
 for i in $(seq 1 20); do
   feed="$(curl -sS --max-time 15 "$URL?ship=$i" 2>/dev/null || true)"
   served="$(/usr/bin/awk -v tag="$TAG_VERSION" '
@@ -367,14 +368,14 @@ for i in $(seq 1 20); do
   sleep 15
 done
 
-# SCRIBE: why the file is fetched here and not asked for elsewhere. Cover: the
-# feed naming a version is not the same as a Mac being able to install it, and
-# this was the one thing checked in a separate repository by a workflow that
-# then had to relay its answer back by mail; it is a range request so it does
-# not pull ninety-four megabytes to learn that a file exists; and the file is
-# the one the matched item offers rather than the first enclosure in the feed
-# or a guess at the extension, because looking for a .dmg when Sparkle offers
-# the zip once reported a good release as broken.
+# The feed naming a version is not the same as a Mac being able to install it,
+# so the file is fetched here, in front of whoever shipped, rather than checked
+# somewhere else that then has to relay the answer back.
+#
+# A range request: enough to learn the file is there without pulling
+# ninety-four megabytes. And it is the file the matched item offers, not the
+# first enclosure in the feed and not a guess at the extension -- looking for a
+# .dmg where Sparkle offers the zip once reported a good release as broken.
 say "Fetching what that item offers"
 offered="$(/usr/bin/awk -v want="$FULL" -v tag="$TAG_VERSION" '
   index($0, tag) {
