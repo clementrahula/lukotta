@@ -45,11 +45,10 @@
     "bottle_sha256": "190141242ffdeb5cf236a3b040342097019fce761e655a4c5a12eae18591d628"
   },
   "ntfsprogs_plus": {
-    "_why": "The guest's NTFS checker. Alpine packages none, so build-ntfsck.sh builds ntfsck from this and vendor-engine.sh installs it at /usr/sbin/ntfsck. A git revision is a content hash, so it is the checksum and none is recorded beside it.",
+    "_why": "SCRIBE: the guest's NTFS checker -- Alpine packages none, so build-ntfsck.sh builds ntfsck from this and vendor-engine.sh installs it at /usr/sbin/ntfsck. Say also why this entry has no source_url and no checksum, which every other entry here carries. The revision is the only pinned fact: build-ntfsck.sh fetches that commit and collect-sources.sh makes the release's tarball from the same commit with git archive, so the bytes shipped are derived from it rather than downloaded beside it. A URL written out here would be a second copy of the revision that nothing compares, and the one thing this pin exists to prevent is the build compiling one revision while the archive ships another. A checksum would be a second copy of the same guarantee: a revision is a content hash of the tree.",
     "revision": "3fe890434082973aa98fd441d65ae84e5d6e5fc8",
     "licence": "GPL-2.0-only AND GPL-2.0-or-later",
-    "repo": "https://github.com/ntfsprogs-plus/ntfsprogs-plus",
-    "source_url": "https://github.com/ntfsprogs-plus/ntfsprogs-plus/archive/3fe890434082973aa98fd441d65ae84e5d6e5fc8.tar.gz"
+    "repo": "https://github.com/ntfsprogs-plus/ntfsprogs-plus"
   },
   "guest_image": {
     "_why": "Alpine Linux, downloaded by 'anylinuxfs init'. Not yet fetched by this script.",

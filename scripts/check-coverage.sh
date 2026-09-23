@@ -329,13 +329,24 @@ for script in scripts/*.sh; do
   # Named by a row, or called by another harness. Called-by is enough: the
   # caller is what the registry runs, and a helper is not a claim of its own.
   if /usr/bin/grep -q -- "$name\.sh" scripts/checks.tsv 2>/dev/null; then continue; fi
+  # SCRIBE: say why this ends in `|| true`. Both greps find nothing in exactly
+  # the case this rule is for, `set -o pipefail` makes the pipeline fail on
+  # that, and an assignment from a failing substitution is what `set -e` ends
+  # the script on. So the rule died one line before it could say anything, on
+  # the only input it was written to catch.
   callers="$(/usr/bin/grep -l -- "$name\.sh" scripts/*.sh 2>/dev/null \
-    | /usr/bin/grep -v "scripts/$name.sh" | wc -l | tr -d ' ')"
-  [ "${callers:-0}" -gt 0 ] && continue
+    | /usr/bin/grep -v "scripts/$name.sh" | wc -l | tr -d ' ' || true)"
+  # SCRIBE: say why these two are if/then and not the && lists they were. An
+  # && list takes the status of its last command, so in the one case that
+  # matters -- a harness nothing calls -- the test was false, the list returned
+  # 1, and `set -e` ended the script there. It exited 1, which reads as the
+  # rule working, having printed no reason and left every rule after it unrun:
+  # one orphan harness and the licence check below never ran at all.
+  if [ "${callers:-0}" -gt 0 ]; then continue; fi
   bad "nothing runs $name.sh: it is in no row and no harness calls it"
   unreached=$((unreached + 1))
 done
-[ "$unreached" -eq 0 ] && note "every harness is reached"
+if [ "$unreached" -eq 0 ]; then note "every harness is reached"; fi
 
 # 9. The licence statements written by hand hold. The guest package table is
 #     rendered from the SBOM and checked against it, so it cannot go stale; the

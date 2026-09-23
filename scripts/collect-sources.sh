@@ -12,6 +12,10 @@
 # Anything that cannot be fetched is reported and the script exits non-zero.
 # A release must not go out with an incomplete source archive.
 set -uo pipefail
+
+# Everything temporary this run makes goes in one directory this project owns,
+# so that killing the run leaves nothing loose in $TMPDIR to be guessed at later.
+. "$(dirname "${BASH_SOURCE[0]}")/tmp-root.sh"
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="${1:-$HERE/dist/sources}"
 VERSION="$(tr -d ' \n' < "$HERE/VERSION")"
@@ -199,11 +203,30 @@ note ""
 # here by name. Anything else built into the guest from outside Alpine belongs
 # here too, or it ships with no source beside it.
 NTFSCK_REV="$(lockfield ntfsprogs_plus revision)"
+NTFSCK_REPO_URL="$(lockfield ntfsprogs_plus repo)"
 note "ntfsprogs-plus ($(lockfield ntfsprogs_plus licence)), built as the guest's ntfsck"
 note "  Revision $NTFSCK_REV, which vendor/engine.lock pins and"
 note "  scripts/build-ntfsck.sh builds from."
-fetch "$(lockfield ntfsprogs_plus source_url)" \
-      "$OUT/ntfsprogs-plus-${NTFSCK_REV}.tar.gz"
+# SCRIBE: say why this is made with git rather than downloaded like the rest.
+# The generated tarball at a forge is a second name for the revision and its
+# bytes are checked by nothing; asking git for the commit and writing the tree
+# out here means the archive is the revision, and anyone can make the same one
+# and compare it. It is also the reason the lock carries no URL and no
+# checksum for this entry: there is only the revision to keep right.
+NTFSCK_WORK="$(mktemp -d)"
+if git init -q "$NTFSCK_WORK" \
+   && git -C "$NTFSCK_WORK" remote add origin "$NTFSCK_REPO_URL" \
+   && git -C "$NTFSCK_WORK" fetch -q --depth 1 origin "$NTFSCK_REV" \
+   && [ "$(git -C "$NTFSCK_WORK" rev-parse FETCH_HEAD)" = "$NTFSCK_REV" ] \
+   && git -C "$NTFSCK_WORK" archive --format=tar.gz \
+        --prefix="ntfsprogs-plus-$NTFSCK_REV/" \
+        -o "$OUT/ntfsprogs-plus-$NTFSCK_REV.tar.gz" FETCH_HEAD; then
+  note "  OK   ntfsprogs-plus-$NTFSCK_REV.tar.gz  <- git archive of $NTFSCK_REPO_URL at that commit"
+else
+  note "  FAIL ntfsprogs-plus-$NTFSCK_REV.tar.gz  <- $NTFSCK_REPO_URL"
+  echo "ntfsprogs-plus" >> "$FAILED"
+fi
+rm -rf "$NTFSCK_WORK"
 note ""
 
 if [ -s "$FAILED" ]; then
