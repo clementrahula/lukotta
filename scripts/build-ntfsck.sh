@@ -46,11 +46,10 @@ OUT="$HERE/vendor/engine-built"
 # have to be decided in one place ahead of the build, not read back out of it.
 LOCK="$HERE/vendor/engine.lock"
 lockfield() { /usr/bin/python3 -c "import json;d=json.load(open('$LOCK'));print(d['$1']['$2'])"; }
-# SCRIBE: say why NTFSCK_REPO is gone. It named a repository while the
-# revision came from the lock, so the override could only point the build at a
-# fork and then demand a commit that fork does not have. It failed closed,
-# which is the right failure and the wrong offer: a different upstream is a
-# different pin, and the pin is one entry in the lock.
+# The repository is not overridable. The revision would still come from the
+# lock, so an override could only point the build at a fork and then ask it for
+# a commit that fork does not have. A different upstream is a different pin,
+# and the pin is one entry in the lock.
 REPO="$(lockfield ntfsprogs_plus repo)"
 REV="$(lockfield ntfsprogs_plus revision)"
 

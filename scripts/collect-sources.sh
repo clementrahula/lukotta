@@ -207,12 +207,11 @@ NTFSCK_REPO_URL="$(lockfield ntfsprogs_plus repo)"
 note "ntfsprogs-plus ($(lockfield ntfsprogs_plus licence)), built as the guest's ntfsck"
 note "  Revision $NTFSCK_REV, which vendor/engine.lock pins and"
 note "  scripts/build-ntfsck.sh builds from."
-# SCRIBE: say why this is made with git rather than downloaded like the rest.
-# The generated tarball at a forge is a second name for the revision and its
-# bytes are checked by nothing; asking git for the commit and writing the tree
-# out here means the archive is the revision, and anyone can make the same one
-# and compare it. It is also the reason the lock carries no URL and no
-# checksum for this entry: there is only the revision to keep right.
+# Made with git, not downloaded like the rest. A forge's generated tarball is a
+# second name for the revision whose bytes nothing checks; an archive written
+# out from the commit is the revision, and anyone can make the same one and
+# compare it. That is also why the lock carries no URL and no checksum here:
+# there is only the revision to keep right.
 NTFSCK_WORK="$(mktemp -d)"
 if git init -q "$NTFSCK_WORK" \
    && git -C "$NTFSCK_WORK" remote add origin "$NTFSCK_REPO_URL" \

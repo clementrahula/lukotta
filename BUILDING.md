@@ -139,8 +139,9 @@ ntfsprogs-plus for the guest's architecture and libc:
     ./scripts/build-ntfsck.sh
 
 It builds the revision `vendor/engine.lock` pins, which is the revision
-`THIRD_PARTY_NOTICES.md` names and the one `collect-sources.sh` fetches the
-source of, and it fails rather than keep a binary built from any other.
+`THIRD_PARTY_NOTICES.md` names and the one `collect-sources.sh` makes the
+release's source archive from, and it fails rather than keep a binary built
+from any other.
 
 **This step is optional**, in the same way the patched engine is. Run it before
 `vendor-engine.sh`, which copies the result into the image and says which it

@@ -329,19 +329,16 @@ for script in scripts/*.sh; do
   # Named by a row, or called by another harness. Called-by is enough: the
   # caller is what the registry runs, and a helper is not a claim of its own.
   if /usr/bin/grep -q -- "$name\.sh" scripts/checks.tsv 2>/dev/null; then continue; fi
-  # SCRIBE: say why this ends in `|| true`. Both greps find nothing in exactly
-  # the case this rule is for, `set -o pipefail` makes the pipeline fail on
-  # that, and an assignment from a failing substitution is what `set -e` ends
-  # the script on. So the rule died one line before it could say anything, on
-  # the only input it was written to catch.
+  # Both greps find nothing in exactly the case this rule exists for, pipefail
+  # fails the pipeline on that, and `set -e` ends the script on an assignment
+  # from a failing substitution. Without the `|| true` the rule dies one line
+  # before it can name the orphan it was written to catch.
   callers="$(/usr/bin/grep -l -- "$name\.sh" scripts/*.sh 2>/dev/null \
     | /usr/bin/grep -v "scripts/$name.sh" | wc -l | tr -d ' ' || true)"
-  # SCRIBE: say why these two are if/then and not the && lists they were. An
-  # && list takes the status of its last command, so in the one case that
-  # matters -- a harness nothing calls -- the test was false, the list returned
-  # 1, and `set -e` ended the script there. It exited 1, which reads as the
-  # rule working, having printed no reason and left every rule after it unrun:
-  # one orphan harness and the licence check below never ran at all.
+  # This guard and the verdict below are if/then. An `&&` list takes its last
+  # command's status, so a harness nothing calls makes the test false, the list
+  # returns 1, and `set -e` ends the run there: exit 1 with no reason printed,
+  # and rule 9 below never reached.
   if [ "${callers:-0}" -gt 0 ]; then continue; fi
   bad "nothing runs $name.sh: it is in no row and no harness calls it"
   unreached=$((unreached + 1))
@@ -350,9 +347,9 @@ if [ "$unreached" -eq 0 ]; then note "every harness is reached"; fi
 
 # 9. The licence statements written by hand hold. The guest package table is
 #     rendered from the SBOM and checked against it, so it cannot go stale; the
-#     revision the notices name, the date on every patch and the source the
-#     archive promises are typed, and each is a licence statement. So each is
-#     checked against what it describes rather than re-read and believed.
+#     revision and licence the notices name and the date on every patch are
+#     typed, and each is a licence statement. So each is checked against what it
+#     describes rather than re-read and believed.
 printf '\nWhat is redistributed says which source it is…\n'
 if ! /usr/bin/python3 - <<'PY'
 import json, pathlib, re, sys
