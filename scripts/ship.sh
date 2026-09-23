@@ -189,14 +189,13 @@ if [ "$CHANNEL" = "release" ]; then
     || die "$VERSION has no proven beta: ship a beta, then ./scripts/prove-beta.sh <beta> <bitlocker> <ntfs>"
 fi
 
-# SCRIBE: the commit is pushed here, before it is graded, and why that is the
-# order. Cover: this script makes the commit it ships -- the tree it found, and
-# the approval above it -- so until it is pushed no workflow has ever seen it,
-# and a gate that insists on runs for this commit found none for any of the
-# last eight releases and took the unaudited arm every time; grading a commit
-# by what CI said about it means CI has to have been given it. The tag stays
-# where it is, after the checks: what goes out early is the commit, which was
-# going to be pushed either way.
+# The commit is pushed before it is graded. This script makes the commit it
+# ships -- the tree it found, and the approval recorded above it -- so until it
+# is pushed no workflow has ever seen it, and a gate that insists on runs for
+# this commit finds none: the last eight releases took the unaudited arm for no
+# other reason. Grading a commit by what CI said about it means CI has to have
+# been given it. The tag stays where it is, after the checks. What goes out
+# early is the commit, which was going to be pushed either way.
 UNAUDITED=""
 say "Pushing this commit, so the checks are about it"
 git push -q origin HEAD \
@@ -235,9 +234,8 @@ if command -v gh >/dev/null 2>&1; then
   # three weeks without this ever seeing it. Thirty runs is several pushes of
   # both.
   #
-  # The runs have to be this commit's. The push is at the end of this script,
-  # so the newest run on the branch can belong to the commit before the one
-  # being tagged, and a verdict on other code is not a verdict on this one.
+  # The runs have to be this commit's. The branch carries runs for every commit
+  # ever pushed to it, and a verdict on other code is not a verdict on this one.
   # Matching a run's head against HEAD is what ties the two together.
   #
   # And a gate that did not answer is not green. Named and then not found, it
@@ -261,15 +259,14 @@ if command -v gh >/dev/null 2>&1; then
   # This waits, where the rest of the script refuses to. The audit is three
   # ubuntu jobs and takes a few minutes, and there is nothing this Mac can run
   # in its place -- where Checks, which queues for hours on a scarce macOS
-  # runner, is answered below by running lint and the unit checks here. Ten
+  # runner, is answered below by running lint and the unit checks here. Eleven
   # minutes, and after that it is a gate that did not answer like any other.
-  # SCRIBE: two sentences into the paragraph above. The wait is written as
-  # anything that is not finished rather than as a list of the states gh has
-  # today: it also says requested, waiting and pending, and naming three of the
-  # six meant the other three fell straight through and the wait never
-  # happened. And no run at all is given a minute to appear, because the push
-  # above is seconds old and GitHub has not always registered it yet -- after
-  # that, a run that has not started is one that is not going to.
+  # What is waited for is anything not finished, rather than a list of the
+  # states gh has today: it also says requested, waiting and pending, and a list
+  # that named three of the six let the other three fall straight through, so
+  # the wait never happened. No run at all is given a minute to appear, because
+  # the push above is seconds old and GitHub does not always register it at
+  # once; after that, a run that has not started is one that is not going to.
   for i in $(seq 1 44); do
     state="$(gates_now | /usr/bin/awk '$1 == "Audit" { print $2 }')"
     [ "$state" = "completed" ] && break
@@ -292,11 +289,12 @@ if command -v gh >/dev/null 2>&1; then
     CI="success"
   fi
 else
-  # SCRIBE: say what happens when gh is not on this Mac at all. Cover: the
-  # whole of this used to sit behind that test, so a release without gh ran
-  # no gate, ran nothing in its place, and said nothing about either --
-  # which is the one way the audit could be skipped in silence. Not being
-  # able to read a gate is the same answer however it comes about.
+  # No gh on this Mac, no answer from either gate. Not being able to read a
+  # gate is the same answer however it comes about, so it is recorded as one
+  # and the arm below runs what can be run here and says what cannot. While the
+  # arms below sat behind this test too, a Mac without gh ran no gate, ran
+  # nothing in their place, and said nothing about either -- the one way the
+  # audit could be skipped in silence.
   UNREAD="Checks and Audit"
 fi
 
@@ -322,12 +320,9 @@ case "${CI:-unknown}" in
     # audit: when it is the one that did not answer, the release goes out
     # with that said out loud.
     #
-    # SCRIBE: the last clause above used to end "and pushing this commit is
-    # what gets it read at all", which read as something the operator forgot
-    # to do. This script makes that commit and now pushes it itself, so what
-    # belongs there instead is what silence means after that: the run did not
-    # start, or a later push cancelled it, or it was still going when the wait
-    # above ran out.
+    # The commit is on the remote by then, so silence from a gate means its run
+    # never started, or a later push cancelled it, or it was still going when
+    # the wait above ran out.
     echo "    ${UNREAD:-nothing} did not answer for this commit; running what can be run here"
     if ! bash scripts/lint.sh > "$HERE/.lint.log" 2>&1; then
       tail -20 "$HERE/.lint.log" >&2
@@ -547,9 +542,9 @@ if [ "$CHANNEL" = "release" ]; then
   done
 fi
 
-# SCRIBE: say why the last line carries the audit. It is the one sentence
-# whoever shipped is left looking at, and the warning it stands for was printed
-# before the build and buried under the notarisation log half an hour earlier.
+# The last line carries the audit, because it is the one sentence whoever
+# shipped is left looking at. The warning it stands for was printed before the
+# build, half an hour and a notarisation log ago.
 if [ -n "$UNAUDITED" ]; then
   printf '\n%s is out, and went out unaudited. Anyone on the %s channel is offered it now.\n' \
     "$FULL" "$CHANNEL"
