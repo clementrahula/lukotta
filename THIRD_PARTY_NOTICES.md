@@ -71,15 +71,6 @@ section 4(b) of the Apache License 2.0 require. The patches are supplied under
 corresponding source alongside the unmodified upstream archives to which they
 apply.
 
-SCRIBE: this paragraph is now true of all twenty-one patches and was not when
-it was written -- nine carried no date anywhere, and the sentence is kept only
-because each of those has since been dated in its own header. `patches/` and
-`vendor/patches/` both reach the source archive now, under `anylinuxfs-patches`
-and `guest-patches`; before this they did not, so the promise the last sentence
-makes was one the archive did not keep. Neither fact needs saying in the
-document, and both are why the wording can stand: say nothing more here unless
-the checks stop guarding them.
-
 | Component | Licence | Date | Modification |
 | --- | --- | --- | --- |
 | anylinuxfs | GPL-3.0-or-later | 2026-08-22 | Recognition of the VMDK, VDI, VHD and VHDX disk-image formats |
@@ -87,12 +78,12 @@ the checks stop guarding them.
 | anylinuxfs | GPL-3.0-or-later | 2026-08-25 | Mounting of the volumes of a volume group without elevation, macOS permitting a mount on a directory its owner holds |
 | anylinuxfs | GPL-3.0-or-later | 2026-08-28 | Assignment to the guest network interface of the MAC address vmnet issued |
 | anylinuxfs | GPL-3.0-or-later | 2026-09-01 | A caller-supplied floor for the memory a LUKS unlock is given, read from the volume's own header, in place of a fixed 2560 MiB for every mount |
-| anylinuxfs | GPL-3.0-or-later | 2026-09-02 | SCRIBE: from `patches/anylinuxfs-wait-for-the-route.patch`, a shipped modification that has never had a row here. The engine opened one connection to the machine's NFS server and read any error at all as the server having failed, including "no route to host" arriving in milliseconds because the bridge was not up yet; it now asks until the answer settles. |
-| anylinuxfs | GPL-3.0-or-later | 2026-09-11 | SCRIBE: from `patches/anylinuxfs-where-the-hidden-mount-goes.patch`, also never listed. The host side of a volume is mounted under `ALFS_MOUNT_BASE` where that is set, so Finder's own mount can keep `/Volumes/<label>` and a second volume does not take it. |
-| anylinuxfs | GPL-3.0-or-later | 2026-09-12 | SCRIBE: from `patches/anylinuxfs-names-are-served-as-they-are-stored.patch`, also never listed. Names are no longer composed on their way to the NFS server, so a name the volume stores decomposed resolves rather than being listed and then never found. |
+| anylinuxfs | GPL-3.0-or-later | 2026-09-02 | Repeated asking after the guest's NFS server until the answer settles, in place of one connection whose every error was read as the server having failed |
+| anylinuxfs | GPL-3.0-or-later | 2026-09-11 | The host side of a volume mounted under `ALFS_MOUNT_BASE` where that is set, leaving `/Volumes/<label>` to Finder's own mount |
+| anylinuxfs | GPL-3.0-or-later | 2026-09-12 | Names passed to the NFS server as the volume stores them, no longer composed on the way |
 | vmproxy | GPL-3.0-or-later | 2026-08-22 | Unlocking of an encrypted volume detected inside a disk image |
 | vmproxy | GPL-3.0-or-later | 2026-08-28 | Announcement of the guest network interface, so that vmnet forwards to it |
-| vmproxy | GPL-3.0-or-later | 2026-09-11 | SCRIBE: from `patches/vmproxy-writes-commit-at-commit.patch`, also never listed. The export is served asynchronously and the write is made durable at COMMIT rather than at every write, which is the half of the durability pair the kernel patch below completes. |
+| vmproxy | GPL-3.0-or-later | 2026-09-11 | An export served asynchronously, the write made durable at COMMIT rather than at every write |
 | imago | MIT | 2026-08-22 | Drivers for VDI, VHD and VHDX, the first two written as well as read; support for the sparse and stream-optimized forms of VMDK |
 | imago | MIT | 2026-09-02 | Flushing of a device node with `DKIOCSYNCHRONIZECACHE`, the call a device node accepts, in place of `fsync` and `F_FULLFSYNC` |
 | krun-devices | Apache-2.0 | 2026-08-22 | Selection of the VDI, VHD and VHDX drivers by disk-format number |
@@ -230,29 +221,18 @@ leaves the modules behind. `scripts/trim-image.py` removes `lib/modules/*/fs/zfs
 explicitly, and the packed archive is checked to contain neither.
 
 The table above is the image's Alpine package list and nothing else, rendered
-from the inventory the audit scans, so a program this project compiles itself
-and places inside the guest is listed here instead. `ntfsck` is such a program:
-Alpine packages no NTFS checker, `scripts/build-ntfsck.sh` builds one from
-ntfsprogs-plus for the guest's architecture and libc, and
-`scripts/vendor-engine.sh` installs it at `/usr/sbin/ntfsck`. It is
-redistributed unmodified, at the revision named below, and its source
-accompanies the release as every other component's does. An application built
-without that step carries no checker.
+from the inventory the audit scans, so a program Alpine does not package is
+listed here instead. A program built from an Alpine package with modifications,
+`afpd` among them, stays in that table and in the Modifications table above.
+`ntfsck` is such a program: Alpine packages no NTFS checker,
+`scripts/build-ntfsck.sh` builds one from ntfsprogs-plus for the guest's
+architecture and libc, and `scripts/vendor-engine.sh` installs it at
+`/usr/sbin/ntfsck`. It is redistributed unmodified, at the revision named
+below, and its source accompanies the release as every other component's does.
+An application built without that step carries no checker.
 
-SCRIBE: correct the rule in the paragraph above, which as written covers `afpd`
-and is wrong about it. `afpd` is compiled by this project and placed inside the
-guest too, and it is not listed here: it is Alpine's own `netatalk` package,
-built from the same version with two patches, so it is in the table above as a
-package and in the Modifications table as a modification. What belongs here is
-narrower -- a component Alpine does not package at all, which is why nothing
-named it and, until this change, nothing fetched its source either.
-
-SCRIBE: also correct the licence in the row below if it reads as one identifier.
-The binary is linked static, so what ships is the whole library as well as the
-utility: of the 57 source files in the pinned revision, 54 are GPL-2.0-or-later
-and three -- `src/ntfsck.c`, `libntfs/fsck.c` and `libntfs/problem.c` -- carry
-`SPDX-License-Identifier: GPL-2.0`. Notes on the Listings says a component under
-more than one licence keeps the full expression, so it does.
+The binary is linked statically, so what ships is libntfs as well as the
+utility, and the licence expression below covers both.
 
 | Component | Version | Licence | Source |
 | --- | --- | --- | --- |

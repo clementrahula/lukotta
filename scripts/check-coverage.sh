@@ -291,11 +291,9 @@ for s in "$HERE"/scripts/*.sh; do
   fi
 done
 
-# SCRIBE: say why the verdict is at the end rather than here. It used to exit
-# at this point, which is before the last two rules run, so a harness nothing
-# reaches and a licence statement with no source behind it both set FAIL and
-# neither could fail the run -- the checks after the gate were advisory without
-# anybody deciding they should be.
+# The rules below count as much as the ones above: the verdict is at the end of
+# the file, after the last of them. Nothing exits before it.
+
 # 8. Every harness is reachable from the registry, directly or through one
 #     that is.
 #
@@ -339,12 +337,11 @@ for script in scripts/*.sh; do
 done
 [ "$unreached" -eq 0 ] && note "every harness is reached"
 
-# SCRIBE: say what this rule is for. The guest package table is rendered from
-# the SBOM and checked against it, so it cannot go stale. The facts around it
-# are written by hand and three of them had: a revision nobody could check, a
-# modification with no date anywhere, a source archive that promised patches it
-# did not carry. Each one is a licence statement, so each is checked here
-# rather than re-read and believed.
+# 9. The licence statements written by hand hold. The guest package table is
+#     rendered from the SBOM and checked against it, so it cannot go stale; the
+#     revision the notices name, the date on every patch and the source the
+#     archive promises are typed, and each is a licence statement. So each is
+#     checked against what it describes rather than re-read and believed.
 printf '\nWhat is redistributed says which source it is…\n'
 if ! /usr/bin/python3 - <<'PY'
 import json, pathlib, re, sys

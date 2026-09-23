@@ -301,10 +301,9 @@ cp "$STAGE/lib/apk/db/installed" "$OUT/alpine/packages.db"
 # installed.
 /usr/bin/python3 "$HERE/scripts/guest-sbom.py" \
   "$OUT/alpine/packages.db" "$HERE/vendor/guest-sbom.json"
-# The notices are rewritten here rather than by whoever remembers to. The two
+# The notices are rewritten here rather than by whoever remembers to: the two
 # committed files are the same inventory said twice, and a repack that wrote
-# one of them and not the other is how they came to describe different images
-# for three weeks.
+# one and not the other would leave them describing different images.
 "$HERE/scripts/generate-notices.sh"
 echo "  packing rootfs (this takes a moment)…"
 # pax rather than ustar: the guest's real owner and mode are kept in an extended

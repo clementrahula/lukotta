@@ -108,10 +108,9 @@ if [ -d "$HERE/patches" ]; then
   note "       and linux- ones to the guest kernel (scripts/build-guest-kernel.sh)"
 fi
 
-# SCRIBE: say that the guest's own patches live in a second directory and had
-# reached no source archive until now. Only patches/ was copied out, so the two
-# netatalk patches -- which are the whole difference between Alpine's afpd and
-# the one that ships -- were promised by the notices and present nowhere.
+# The guest's own patches live in a second directory. The two netatalk ones are
+# the whole difference between Alpine's afpd and the one that ships, so they
+# belong in the corresponding source as much as the host's do.
 if [ -d "$HERE/vendor/patches" ]; then
   mkdir -p "$OUT/guest-patches"
   cp "$HERE"/vendor/patches/*.patch "$OUT/guest-patches/" 2>/dev/null
@@ -195,12 +194,10 @@ fi
 note ""
 
 # --- 6. The guest programs Alpine does not package -------------------------
-# SCRIBE: say what this section is for and why it was not here. Everything
-# above is reached from a manifest -- the lock, or the image's apk database --
-# and ntfsck is in neither: Alpine packages no NTFS checker, so nothing named
-# it and nothing fetched it. A GPL-2.0 binary shipped inside the guest of every
-# release with none of its source beside it, while the archive said the source
-# was complete.
+# Everything above is reached from a manifest -- the lock, or the image's apk
+# database. A program Alpine does not package is in neither, so it is fetched
+# here by name. Anything else built into the guest from outside Alpine belongs
+# here too, or it ships with no source beside it.
 NTFSCK_REV="$(lockfield ntfsprogs_plus revision)"
 note "ntfsprogs-plus ($(lockfield ntfsprogs_plus licence)), built as the guest's ntfsck"
 note "  Revision $NTFSCK_REV, which vendor/engine.lock pins and"

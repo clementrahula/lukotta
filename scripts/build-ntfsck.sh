@@ -40,12 +40,10 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$HERE" || exit 1
 OUT="$HERE/vendor/engine-built"
-# SCRIBE: say why the revision is pinned in vendor/engine.lock beside every
-# other upstream. For GPL-2.0 the revision is what identifies the corresponding
-# source, and a shallow clone of the default branch built whatever was at HEAD
-# on the day, while the revision the notices name was read back out of that
-# build afterwards -- so the two agreed by construction and could not disagree
-# however far the source had moved.
+# The revision is pinned in vendor/engine.lock beside every other upstream, and
+# this builds that revision and no other. For GPL-2.0 the revision is what
+# identifies the corresponding source, so what ships and what the notices name
+# have to be decided in one place ahead of the build, not read back out of it.
 LOCK="$HERE/vendor/engine.lock"
 lockfield() { /usr/bin/python3 -c "import json;d=json.load(open('$LOCK'));print(d['$1']['$2'])"; }
 REPO="${NTFSCK_REPO:-$(lockfield ntfsprogs_plus repo)}"
