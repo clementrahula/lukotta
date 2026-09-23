@@ -23,6 +23,14 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# SCRIBE: say why a burst of pushes to main collapses to one run here: the
+# answer is about what is upstream rather than about the commit, so a run that
+# a newer push supersedes has nothing left to say, and cancelling it saves a
+# runner and saves the owner the same mail twice.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
