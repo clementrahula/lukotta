@@ -84,10 +84,9 @@ from one machine, all three writable, concurrent copies into two of them
 byte-identical. One machine takes one lock, so there is no second machine to
 collide with it.
 
-This file previously said the app "has no notion of this rule" and that a
-person would meet a raw lock error. That was measured against `lvm:vg:disk:lv`
-one volume at a time, which is the engine's interface and not the route the app
-takes.
+Taken one volume at a time through `lvm:vg:disk:lv`, the rule does bite and a
+raw lock error reaches the person. That is the engine's interface, not the route
+the app takes.
 
 **A volume group spanning drives needs every device named**, as
 `lvm:vg1:/dev/disk3s1:/dev/disk4s1:lv1`. Untested here.
@@ -129,14 +128,14 @@ with a resource fork is dropped by every copy because that client refuses
 attribute. None of those exist without an NFS client in the path, and virtiofs
 carries extended attributes natively.
 
-Three separate defects, one cause. That is the argument for removing the NFS
-client from the path, and it is worth more than the sum of the tuning that has
-gone into working around them.
+Four symptoms, one cause. That is the argument for removing the NFS client from
+the path, and it is worth more than the sum of the tuning that has gone into
+working around them.
 
-But virtiofs is probably not the way to do it, and this was written down here
-too confidently before it was checked. virtiofs is already in this stack: the
-guest boots with `rootfstype=virtiofs` and the LUKS key file is handed over the
-same way. That is host to guest -- it maps a directory on the Mac into the VM.
+But virtiofs is probably not the way to do it. virtiofs is already in this
+stack: the guest boots with `rootfstype=virtiofs` and the LUKS key file is
+handed over the same way. That is host to guest -- it maps a directory on the
+Mac into the VM.
 
 The direction needed here is the opposite. The guest mounts the drive and has
 to present it back to Finder, and **macOS has no virtiofs client**. That is why
@@ -149,8 +148,7 @@ item in TODO.md, and blocked on third-party extensions being broken in 26.1 and
 26.2 -- or a DriverKit driver, or living with NFS and tuning it.
 
 The four symptoms and their single cause still stand. The remedy named for them
-did not survive being checked. It is a large change and it is the
-only one that removes the class rather than tuning it.
+did not survive being checked.
 
 **ntfsprogs-plus, for repair that is actually repair.** `ntfsck` "fully check[s]
 filesystem and repair[s] it", though it does not replay the journal yet. GPL-2,

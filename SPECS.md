@@ -463,8 +463,8 @@ Streamed VMDK and VHDX are read-only by design and are not in the sweep. The
 sparse gigabyte arrives fully allocated on every one of them, which is the NFS
 defect in §8 rather than anything the drivers do.
 
-Before this, the write paths had only their unit tests against `qemu-img`. The
-end-to-end run opens each format and ejects it, which exercises reading alone.
+The end-to-end run opens each format and ejects it, which exercises reading
+alone. Otherwise the write paths have only their unit tests against `qemu-img`.
 
 ### Crash and integrity vectors
 

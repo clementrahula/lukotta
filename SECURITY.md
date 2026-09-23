@@ -137,7 +137,6 @@ own NFS client, on the loopback interface, reachable only from this Mac. The
 export is written by the engine, and Lukotta asks for `--ignore-permissions`,
 which is `{rw|ro},no_subtree_check,all_squash,anonuid=0,anongid=0,insecure`.
 
-Two things about that are worth stating rather than leaving in a source file.
 `all_squash` with `anonuid=0` rewrites every request to root inside the guest,
 which is what makes a drive carrying Linux ownership readable by whoever opened
 it; it changes the credential a request arrives with, not the ownership a

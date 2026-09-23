@@ -384,11 +384,10 @@ no-op. So every path now gets `Writeback`, and the FLUSH arm tolerates a device
 that genuinely refuses to sync rather than turning that into a failed request --
 otherwise every barrier becomes an I/O error and nothing mounts.
 
-WHAT IT DOES NOT FIX, WHICH IS WHY IT IS DESCRIBED CAREFULLY
-
-It does not make `fsync` durable. Measured on a real drive with the patch in:
-8 MB written with `dd conv=fsync`, verified byte-for-byte on the mount, the
-machine then killed -- and the file is still gone afterwards, exactly as before.
+**What it does not fix.** It does not make `fsync` durable. Measured on a real
+drive with the patch in: 8 MB written with `dd conv=fsync`, verified
+byte-for-byte on the mount, the machine then killed -- and the file is still
+gone afterwards, exactly as before.
 
 So the data is being lost above this layer, inside the guest: nfsd answers the
 NFS COMMIT before ntfs3 has put it on `/dev/vda`. This patch closes the half of
