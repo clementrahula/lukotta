@@ -101,19 +101,13 @@ fetch "https://github.com/nohajc/anylinuxfs/archive/refs/tags/v${ANYLINUXFS_VER}
 # corresponding source along with the original. The patches are also inside the
 # Lukotta archive above and are copied out here so that they sit beside the
 # tarball they apply to.
-# SCRIBE: describe what copy_patches does, because the comment that stood here
-# described what it was meant to do and the next reader would have believed it.
-# What is true: it counts the patches in the source and the ones it copied out
-# of it, and succeeds only when the two are equal and not zero. It counts what
-# it took and never what is sitting in the destination -- counting the
-# destination passed three ways in silence. A missing or renamed source
-# directory is zero against zero, which fails rather than returning early. A
-# partial copy is one against two. And a file left behind by an earlier run was
-# reported as copied and made up the count, when nothing this run had read it.
-# Each of the three left an archive without the modifications a modified
-# component has to carry, a manifest still telling the reader where to apply
-# them, and a run reporting Complete. The where-to-apply notes print only on
-# success.
+# copy_patches counts the patches it takes from the source, not the files in
+# the destination, where one left by an earlier run would count as copied. It
+# succeeds only when every patch in the source was copied and there was at
+# least one: a renamed source directory or a partial copy otherwise leaves an
+# archive without the modifications a modified component has to carry, and a
+# manifest still telling the reader where to apply them. The where-to-apply
+# notes print only on success.
 copy_patches() {
   local from="$1" into="$2" wanted=0 landed=0 patch
   mkdir -p "$OUT/$into"

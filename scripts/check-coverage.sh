@@ -347,8 +347,8 @@ for script in scripts/*.sh; do
   # before it can name the orphan it was written to catch.
   callers="$(/usr/bin/grep -l -- "$name\.sh" scripts/*.sh 2>/dev/null \
     | /usr/bin/grep -v "scripts/$name.sh" | wc -l | tr -d ' ' || true)"
-  # SCRIBE: two lines at most. `[ … ] && continue` would work here -- bash
-  # exempts it from `set -e` -- and if/then says so without the reader knowing.
+  # if/then rather than `[ … ] && continue`: that form survives `set -e` too,
+  # but only by an exemption the reader would have to know about.
   if [ "${callers:-0}" -gt 0 ]; then continue; fi
   bad "nothing runs $name.sh: it is in no row and no harness calls it"
   unreached=$((unreached + 1))
