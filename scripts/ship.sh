@@ -189,6 +189,20 @@ if [ "$CHANNEL" = "release" ]; then
     || die "$VERSION has no proven beta: ship a beta, then ./scripts/prove-beta.sh <beta> <bitlocker> <ntfs>"
 fi
 
+# SCRIBE: the commit is pushed here, before it is graded, and why that is the
+# order. Cover: this script makes the commit it ships -- the tree it found, and
+# the approval above it -- so until it is pushed no workflow has ever seen it,
+# and a gate that insists on runs for this commit found none for any of the
+# last eight releases and took the unaudited arm every time; grading a commit
+# by what CI said about it means CI has to have been given it. The tag stays
+# where it is, after the checks: what goes out early is the commit, which was
+# going to be pushed either way.
+UNAUDITED=""
+say "Pushing this commit, so the checks are about it"
+git push -q origin HEAD \
+  || die "could not push $(git rev-parse --abbrev-ref HEAD); ship from a branch that is in sync"
+echo "    $(git rev-parse --short HEAD) is on the remote"
+
 # What the checks said about what is being shipped.
 #
 # A dozen runs went red and stayed red without anybody noticing, because
@@ -249,14 +263,19 @@ if command -v gh >/dev/null 2>&1; then
   # in its place -- where Checks, which queues for hours on a scarce macOS
   # runner, is answered below by running lint and the unit checks here. Ten
   # minutes, and after that it is a gate that did not answer like any other.
-  for i in $(seq 1 40); do
-    case "$(gates_now | /usr/bin/awk '$1 == "Audit" { print $2 }')" in
-      queued|in_progress)
-        [ "$i" = 1 ] && echo "    the audit of this commit is still running"
-        sleep 15
-        ;;
-      *) break ;;
-    esac
+  # SCRIBE: two sentences into the paragraph above. The wait is written as
+  # anything that is not finished rather than as a list of the states gh has
+  # today: it also says requested, waiting and pending, and naming three of the
+  # six meant the other three fell straight through and the wait never
+  # happened. And no run at all is given a minute to appear, because the push
+  # above is seconds old and GitHub has not always registered it yet -- after
+  # that, a run that has not started is one that is not going to.
+  for i in $(seq 1 44); do
+    state="$(gates_now | /usr/bin/awk '$1 == "Audit" { print $2 }')"
+    [ "$state" = "completed" ] && break
+    [ -z "$state" ] && [ "$i" -gt 4 ] && break
+    [ "$i" = 1 ] && echo "    waiting for the audit of this commit"
+    sleep 15
   done
 
   STATES="$(gates_now)"
@@ -272,70 +291,84 @@ if command -v gh >/dev/null 2>&1; then
   if [ -z "$CI" ] && [ -z "$UNREAD" ]; then
     CI="success"
   fi
-  case "${CI:-unknown}" in
-    success) echo "    the checks are green" ;;
-    unknown|null)
-      # Nothing to read, so run the checks here instead of shipping unchecked.
-      #
-      # macOS runners are scarce and the checks sit queued; on 2026-09-03 forty
-      # consecutive runs were queued or cancelled and not one concluded, so
-      # "no conclusive run" is the normal case during a working session rather
-      # than an oddity. Reading that as permission to go on means every release
-      # of a busy day ships with nothing behind it.
-      #
-      # Waiting out that queue is not the answer either: hours of it is an
-      # obstacle between a finished build and somebody being able to install
-      # it, and those are not allowed. So the same two things the workflow runs
-      # are run here, where there is no queue.
-      #
-      # The line below names whichever gate was silent, and promises only what
-      # can be run here. Lint and the unit checks are what Checks would have
-      # run, so that gate is answered. Nothing on this Mac stands in for the
-      # audit: when it is the one that did not answer, the release goes out
-      # with that said out loud, and pushing this commit is what gets it read
-      # at all.
-      echo "    ${UNREAD:-nothing} did not answer for this commit; running what can be run here"
-      if ! bash scripts/lint.sh > "$HERE/.lint.log" 2>&1; then
-        tail -20 "$HERE/.lint.log" >&2
-        die "the lint checks fail; fixing that comes before shipping"
-      fi
-      if ! ./scripts/run-tests.sh > "$HERE/.tests.log" 2>&1; then
-        # The grep decides nothing. A suite that crashed before printing FAIL
-        # or error: matches nothing, grep leaves 1, and under this script's -e
-        # the die below would never run: the ship would stop with its reason
-        # on screen nowhere.
-        grep -E "FAIL|error:" "$HERE/.tests.log" | head -20 >&2 || true
-        die "the unit checks fail; fixing that comes before shipping"
-      fi
-      echo "    lint and unit checks pass here"
-      case "$UNREAD" in
-        *Audit*)
-          echo "    the audit did not answer for this commit, and nothing here" >&2
-          echo "    can answer it; this release goes out unaudited" >&2
-          ;;
-      esac
-      ;;
-    *)
-      echo "    the checks are ${CI}. Fixing that comes before shipping:" >&2
-      gh run list --branch "$BRANCH_NOW" --status completed \
-        --limit 30 --json databaseId,conclusion,workflowName,headSha \
-        -q "[.[] | select(.headSha == \"$SHA_NOW\")
-             | select(.workflowName as \$w | $GATES | index(\$w))
-             | select(.conclusion == \"failure\")][0].databaseId" 2>/dev/null \
-        | xargs -I{} gh run view {} --log-failed 2>/dev/null | tail -20 >&2 || true
-      # That pipeline decides nothing either. A run whose log has expired makes
-      # gh fail, xargs leaves 123, and under -e and pipefail the ship would
-      # stop between the sentence above and the reason below, having printed a
-      # colon and nothing after it. The excerpt is a help; the die is the
-      # verdict.
-      die "the checks are ${CI}"
-      ;;
-  esac
+else
+  # SCRIBE: say what happens when gh is not on this Mac at all. Cover: the
+  # whole of this used to sit behind that test, so a release without gh ran
+  # no gate, ran nothing in its place, and said nothing about either --
+  # which is the one way the audit could be skipped in silence. Not being
+  # able to read a gate is the same answer however it comes about.
+  UNREAD="Checks and Audit"
 fi
+
+case "${CI:-unknown}" in
+  success) echo "    the checks are green" ;;
+  unknown|null)
+    # Nothing to read, so run the checks here instead of shipping unchecked.
+    #
+    # macOS runners are scarce and the checks sit queued; on 2026-09-03 forty
+    # consecutive runs were queued or cancelled and not one concluded, so
+    # "no conclusive run" is the normal case during a working session rather
+    # than an oddity. Reading that as permission to go on means every release
+    # of a busy day ships with nothing behind it.
+    #
+    # Waiting out that queue is not the answer either: hours of it is an
+    # obstacle between a finished build and somebody being able to install
+    # it, and those are not allowed. So the same two things the workflow runs
+    # are run here, where there is no queue.
+    #
+    # The line below names whichever gate was silent, and promises only what
+    # can be run here. Lint and the unit checks are what Checks would have
+    # run, so that gate is answered. Nothing on this Mac stands in for the
+    # audit: when it is the one that did not answer, the release goes out
+    # with that said out loud.
+    #
+    # SCRIBE: the last clause above used to end "and pushing this commit is
+    # what gets it read at all", which read as something the operator forgot
+    # to do. This script makes that commit and now pushes it itself, so what
+    # belongs there instead is what silence means after that: the run did not
+    # start, or a later push cancelled it, or it was still going when the wait
+    # above ran out.
+    echo "    ${UNREAD:-nothing} did not answer for this commit; running what can be run here"
+    if ! bash scripts/lint.sh > "$HERE/.lint.log" 2>&1; then
+      tail -20 "$HERE/.lint.log" >&2
+      die "the lint checks fail; fixing that comes before shipping"
+    fi
+    if ! ./scripts/run-tests.sh > "$HERE/.tests.log" 2>&1; then
+      # The grep decides nothing. A suite that crashed before printing FAIL
+      # or error: matches nothing, grep leaves 1, and under this script's -e
+      # the die below would never run: the ship would stop with its reason
+      # on screen nowhere.
+      grep -E "FAIL|error:" "$HERE/.tests.log" | head -20 >&2 || true
+      die "the unit checks fail; fixing that comes before shipping"
+    fi
+    echo "    lint and unit checks pass here"
+    case "$UNREAD" in
+      *Audit*)
+        echo "    the audit did not answer for this commit, and nothing here" >&2
+        echo "    can answer it; this release goes out unaudited" >&2
+        UNAUDITED=1
+        ;;
+    esac
+    ;;
+  *)
+    echo "    the checks are ${CI}. Fixing that comes before shipping:" >&2
+    gh run list --branch "$BRANCH_NOW" --status completed \
+      --limit 30 --json databaseId,conclusion,workflowName,headSha \
+      -q "[.[] | select(.headSha == \"$SHA_NOW\")
+           | select(.workflowName as \$w | $GATES | index(\$w))
+           | select(.conclusion == \"failure\")][0].databaseId" 2>/dev/null \
+      | xargs -I{} gh run view {} --log-failed 2>/dev/null | tail -20 >&2 || true
+    # That pipeline decides nothing either. A run whose log has expired makes
+    # gh fail, xargs leaves 123, and under -e and pipefail the ship would
+    # stop between the sentence above and the reason below, having printed a
+    # colon and nothing after it. The excerpt is a help; the die is the
+    # verdict.
+    die "the checks are ${CI}"
+    ;;
+esac
 
 git tag -f "v$FULL" -m "Lukotta v$FULL" >/dev/null
 git push -q origin "v$FULL" --force
-git push -q origin HEAD
 echo "    tagged v$FULL on $(git rev-parse --short HEAD) and pushed"
 
 # ----------------------------------------------------------------- build ----
@@ -514,4 +547,12 @@ if [ "$CHANNEL" = "release" ]; then
   done
 fi
 
-printf '\n%s is out. Anyone on the %s channel is offered it now.\n' "$FULL" "$CHANNEL"
+# SCRIBE: say why the last line carries the audit. It is the one sentence
+# whoever shipped is left looking at, and the warning it stands for was printed
+# before the build and buried under the notarisation log half an hour earlier.
+if [ -n "$UNAUDITED" ]; then
+  printf '\n%s is out, and went out unaudited. Anyone on the %s channel is offered it now.\n' \
+    "$FULL" "$CHANNEL"
+else
+  printf '\n%s is out. Anyone on the %s channel is offered it now.\n' "$FULL" "$CHANNEL"
+fi
