@@ -107,6 +107,20 @@ if [ -d "$HERE/patches" ]; then
   note "       the imago- and krun-devices- patches apply to those crates instead,"
   note "       and linux- ones to the guest kernel (scripts/build-guest-kernel.sh)"
 fi
+
+# SCRIBE: say that the guest's own patches live in a second directory and had
+# reached no source archive until now. Only patches/ was copied out, so the two
+# netatalk patches -- which are the whole difference between Alpine's afpd and
+# the one that ships -- were promised by the notices and present nowhere.
+if [ -d "$HERE/vendor/patches" ]; then
+  mkdir -p "$OUT/guest-patches"
+  cp "$HERE"/vendor/patches/*.patch "$OUT/guest-patches/" 2>/dev/null
+  for p in "$OUT"/guest-patches/*.patch; do
+    [ -e "$p" ] && note "  OK   guest-patches/$(basename "$p")  <- this repository"
+  done
+  note "       the netatalk- ones apply to the netatalk source under alpine/,"
+  note "       which is where the afpd that ships is built (scripts/build-afpd.sh)"
+fi
 note ""
 
 # The two patched crates the host binary links in. They are compiled into the
@@ -178,6 +192,21 @@ else
   note "  FAIL Alpine source collection reported problems (see above)."
   echo "alpine-sources" >> "$FAILED"
 fi
+note ""
+
+# --- 6. The guest programs Alpine does not package -------------------------
+# SCRIBE: say what this section is for and why it was not here. Everything
+# above is reached from a manifest -- the lock, or the image's apk database --
+# and ntfsck is in neither: Alpine packages no NTFS checker, so nothing named
+# it and nothing fetched it. A GPL-2.0 binary shipped inside the guest of every
+# release with none of its source beside it, while the archive said the source
+# was complete.
+NTFSCK_REV="$(lockfield ntfsprogs_plus revision)"
+note "ntfsprogs-plus ($(lockfield ntfsprogs_plus licence)), built as the guest's ntfsck"
+note "  Revision $NTFSCK_REV, which vendor/engine.lock pins and"
+note "  scripts/build-ntfsck.sh builds from."
+fetch "$(lockfield ntfsprogs_plus source_url)" \
+      "$OUT/ntfsprogs-plus-${NTFSCK_REV}.tar.gz"
 note ""
 
 if [ -s "$FAILED" ]; then

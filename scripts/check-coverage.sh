@@ -291,10 +291,11 @@ for s in "$HERE"/scripts/*.sh; do
   fi
 done
 
-if [ "$FAIL" = "1" ]; then
-  printf 'Something is not covered. Add the missing check rather than the exception.\n'
-  exit 1
-fi
+# SCRIBE: say why the verdict is at the end rather than here. It used to exit
+# at this point, which is before the last two rules run, so a harness nothing
+# reaches and a licence statement with no source behind it both set FAIL and
+# neither could fail the run -- the checks after the gate were advisory without
+# anybody deciding they should be.
 # 8. Every harness is reachable from the registry, directly or through one
 #     that is.
 #
@@ -338,4 +339,60 @@ for script in scripts/*.sh; do
 done
 [ "$unreached" -eq 0 ] && note "every harness is reached"
 
+# SCRIBE: say what this rule is for. The guest package table is rendered from
+# the SBOM and checked against it, so it cannot go stale. The facts around it
+# are written by hand and three of them had: a revision nobody could check, a
+# modification with no date anywhere, a source archive that promised patches it
+# did not carry. Each one is a licence statement, so each is checked here
+# rather than re-read and believed.
+printf '\nWhat is redistributed says which source it is…\n'
+if ! /usr/bin/python3 - <<'PY'
+import json, pathlib, re, sys
+
+bad = 0
+lock = json.load(open("vendor/engine.lock"))
+revision = lock["ntfsprogs_plus"]["revision"]
+licence = lock["ntfsprogs_plus"]["licence"]
+
+notices = pathlib.Path("THIRD_PARTY_NOTICES.md").read_text(encoding="utf-8")
+row = re.search(r"^\| ntfsprogs-plus [^|]*\| ([^|]+?) \| ([^|]+?) \|", notices, re.M)
+if not row:
+    print("  MISSING  THIRD_PARTY_NOTICES.md does not list ntfsprogs-plus")
+    bad = 1
+else:
+    if revision not in row.group(1):
+        print(f"  MISSING  the notices say {row.group(1).strip()};"
+              f" vendor/engine.lock pins {revision}")
+        bad = 1
+    if row.group(2).strip() != licence:
+        print(f"  MISSING  the notices say {row.group(2).strip()};"
+              f" vendor/engine.lock says {licence}")
+        bad = 1
+
+start = re.compile(r"^(diff |--- |Index: )", re.M)
+dated = re.compile(r"Modified on \d{4}-\d{2}-\d{2}")
+patches = sorted(pathlib.Path(".").glob("patches/*.patch")) + \
+          sorted(pathlib.Path(".").glob("vendor/patches/*.patch"))
+for patch in patches:
+    text = patch.read_text(encoding="utf-8", errors="replace")
+    head = start.search(text)
+    header = text[:head.start()] if head else text
+    added = any(dated.search(line) for line in text.splitlines()
+                if line.startswith("+"))
+    if not dated.search(header) and not added:
+        print(f"  MISSING  {patch} records no date, and section 5(a) wants one")
+        bad = 1
+
+if not bad:
+    print(f"  {len(patches)} patches, each dated; ntfsck at {revision[:7]}")
+sys.exit(bad)
+PY
+then
+  FAIL=1
+fi
+
+if [ "$FAIL" = "1" ]; then
+  printf 'Something is not covered. Add the missing check rather than the exception.\n'
+  exit 1
+fi
 printf 'The checks are keeping up.\n'

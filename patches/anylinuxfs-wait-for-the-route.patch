@@ -18,6 +18,8 @@ So it is asked until it settles: for half a minute, a quarter of a second
 apart, and only then given up on. A server that is genuinely not there costs
 the same half minute it always cost.
 
+Modified on 2026-09-02 by Clement Rahula <lukotta@rahula.dev>.
+
 --- a/anylinuxfs/src/cmd_mount.rs
 +++ b/anylinuxfs/src/cmd_mount.rs
 @@ -87,13 +87,27 @@

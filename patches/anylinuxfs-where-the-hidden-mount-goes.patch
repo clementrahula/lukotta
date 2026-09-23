@@ -3,6 +3,8 @@ Mount the host side of a volume under ALFS_MOUNT_BASE when it is set.
 The export keeps the volume's label, so a second volume can take /Volumes/<label>.
 The base is sticky and open to all, so each mount point is removed by the user it was made for.
 
+Modified on 2026-09-11 by Clement Rahula <lukotta@rahula.dev>.
+
 --- a/anylinuxfs/src/cmd_mount.rs	2026-09-11 22:45:52
 +++ b/anylinuxfs/src/cmd_mount.rs	2026-09-11 23:04:54
 @@ -1041,12 +1041,25 @@

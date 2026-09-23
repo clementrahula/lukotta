@@ -1,3 +1,5 @@
+Modified on 2026-09-11 by Clement Rahula <lukotta@rahula.dev>.
+
 diff --git a/etc/afpd/enumerate.c b/etc/afpd/enumerate.c
 index ae9fa5a..ddefb4f 100644
 --- a/etc/afpd/enumerate.c

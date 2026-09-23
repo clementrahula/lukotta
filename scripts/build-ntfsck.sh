@@ -40,7 +40,16 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$HERE" || exit 1
 OUT="$HERE/vendor/engine-built"
-REPO="${NTFSCK_REPO:-https://github.com/ntfsprogs-plus/ntfsprogs-plus}"
+# SCRIBE: say why the revision is pinned in vendor/engine.lock beside every
+# other upstream. For GPL-2.0 the revision is what identifies the corresponding
+# source, and a shallow clone of the default branch built whatever was at HEAD
+# on the day, while the revision the notices name was read back out of that
+# build afterwards -- so the two agreed by construction and could not disagree
+# however far the source had moved.
+LOCK="$HERE/vendor/engine.lock"
+lockfield() { /usr/bin/python3 -c "import json;d=json.load(open('$LOCK'));print(d['$1']['$2'])"; }
+REPO="${NTFSCK_REPO:-$(lockfield ntfsprogs_plus repo)}"
+REV="$(lockfield ntfsprogs_plus revision)"
 
 command -v docker >/dev/null 2>&1 || {
   echo "error: docker is needed to build this, and only to build it" >&2
@@ -61,9 +70,12 @@ docker run --rm --platform linux/arm64 -v "$WORK:/out" alpine:3.24 sh -c "
 set -e
 apk add --no-cache build-base autoconf automake libtool util-linux-dev \
   libgcrypt-dev git pkgconf linux-headers >/dev/null
-git clone --depth 1 '$REPO' /src >/dev/null 2>&1
-cd /src
-git log --oneline -1 > /out/ntfsck.revision
+mkdir -p /src && cd /src
+git init -q .
+git remote add origin '$REPO'
+git fetch -q --depth 1 origin '$REV'
+git checkout -q FETCH_HEAD
+git rev-parse HEAD > /out/ntfsck.revision
 ./autogen.sh >/dev/null 2>&1
 # Static, because the guest is trimmed and carries no build-time libraries: a
 # binary that needs libgcrypt at runtime is a binary that does not run there.
@@ -73,9 +85,12 @@ cp \"\$(find . -name ntfsck -type f | head -1)\" /out/ntfsck
 " 2>&1 | tail -3
 
 [ -f "$WORK/ntfsck" ] || { echo "error: the build produced no ntfsck" >&2; exit 1; }
+BUILT_REV="$(tr -d '[:space:]' < "$WORK/ntfsck.revision" 2>/dev/null || true)"
+[ "$BUILT_REV" = "$REV" ] || {
+  echo "error: built from $BUILT_REV, not the $REV vendor/engine.lock pins" >&2
+  exit 1; }
 cp "$WORK/ntfsck" "$OUT/ntfsck"
-cp "$WORK/ntfsck.revision" "$OUT/ntfsck.revision" 2>/dev/null || true
+cp "$WORK/ntfsck.revision" "$OUT/ntfsck.revision"
 chmod 0755 "$OUT/ntfsck"
-printf 'ntfsck from %s\n  %s\n  %s bytes\n' "$REPO" \
-  "$(cat "$OUT/ntfsck.revision" 2>/dev/null || echo 'revision not recorded')" \
+printf 'ntfsck from %s\n  revision %s\n  %s bytes\n' "$REPO" "$REV" \
   "$(wc -c < "$OUT/ntfsck" | tr -d ' ')"

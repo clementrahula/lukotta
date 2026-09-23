@@ -20,6 +20,8 @@ the client's own bytes their turn, and when those are not there either the
 composed name is put back: a create request must still make the composed name,
 or new files would start being stored in whichever form the client sent.
 
+Modified on 2026-09-12 by Clement Rahula <lukotta@rahula.dev>.
+
 --- a/etc/afpd/directory.c	2026-09-12 16:45:24
 +++ b/etc/afpd/directory.c	2026-09-12 16:45:24
 @@ -1641,7 +1641,42 @@

@@ -25,6 +25,8 @@ changes: `--ram-size-mib` already exists and means something else, the maximum
 rather than the minimum, and a mount that named both would be asking two
 questions with one answer.
 
+Modified on 2026-09-01 by Clement Rahula <lukotta@rahula.dev>.
+
 --- a/anylinuxfs/src/cmd_mount.rs
 +++ b/anylinuxfs/src/cmd_mount.rs
 @@ -529,8 +529,17 @@

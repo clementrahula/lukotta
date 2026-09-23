@@ -38,6 +38,8 @@ long as the app kept running, since only a fresh launch moved what was left.
 
 Both programs read the variable now.
 
+Modified on 2026-08-25 by Clement Rahula <lukotta@rahula.dev>.
+
 --- a/anylinuxfs/src/main.rs
 +++ b/anylinuxfs/src/main.rs
 @@ -176,6 +176,21 @@

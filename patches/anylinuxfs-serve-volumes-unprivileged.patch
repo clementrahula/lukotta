@@ -21,6 +21,8 @@ and nothing anywhere saying why.
 Linux is left as it was: mounting there does need privilege, and the engine is
 run differently.
 
+Modified on 2026-08-25 by Clement Rahula <lukotta@rahula.dev>.
+
 --- a/anylinuxfs/src/cmd_mount.rs	2026-08-25 10:52:01
 +++ b/anylinuxfs/src/cmd_mount.rs
 @@ -1141,6 +1141,13 @@

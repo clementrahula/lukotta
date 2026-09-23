@@ -44,6 +44,13 @@
     "bottle_url": "https://ghcr.io/v2/homebrew/core/util-linux/blobs/sha256:190141242ffdeb5cf236a3b040342097019fce761e655a4c5a12eae18591d628",
     "bottle_sha256": "190141242ffdeb5cf236a3b040342097019fce761e655a4c5a12eae18591d628"
   },
+  "ntfsprogs_plus": {
+    "_why": "The guest's NTFS checker. Alpine packages none, so build-ntfsck.sh builds ntfsck from this and vendor-engine.sh installs it at /usr/sbin/ntfsck. A git revision is a content hash, so it is the checksum and none is recorded beside it.",
+    "revision": "3fe890434082973aa98fd441d65ae84e5d6e5fc8",
+    "licence": "GPL-2.0-only AND GPL-2.0-or-later",
+    "repo": "https://github.com/ntfsprogs-plus/ntfsprogs-plus",
+    "source_url": "https://github.com/ntfsprogs-plus/ntfsprogs-plus/archive/3fe890434082973aa98fd441d65ae84e5d6e5fc8.tar.gz"
+  },
   "guest_image": {
     "_why": "Alpine Linux, downloaded by 'anylinuxfs init'. Not yet fetched by this script.",
     "rootfs_ver": "1.5.1",
