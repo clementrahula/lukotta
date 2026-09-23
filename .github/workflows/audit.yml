@@ -17,6 +17,12 @@ name: Audit
 # What it cannot catch: an advisory can be published against code that has not
 # changed, so this answer is only ever as fresh as the last push.
 #
+# SCRIBE: one sentence into the paragraph above, so it does not read as though
+# this file settles the whole question. What it settles is that every pushed
+# commit gets a run; whether the commit being tagged is one of them is
+# scripts/ship.sh's, and is answered where it matches a run's head against its
+# own HEAD and treats anything else as a gate that did not answer.
+#
 # A red run here does stop a release, where Engine updates does not. This is
 # about the soundness of what is being shipped, which is what scripts/ship.sh
 # asks before it tags.

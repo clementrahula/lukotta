@@ -195,9 +195,11 @@ fi
 # nothing here ever looked. Noticing is not a thing to remember to do; it is a
 # step, and it is this one.
 #
-# Completed runs on this branch, not runs in flight: a release that waits for
-# the checks to finish would wait ten minutes on every ship, and the thing
-# worth catching is a failure that has already happened.
+# SCRIBE: this paragraph said runs in flight are never waited for, and that is
+# no longer true of one of them. What replaces it: the thing worth catching is
+# a failure that has already happened, so Checks in flight is not waited for --
+# it queues for hours and this script can run what it runs instead -- while the
+# audit in flight is, because it is minutes and nothing here can stand in.
 if command -v gh >/dev/null 2>&1; then
   # The last run that concluded anything, not the last that stopped. Pushing
   # twice in a minute cancels the first run, and a cancelled run is not a
@@ -219,15 +221,56 @@ if command -v gh >/dev/null 2>&1; then
   # conclude" is whichever was slowest: a red audit sat behind a green build for
   # three weeks without this ever seeing it. Thirty runs is several pushes of
   # both.
+  #
+  # SCRIBE: say why the runs have to be this commit's and why a gate that has
+  # not answered is not green. Cover: the push is at the end of this script, so
+  # the newest run on the branch can belong to the commit before the one being
+  # tagged; a gate named and then not found said nothing, and green was read
+  # out of the one that did answer, which a superseded run made ordinary --
+  # cancelled and in flight are both "no opinion", and two pushes a minute
+  # apart leave the audit as neither. Whichever gate did not answer is named on
+  # the terminal and sends this to the arm below.
   GATES='["Checks", "Audit"]'
-  CI="$(gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --status completed \
-    --limit 30 --json conclusion,workflowName \
-    -q "[.[] | select(.workflowName as \$w | $GATES | index(\$w))
-         | select(.conclusion == \"success\" or .conclusion == \"failure\")]
-        | group_by(.workflowName) | map(.[0])
-        | if length == 0 then empty
-          elif any(.conclusion == \"failure\") then \"failure\"
-          else \"success\" end" 2>/dev/null || true)"
+  BRANCH_NOW="$(git rev-parse --abbrev-ref HEAD)"
+  SHA_NOW="$(git rev-parse HEAD)"
+  gates_now() {
+    gh run list --branch "$BRANCH_NOW" --limit 30 \
+      --json headSha,workflowName,status,conclusion \
+      -q "[.[] | select(.headSha == \"$SHA_NOW\")
+           | select(.workflowName as \$w | $GATES | index(\$w))]
+          | group_by(.workflowName) | map(.[0])
+          | .[] | \"\(.workflowName) \(.status) \(.conclusion)\"" 2>/dev/null || true
+  }
+
+  # SCRIBE: say why this one waits where the rest of the script refuses to.
+  # Cover: the audit is three ubuntu jobs and has taken between 2.4 and 3.2
+  # minutes on its last six runs, and there is nothing this Mac can run in its
+  # place -- where Checks, which queues for hours on a scarce macOS runner, is
+  # answered below by running lint and the unit checks here. Ten minutes, and
+  # then it is a gate that did not answer like any other.
+  for i in $(seq 1 40); do
+    case "$(gates_now | /usr/bin/awk '$1 == "Audit" { print $2 }')" in
+      queued|in_progress)
+        [ "$i" = 1 ] && echo "    the audit of this commit is still running"
+        sleep 15
+        ;;
+      *) break ;;
+    esac
+  done
+
+  STATES="$(gates_now)"
+  CI=""
+  UNREAD=""
+  for gate in Checks Audit; do
+    case "$(printf '%s\n' "$STATES" | /usr/bin/awk -v g="$gate" '$1 == g { print $3 }')" in
+      failure) CI="failure" ;;
+      success) ;;
+      *) UNREAD="${UNREAD:+$UNREAD and }$gate" ;;
+    esac
+  done
+  if [ -z "$CI" ] && [ -z "$UNREAD" ]; then
+    CI="success"
+  fi
   case "${CI:-unknown}" in
     success) echo "    the checks are green" ;;
     unknown|null)
@@ -243,7 +286,12 @@ if command -v gh >/dev/null 2>&1; then
       # between a finished build and somebody being able to install it, and
       # those are not allowed. So the same two things the workflow runs are run
       # here, where there is no queue.
-      echo "    no conclusive check run; running the checks here instead"
+      # SCRIBE: say what the line below names and what it does not promise.
+      # Cover: lint and the unit checks are what Checks would have run, so that
+      # gate is answered here; nothing on this Mac stands in for the audit, so
+      # when it is the one that did not answer the release goes out with that
+      # said out loud, and pushing this commit first is what gets it read.
+      echo "    ${UNREAD:-nothing} did not answer for this commit; running what can be run here"
       if ! bash scripts/lint.sh > "$HERE/.lint.log" 2>&1; then
         tail -20 "$HERE/.lint.log" >&2
         die "the lint checks fail; fixing that comes before shipping"
@@ -257,14 +305,26 @@ if command -v gh >/dev/null 2>&1; then
         die "the unit checks fail; fixing that comes before shipping"
       fi
       echo "    lint and unit checks pass here"
+      case "$UNREAD" in
+        *Audit*)
+          echo "    the audit did not answer for this commit, and nothing here" >&2
+          echo "    can answer it; this release goes out unaudited" >&2
+          ;;
+      esac
       ;;
     *)
       echo "    the checks are ${CI}. Fixing that comes before shipping:" >&2
-      gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --status completed \
-        --limit 30 --json databaseId,conclusion,workflowName \
-        -q "[.[] | select(.workflowName as \$w | $GATES | index(\$w))
+      gh run list --branch "$BRANCH_NOW" --status completed \
+        --limit 30 --json databaseId,conclusion,workflowName,headSha \
+        -q "[.[] | select(.headSha == \"$SHA_NOW\")
+             | select(.workflowName as \$w | $GATES | index(\$w))
              | select(.conclusion == \"failure\")][0].databaseId" 2>/dev/null \
-        | xargs -I{} gh run view {} --log-failed 2>/dev/null | tail -20 >&2
+        | xargs -I{} gh run view {} --log-failed 2>/dev/null | tail -20 >&2 || true
+      # SCRIBE: say why that pipeline cannot be allowed to decide anything
+      # either: a run whose log has expired makes gh fail, xargs leaves 123,
+      # and under -e and pipefail the ship would stop between the sentence
+      # above and the reason below, having printed a colon and nothing after
+      # it.
       die "the checks are ${CI}"
       ;;
   esac
@@ -410,8 +470,13 @@ esac
 code="$(curl -sSL -o /dev/null -r 0-0 -w '%{http_code}' --max-time 60 "$offered" 2>/dev/null || true)"
 case "$code" in
   200|206) echo "    $offered can be fetched" ;;
-  000|"")
-    echo "    could not reach $offered from here" >&2
+  # SCRIBE: add the server's own bad minute to the paragraph above. A 5xx is
+  # the CDN answering badly about a file it holds, not the file being absent;
+  # it is GitHub's outage, which dying here does not fix and which whoever
+  # shipped cannot act on, so it is said and not fatal. A 403 or a 404 is still
+  # the file itself, and still stops this.
+  000|""|5[0-9][0-9])
+    echo "    could not get an answer for $offered (${code:-no status})" >&2
     echo "    the release is out; whether it can be downloaded is unanswered" >&2
     ;;
   *) die "$offered answers $code; the release is out and nobody can install it" ;;
@@ -431,18 +496,17 @@ if [ "$CHANNEL" = "release" ]; then
   # the case this loop exists to wait out.
   for i in $(seq 1 20); do
     page="$(curl -sS --max-time 15 "https://lukotta.com/?ship=$i" 2>/dev/null || true)"
-    shown="$(/usr/bin/awk '
-      match($0, /1\.[0-9]+\.[0-9]+/) {
-        print substr($0, RSTART, RLENGTH)
-        exit
-      }
-    ' <<<"$page")"
+    # SCRIBE: say why the page is searched for this version rather than for
+    # something version-shaped: the pattern was anchored to a major 1, so the
+    # first release of 2.0 would have waited the whole five minutes and then
+    # reported a site that was perfectly correct as behind.
+    shown="$(/usr/bin/awk -v want="$FULL" 'index($0, want) { print want; exit }' <<<"$page")"
     if [ "$shown" = "$FULL" ]; then
       echo "    lukotta.com offers $FULL"
       break
     fi
     if [ "$i" = 20 ]; then
-      echo "    lukotta.com still offers ${shown:-nothing} after five minutes" >&2
+      echo "    lukotta.com does not offer $FULL after five minutes" >&2
       echo "    the release is out; the site is behind and wants looking at" >&2
       break
     fi
