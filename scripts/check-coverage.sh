@@ -22,12 +22,25 @@ bad() { printf '  MISSING  %s\n' "$1"; FAIL=1; }
 # 1. Every failure rule is exercised. A rule nobody tests is a rule that stops
 #    firing when upstream rewords its output, and nothing says so.
 printf 'Failure rules with a test…\n'
-rules=$(grep -oE 'name: "[a-z0-9-]+", source:' sources/LukottaCore/Diagnosis.swift \
-  | sed -E 's/name: "([a-z0-9-]+)".*/\1/' | sort -u)
-for rule in $rules; do
-  grep -q "\"$rule\"" sources/LukottaTests/main.swift || bad "nothing tests the \"$rule\" rule"
-done
-note "$(printf '%s\n' "$rules" | wc -l | tr -d ' ') rules"
+# SCRIBE: say why this one takes `|| true` AND an emptiness check, where the
+# caller count further down needs only the `|| true`. There, finding nothing is
+# an answer -- no harness calls this script -- and the rule acts on it. Here,
+# finding nothing means the pattern has moved and the rule is reading a shape
+# no longer in the file, which is the refactor it exists to survive: rewording
+# `name:` to `label:` made grep match nothing, the failing pipeline ended the
+# run under `set -e` after the header and before any other rule, and `|| true`
+# on its own would have turned that mute red into a mute green -- every rule in
+# this script passed and none of them run. So zero is refused out loud.
+rules="$(grep -oE 'name: "[a-z0-9-]+", source:' sources/LukottaCore/Diagnosis.swift \
+  | sed -E 's/name: "([a-z0-9-]+)".*/\1/' | sort -u || true)"
+if [ -z "$rules" ]; then
+  bad "no failure rule found in sources/LukottaCore/Diagnosis.swift: this rule is matching nothing, so it proves nothing"
+else
+  for rule in $rules; do
+    grep -q "\"$rule\"" sources/LukottaTests/main.swift || bad "nothing tests the \"$rule\" rule"
+  done
+  note "$(printf '%s\n' "$rules" | wc -l | tr -d ' ') rules"
+fi
 
 # 2. Every image format the app claims is opened by the end-to-end run. The
 #    claim is in the format table in SPECS.md; the proof is in e2e.sh's
@@ -335,10 +348,14 @@ for script in scripts/*.sh; do
   # before it can name the orphan it was written to catch.
   callers="$(/usr/bin/grep -l -- "$name\.sh" scripts/*.sh 2>/dev/null \
     | /usr/bin/grep -v "scripts/$name.sh" | wc -l | tr -d ' ' || true)"
-  # This guard and the verdict below are if/then. An `&&` list takes its last
-  # command's status, so a harness nothing calls makes the test false, the list
-  # returns 1, and `set -e` ends the run there: exit 1 with no reason printed,
-  # and rule 9 below never reached.
+  # SCRIBE: this guard and the verdict below are if/then, and the reason once
+  # written here was wrong -- worth correcting rather than deleting, because the
+  # wrong rule is the plausible one. `[ … ] && continue` does not end a run
+  # under `set -e`: bash exempts every command of an && list but the last, so
+  # the failing test is exempt and the line above it was the whole fault.
+  # Measured both ways -- put the `|| true` back and the old && lists behave
+  # exactly as these do. They are if/then because the reader should not have to
+  # know that exemption to see that the rule can speak.
   if [ "${callers:-0}" -gt 0 ]; then continue; fi
   bad "nothing runs $name.sh: it is in no row and no harness calls it"
   unreached=$((unreached + 1))

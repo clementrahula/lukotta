@@ -101,12 +101,34 @@ fetch "https://github.com/nohajc/anylinuxfs/archive/refs/tags/v${ANYLINUXFS_VER}
 # corresponding source along with the original. The patches are also inside the
 # Lukotta archive above and are copied out here so that they sit beside the
 # tarball they apply to.
-if [ -d "$HERE/patches" ]; then
-  mkdir -p "$OUT/anylinuxfs-patches"
-  cp "$HERE"/patches/*.patch "$HERE/patches/README.md" "$OUT/anylinuxfs-patches/" 2>/dev/null
-  for p in "$OUT"/anylinuxfs-patches/*.patch; do
-    [ -e "$p" ] && note "  OK   anylinuxfs-patches/$(basename "$p")  <- this repository"
+# SCRIBE: say what copy_patches is for. Both blocks used to copy a glob, list
+# whatever landed, and then print where the patches apply -- so a directory
+# that had been renamed, or an extension that had changed, produced an archive
+# with no patches in it, a manifest still telling the reader where to apply
+# them, and a run that reported Complete. Nothing failed, because nothing
+# looked. What is redistributed modified has to carry its modifications, so an
+# empty copy is a failure and says so here like any other.
+copy_patches() {
+  src="$1"; dest="$2"
+  [ -d "$src" ] || return 0
+  mkdir -p "$OUT/$dest"
+  cp "$src"/*.patch "$OUT/$dest/" 2>/dev/null || true
+  landed=0
+  for p in "$OUT/$dest"/*.patch; do
+    [ -e "$p" ] || continue
+    note "  OK   $dest/$(basename "$p")  <- this repository"
+    landed=$((landed + 1))
   done
+  if [ "$landed" -eq 0 ]; then
+    note "  FAIL $dest/  <- no patch was copied from $src"
+    printf '%s\n' "$dest" >> "$FAILED"
+    return 1
+  fi
+  return 0
+}
+
+if copy_patches "$HERE/patches" anylinuxfs-patches; then
+  cp "$HERE/patches/README.md" "$OUT/anylinuxfs-patches/" 2>/dev/null || true
   note "       apply with: patch -p1 -d anylinuxfs-${ANYLINUXFS_VER} < <patch>"
   note "       the imago- and krun-devices- patches apply to those crates instead,"
   note "       and linux- ones to the guest kernel (scripts/build-guest-kernel.sh)"
@@ -115,12 +137,7 @@ fi
 # The guest's own patches live in a second directory. The two netatalk ones are
 # the whole difference between Alpine's afpd and the one that ships, so they
 # belong in the corresponding source as much as the host's do.
-if [ -d "$HERE/vendor/patches" ]; then
-  mkdir -p "$OUT/guest-patches"
-  cp "$HERE"/vendor/patches/*.patch "$OUT/guest-patches/" 2>/dev/null
-  for p in "$OUT"/guest-patches/*.patch; do
-    [ -e "$p" ] && note "  OK   guest-patches/$(basename "$p")  <- this repository"
-  done
+if copy_patches "$HERE/vendor/patches" guest-patches; then
   note "       the netatalk- ones apply to the netatalk source under alpine/,"
   note "       which is where the afpd that ships is built (scripts/build-afpd.sh)"
 fi
@@ -207,22 +224,28 @@ NTFSCK_REPO_URL="$(lockfield ntfsprogs_plus repo)"
 note "ntfsprogs-plus ($(lockfield ntfsprogs_plus licence)), built as the guest's ntfsck"
 note "  Revision $NTFSCK_REV, which vendor/engine.lock pins and"
 note "  scripts/build-ntfsck.sh builds from."
-# Made with git, not downloaded like the rest. A forge's generated tarball is a
-# second name for the revision whose bytes nothing checks; an archive written
-# out from the commit is the revision, and anyone can make the same one and
-# compare it. That is also why the lock carries no URL and no checksum here:
-# there is only the revision to keep right.
+# SCRIBE: say why this is made with git and left uncompressed. A forge's
+# generated tarball is a second name for the revision whose bytes nothing
+# checks; an archive written out from the commit is the revision, which is also
+# why the lock carries no URL and no checksum here -- there is only the revision
+# to keep right. Uncompressed because the claim is meant to be exact: a .tar.gz
+# reproduces byte for byte only under the same gzip at the same level, so a
+# recipient on GNU gzip gets different bytes from the same commit and a promise
+# about bytes turns into a promise about whose gzip. `git archive --format=tar`
+# has no such variable, and release.sh zips the whole directory afterwards, so
+# the release is not a byte larger for it.
 NTFSCK_WORK="$(mktemp -d)"
 if git init -q "$NTFSCK_WORK" \
    && git -C "$NTFSCK_WORK" remote add origin "$NTFSCK_REPO_URL" \
    && git -C "$NTFSCK_WORK" fetch -q --depth 1 origin "$NTFSCK_REV" \
    && [ "$(git -C "$NTFSCK_WORK" rev-parse FETCH_HEAD)" = "$NTFSCK_REV" ] \
-   && git -C "$NTFSCK_WORK" archive --format=tar.gz \
+   && git -C "$NTFSCK_WORK" archive --format=tar \
         --prefix="ntfsprogs-plus-$NTFSCK_REV/" \
-        -o "$OUT/ntfsprogs-plus-$NTFSCK_REV.tar.gz" FETCH_HEAD; then
-  note "  OK   ntfsprogs-plus-$NTFSCK_REV.tar.gz  <- git archive of $NTFSCK_REPO_URL at that commit"
+        -o "$OUT/ntfsprogs-plus-$NTFSCK_REV.tar" FETCH_HEAD; then
+  note "  OK   ntfsprogs-plus-$NTFSCK_REV.tar  <- git archive of $NTFSCK_REPO_URL at that commit"
+  note "       reproduce it with: git archive --format=tar --prefix=ntfsprogs-plus-$NTFSCK_REV/ $NTFSCK_REV"
 else
-  note "  FAIL ntfsprogs-plus-$NTFSCK_REV.tar.gz  <- $NTFSCK_REPO_URL"
+  note "  FAIL ntfsprogs-plus-$NTFSCK_REV.tar  <- $NTFSCK_REPO_URL"
   echo "ntfsprogs-plus" >> "$FAILED"
 fi
 rm -rf "$NTFSCK_WORK"
