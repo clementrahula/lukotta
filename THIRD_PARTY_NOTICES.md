@@ -109,26 +109,29 @@ and `Image-4K` are Linux kernel binaries supplied by libkrunfw.
 ## Linux Guest Image
 
 The application embeds an Alpine Linux root filesystem containing the
-following 72 packages. Licence identifiers are reproduced from the
+following 81 packages. Licence identifiers are reproduced from the
 package metadata contained in that filesystem. Source for each package is
 available from the Alpine Linux package archive at
 <https://pkgs.alpinelinux.org/> at the version stated.
 
 | Package | Version | Licence |
 | --- | --- | --- |
+| acl-libs | 2.3.2-r1 | LGPL-2.1-or-later AND GPL-2.0-or-later |
 | alpine-baselayout | 3.7.2-r1 | GPL-2.0-only |
 | alpine-baselayout-data | 3.7.2-r1 | GPL-2.0-only |
 | alpine-keys | 2.6-r0 | MIT |
 | alpine-release | 3.24.1-r0 | MIT |
 | apk-tools | 3.0.6-r0 | GPL-2.0-only |
 | bash | 5.3.9-r1 | GPL-3.0-or-later |
-| blkid | 2.42.1-r0 | LGPL-1.0-only |
+| blkid | 2.42.3-r1 | LGPL-1.0-only |
+| bstring | 1.1.0-r0 | BSD-3-Clause |
 | btrfs-progs | 6.17.1-r1 | GPL-2.0-or-later |
 | busybox | 1.37.0-r31 | GPL-2.0-only |
 | busybox-binsh | 1.37.0-r31 | GPL-2.0-only |
 | ca-certificates-bundle | 20260611-r0 | MPL-2.0 AND MIT |
 | cryptsetup | 2.8.6-r0 | GPL-2.0-or-later WITH cryptsetup-OpenSSL-exception |
 | cryptsetup-libs | 2.8.6-r0 | GPL-2.0-or-later WITH cryptsetup-OpenSSL-exception |
+| db | 5.3.28-r7 | Sleepycat |
 | device-mapper-event-libs | 2.03.35-r3 | GPL-2.0-or-later AND LGPL-2.1-or-later |
 | device-mapper-libs | 2.03.35-r3 | GPL-2.0-or-later AND LGPL-2.1-or-later |
 | e2fsprogs | 1.47.4-r0 | GPL-2.0-or-later AND LGPL-2.0-or-later AND BSD-3-Clause AND MIT |
@@ -136,43 +139,48 @@ available from the Alpine Linux package archive at
 | eudev-libs | 3.2.14-r6 | GPL-2.0-or-later |
 | gdbm | 1.26-r0 | GPL-3.0-or-later |
 | inih | 62-r0 | BSD-3-Clause |
+| iniparser | 4.2.6-r0 | MIT |
 | json-c | 0.18-r1 | MIT |
 | keyutils-libs | 1.6.3-r4 | GPL-2.0-or-later AND LGPL-2.0-or-later |
 | krb5-conf | 1.0-r2 | MIT |
 | krb5-libs | 1.22.2-r1 | MIT |
 | libaio | 0.3.113-r2 | LGPL-2.1-or-later |
 | libapk | 3.0.6-r0 | GPL-2.0-only |
-| libblkid | 2.42.1-r0 | LGPL-2.1-or-later |
+| libblkid | 2.42.3-r1 | LGPL-2.1-or-later |
 | libbz2 | 1.0.8-r6 | bzip2-1.0.6 |
 | libcap2 | 2.78-r0 | BSD-3-Clause OR GPL-2.0-only |
 | libcom_err | 1.47.4-r0 | GPL-2.0-or-later AND LGPL-2.0-or-later AND BSD-3-Clause AND MIT |
 | libcrypto3 | 3.5.7-r0 | Apache-2.0 |
 | libeconf | 0.8.3-r0 | MIT |
 | libevent | 2.1.13-r0 | BSD-3-Clause |
-| libexpat | 2.8.3-r0 | MIT |
+| libexpat | 2.8.4-r0 | MIT |
 | libffi | 3.5.2-r1 | MIT |
 | libgcc | 15.2.0-r5 | GPL-2.0-or-later AND LGPL-2.1-or-later |
-| libmount | 2.42.1-r0 | LGPL-2.1-or-later |
+| libgcrypt | 1.12.2-r0 | LGPL-2.1-or-later AND GPL-2.0-or-later |
+| libgpg-error | 1.61-r0 | GPL-2.0-or-later AND LGPL-2.1-or-later |
+| libmount | 2.42.3-r1 | LGPL-2.1-or-later |
 | libncursesw | 6.6_p20260516-r0 | X11 |
 | libnfsidmap | 2.6.4-r6 | GPL-2.0-only |
 | libpanelw | 6.6_p20260516-r0 | X11 |
-| libsmartcols | 2.42.1-r0 | LGPL-2.1-or-later |
+| libsmartcols | 2.42.3-r1 | LGPL-2.1-or-later |
 | libssl3 | 3.5.7-r0 | Apache-2.0 |
 | libstdc++ | 15.2.0-r5 | GPL-2.0-or-later AND LGPL-2.1-or-later |
 | libtirpc | 1.3.5-r1 | BSD-3-Clause |
 | libtirpc-conf | 1.3.5-r1 | BSD-3-Clause |
-| libuuid | 2.42.1-r0 | BSD-3-Clause |
+| libuuid | 2.42.3-r1 | BSD-3-Clause |
 | libverto | 0.3.2-r2 | MIT |
-| lsblk | 2.42.1-r0 | GPL-2.0-or-later |
+| lsblk | 2.42.3-r1 | GPL-2.0-or-later |
 | lvm2 | 2.03.35-r2 | GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-2-Clause |
 | lvm2-libs | 2.03.35-r2 | GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-2-Clause |
 | lzo | 2.10-r5 | GPL-2.0-or-later |
+| mariadb-connector-c | 3.4.6-r0 | LGPL-2.1-or-later |
 | mdadm | 4.3-r3 | GPL-2.0-only |
-| mount | 2.42.1-r0 | GPL-3.0-or-later AND GPL-2.0-or-later AND GPL-2.0-only AND GPL-1.0-only AND LGPL-2.1-or-later AND BSD-1-Clause AND BSD-3-Clause AND BSD-4-Clause-UC AND MIT AND Public-Domain |
+| mount | 2.42.3-r1 | GPL-3.0-or-later AND GPL-2.0-or-later AND GPL-2.0-only AND GPL-1.0-only AND LGPL-2.1-or-later AND BSD-1-Clause AND BSD-3-Clause AND BSD-4-Clause-UC AND MIT AND Public-Domain |
 | mpdecimal | 4.0.1-r0 | BSD-2-Clause |
 | musl | 1.2.6-r2 | MIT |
 | musl-utils | 1.2.6-r2 | MIT AND BSD-2-Clause AND GPL-2.0-or-later |
 | ncurses-terminfo-base | 6.6_p20260516-r0 | X11 |
+| netatalk | 4.5.0-r0 | GPL-2.0-or-later |
 | nfs-utils | 2.6.4-r6 | GPL-2.0-only |
 | ntfs-3g | 2026.2.25-r0 | GPL-2.0-only |
 | ntfs-3g-libs | 2026.2.25-r0 | GPL-2.0-only |
@@ -183,6 +191,7 @@ available from the Alpine Linux package archive at
 | rpcbind | 1.2.9-r0 | BSD-3-Clause |
 | scanelf | 1.3.9-r1 | GPL-2.0-only |
 | sqlite-libs | 3.53.4-r0 | blessing |
+| talloc | 2.4.4-r1 | LGPL-3.0-or-later |
 | userspace-rcu | 0.15.3-r0 | LGPL-2.1-or-later |
 | xfsprogs | 7.0.1-r0 | LGPL-2.1-or-later |
 | xz-libs | 5.8.3-r0 | GPL-2.0-or-later AND 0BSD AND Public-Domain AND LGPL-2.1-or-later |
@@ -224,5 +233,3 @@ BitLocker and Windows are trademarks of Microsoft Corporation. Linux is a
 registered trademark of Linus Torvalds. macOS, Finder and Apple Silicon are
 trademarks of Apple Inc. Lukotta is not affiliated with, endorsed by, or
 sponsored by any of them, and names them to state what it works with.
-
-Generated 2026-08-24.

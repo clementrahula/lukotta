@@ -116,43 +116,13 @@ jobs:
       # instead needs no macOS and no engine, which is what the registry scan
       # was for.
       - name: Check the inventory is the one the notices describe
-        # Both files are generated from the same package database, so they
-        # cannot disagree unless one was regenerated and the other was not. A
-        # stale SBOM is worse than no SBOM: it is a green tick over an image
+        # SCRIBE: say that the notices table is rendered from this same SBOM,
+        # so the check here is the render compared against what is committed --
+        # the same script the release gate runs, not a second implementation of
+        # the same idea that can be corrected in one place and not the other.
+        # A stale SBOM is worse than no SBOM: it is a green tick over an image
         # nobody scanned.
-        run: |
-          python3 - <<'PY'
-          import json, re, sys
-
-          bom = json.load(open("vendor/guest-sbom.json"))
-          sbom = {
-              (c["name"], c["version"])
-              for c in bom["components"] if c["type"] == "library"
-          }
-
-          notices, inside = set(), False
-          for line in open("THIRD_PARTY_NOTICES.md", encoding="utf-8"):
-              if line.startswith("## Linux Guest Image"):
-                  inside = True
-                  continue
-              if inside and line.startswith("## "):
-                  break
-              m = re.match(r"^\| ([a-z0-9][a-z0-9._+-]*) \| ([^|]+?) \| [^|]+ \|\s*$", line)
-              if inside and m:
-                  notices.add((m.group(1), m.group(2).strip()))
-
-          if sbom != notices:
-              for what, rows in (("only in the SBOM", sbom - notices),
-                                 ("only in the notices", notices - sbom)):
-                  for name, version in sorted(rows):
-                      print(f"  {what}: {name} {version}")
-              sys.exit(
-                  "error: vendor/guest-sbom.json and THIRD_PARTY_NOTICES.md "
-                  "describe different images.\n"
-                  "       Re-run scripts/vendor-engine.sh and "
-                  "scripts/generate-notices.sh together.")
-          print(f"{len(sbom)} packages, agreeing with the notices")
-          PY
+        run: bash scripts/generate-notices.sh --check
 
       - name: Trivy
         # Pinned to the commit rather than the tag. The Trivy releases were

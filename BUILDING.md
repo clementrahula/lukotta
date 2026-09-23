@@ -610,14 +610,21 @@ release's source under this release's name. They are also the small ones.
 
 That assembles source for the engine and for every package in the guest image
 into `dist/sources`, matched to what is shipped rather than to what upstream
-offers. `THIRD_PARTY_NOTICES.md` records each component and its licence, and is
-generated from the package database of the trimmed image, so it cannot drift
-from what ships.
+offers.
 
-`vendor/guest-sbom.json` is that same database as a CycloneDX SBOM, written by
-`scripts/guest-sbom.py` during `vendor-engine.sh`. It is one of the two tracked
-files under `vendor/`, because the audit workflow scans it on a Linux runner
-with no vendor tree and no macOS build: an untracked copy would leave that job
-scanning nothing. Regenerating the guest means committing it and
-`THIRD_PARTY_NOTICES.md` together. The audit compares the two and fails if they
-describe different images, since a stale SBOM passes an image nobody scanned.
+SCRIBE: the two paragraphs that stood here described the arrangement that let
+the two files drift, and have to be rewritten for the one that replaced it.
+What is true now: `vendor/guest-sbom.json` is the package database of the
+trimmed image as a CycloneDX SBOM, written by `scripts/guest-sbom.py` during
+`vendor-engine.sh`, and it is one of the two tracked files under `vendor/`
+because the audit workflow scans it on a Linux runner with no vendor tree and
+no macOS build. `THIRD_PARTY_NOTICES.md` is a document kept by hand whose guest
+package table alone is rendered from that SBOM by
+`scripts/generate-notices.sh`, which `vendor-engine.sh` now runs itself, so a
+repack cannot write one file and leave the other. The same script with
+`--check` is what the audit workflow and the `noticesmatchtheimage` row both
+run, and it needs nothing but a checkout. What has to go is the old claim that
+the notices are generated whole and cannot drift: the generator held its own
+copy of the document's prose, so running it would have deleted seven
+modification statements the licences require, which is why for three weeks
+nobody ran it and the package table went nine packages stale.
