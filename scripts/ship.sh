@@ -191,10 +191,10 @@ fi
 
 # The commit is pushed before it is graded. This script makes the commit it
 # ships -- the tree it found, and the approval recorded above it -- so until it
-# is pushed no workflow has ever seen it, and a gate that insists on runs for
-# this commit finds none: the last eight released commits carry no CI run at
-# all, so the gate as it stands would have read both gates unread on every one
-# of them. Grading a commit by what CI said about it means CI has to have
+# is pushed no workflow has ever seen it. Each of the last eight released
+# commits carries a Checks run and no Audit run, so the gate as it stands
+# would have read the audit unread on every one of them, whatever the build
+# said. Grading a commit by what CI said about it means CI has to have
 # been given it. The tag stays where it is, after the checks. What goes out
 # early is the commit, which was going to be pushed either way.
 UNAUDITED=""
@@ -265,9 +265,10 @@ if command -v gh >/dev/null 2>&1; then
   # What is waited for is anything not finished, rather than a list of the
   # states gh has today: it also says requested, waiting and pending, and a list
   # naming queued and in_progress let those three fall straight through
-  # alongside completed, so the wait never happened. No run at all is given a minute to appear, because
-  # the push above is seconds old and GitHub does not always register it at
-  # once; after that, a run that has not started is one that is not going to.
+  # alongside completed, so the wait never happened. No run at all is given a
+  # minute to appear, because the push above is seconds old and GitHub does not
+  # always register it at once; after that, a run that has not started is one
+  # that is not going to.
   for i in $(seq 1 44); do
     state="$(gates_now | /usr/bin/awk '$1 == "Audit" { print $2 }')"
     [ "$state" = "completed" ] && break
