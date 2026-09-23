@@ -342,9 +342,23 @@ fi
 say "Waiting for the feed to serve it"
 URL="https://updates.lukotta.com/appcast.xml"
 [ "$CHANNEL" = "beta" ] && URL="https://updates.lukotta.com/beta/appcast.xml"
+TAG_VERSION="<sparkle:shortVersionString>"
+# SCRIBE: say why the feed is kept in a variable and read with awk. Cover: the
+# body is wanted twice, once for the version and once for what that item
+# offers; and `grep -o | head -1` under this script's pipefail aborts the run
+# once grep's output outgrows the pipe before its input ends -- measured clean
+# on today's 27-item feed over 20 runs and failing 40 times out of 40 at 2,000
+# items, so it is a release that dies of nothing, later.
 for i in $(seq 1 20); do
-  served="$(curl -sS --max-time 15 "$URL?ship=$i" 2>/dev/null \
-    | /usr/bin/grep -o 'shortVersionString>[^<]*' | head -1 | sed 's/.*>//')"
+  feed="$(curl -sS --max-time 15 "$URL?ship=$i" 2>/dev/null || true)"
+  served="$(/usr/bin/awk -v tag="$TAG_VERSION" '
+    index($0, tag) {
+      rest = substr($0, index($0, tag) + length(tag))
+      sub(/<.*/, "", rest)
+      print rest
+      exit
+    }
+  ' <<<"$feed")"
   if [ "$served" = "$FULL" ]; then
     echo "    $URL serves $FULL"
     break
@@ -352,6 +366,37 @@ for i in $(seq 1 20); do
   [ "$i" = 20 ] && die "the feed still serves ${served:-nothing} after five minutes"
   sleep 15
 done
+
+# SCRIBE: why the file is fetched here and not asked for elsewhere. Cover: the
+# feed naming a version is not the same as a Mac being able to install it, and
+# this was the one thing checked in a separate repository by a workflow that
+# then had to relay its answer back by mail; it is a range request so it does
+# not pull ninety-four megabytes to learn that a file exists; and the file is
+# the one the matched item offers rather than the first enclosure in the feed
+# or a guess at the extension, because looking for a .dmg when Sparkle offers
+# the zip once reported a good release as broken.
+say "Fetching what that item offers"
+offered="$(/usr/bin/awk -v want="$FULL" -v tag="$TAG_VERSION" '
+  index($0, tag) {
+    rest = substr($0, index($0, tag) + length(tag))
+    sub(/<.*/, "", rest)
+    version = rest
+  }
+  version == want && match($0, /url="[^"]+"/) {
+    print substr($0, RSTART + 5, RLENGTH - 6)
+    exit
+  }
+' <<<"$feed")"
+[ -n "$offered" ] || die "the feed serves $FULL and offers nothing to download"
+case "$offered" in
+  *"$FULL"*) ;;
+  *) die "the feed's $FULL item offers $offered, which is not $FULL" ;;
+esac
+code="$(curl -sSL -o /dev/null -r 0-0 -w '%{http_code}' --max-time 60 "$offered" 2>/dev/null || printf '000')"
+case "$code" in
+  200|206) echo "    $offered can be fetched" ;;
+  *) die "$offered answers $code; the release is out and nobody can install it" ;;
+esac
 
 # And what a person reading the site is told, which is not the same thing as
 # what the file says. The file was written and committed and pushed, and the
@@ -374,57 +419,6 @@ if [ "$CHANNEL" = "release" ]; then
     fi
     sleep 15
   done
-fi
-
-# And a note to the owner, somewhere only they can see it.
-#
-# GitHub never notifies anybody about their own actions, and this script is the
-# owner publishing, so no watch setting on lukotta produces mail for a release
-# -- with Releases ticked or not. The announcement has to come from somebody
-# else, so it is started here and made by github-actions[bot] in a private
-# repository of its own, which asks the feed whether the release is really
-# being served before it says anything.
-#
-# It ran in the public repository first and commented on a public issue, which
-# put every release on show to anybody reading. Private now.
-#
-# Failure here is not failure to ship: the release is out by this point, and a
-# note that did not arrive is worth a line on the terminal and nothing more.
-if command -v gh >/dev/null 2>&1; then
-  if [ "$CHANNEL" = "beta" ]; then
-    __feed=https://updates.lukotta.com/beta/appcast.xml
-  else
-    __feed=https://updates.lukotta.com/appcast.xml
-  fi
-  # What the release says, and what was done about other languages, carried
-  # into the note itself.
-  #
-  # The note said a version was live and left the reader to open the release
-  # page to find out what was in it. The notes are three or four lines.
-  __notes="$(cat "$NOTES" 2>/dev/null)"
-  __langs=""
-  if [ "$CHANNEL" = "release" ]; then
-    # A second pass over the translations, after publishing, so what the note
-    # claims about them is checked at the moment it is claimed rather than
-    # remembered from before the build. The first pass gates the ship; this one
-    # is the evidence for the sentence.
-    __written="$(/bin/ls "releases/notes/$FULL"/*.md 2>/dev/null | wc -l | tr -d ' ')"
-    if /usr/bin/python3 scripts/notes-audit.py "$FULL" >/dev/null 2>&1; then
-      __langs="written in $__written languages and audited twice"
-    else
-      __langs="written in $__written languages; the second audit pass refused them"
-    fi
-  fi
-  if gh workflow run notice.yml \
-      --repo clementrahula/lukotta-release-notices \
-      -f tag="v$FULL" -f channel="$CHANNEL" -f feed="$__feed" \
-      -f url="https://github.com/clementrahula/lukotta/releases/tag/v$FULL" \
-      -f notes="$__notes" -f translations="$__langs" \
-      >/dev/null 2>&1; then
-    printf '    a note is on its way to the private notices repository\n'
-  else
-    printf '    could not start the release notice; the release itself is out\n' >&2
-  fi
 fi
 
 printf '\n%s is out. Anyone on the %s channel is offered it now.\n' "$FULL" "$CHANNEL"
