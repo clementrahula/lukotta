@@ -101,13 +101,12 @@ fetch "https://github.com/nohajc/anylinuxfs/archive/refs/tags/v${ANYLINUXFS_VER}
 # corresponding source along with the original. The patches are also inside the
 # Lukotta archive above and are copied out here so that they sit beside the
 # tarball they apply to.
-# SCRIBE: say what copy_patches is for. Both blocks used to copy a glob, list
-# whatever landed, and then print where the patches apply -- so a directory
-# that had been renamed, or an extension that had changed, produced an archive
-# with no patches in it, a manifest still telling the reader where to apply
-# them, and a run that reported Complete. Nothing failed, because nothing
-# looked. What is redistributed modified has to carry its modifications, so an
-# empty copy is a failure and says so here like any other.
+# copy_patches counts what it copied. Copying a glob and listing whatever
+# appeared records success by not failing: a renamed directory or a changed
+# extension leaves an archive with no patches in it, a manifest still telling
+# the reader where to apply them, and a run that reports Complete. What is
+# redistributed modified has to carry its modifications, so an empty copy fails
+# here like any other, and the where-to-apply notes print only on success.
 copy_patches() {
   src="$1"; dest="$2"
   [ -d "$src" ] || return 0
@@ -224,16 +223,15 @@ NTFSCK_REPO_URL="$(lockfield ntfsprogs_plus repo)"
 note "ntfsprogs-plus ($(lockfield ntfsprogs_plus licence)), built as the guest's ntfsck"
 note "  Revision $NTFSCK_REV, which vendor/engine.lock pins and"
 note "  scripts/build-ntfsck.sh builds from."
-# SCRIBE: say why this is made with git and left uncompressed. A forge's
-# generated tarball is a second name for the revision whose bytes nothing
-# checks; an archive written out from the commit is the revision, which is also
-# why the lock carries no URL and no checksum here -- there is only the revision
-# to keep right. Uncompressed because the claim is meant to be exact: a .tar.gz
-# reproduces byte for byte only under the same gzip at the same level, so a
-# recipient on GNU gzip gets different bytes from the same commit and a promise
-# about bytes turns into a promise about whose gzip. `git archive --format=tar`
-# has no such variable, and release.sh zips the whole directory afterwards, so
-# the release is not a byte larger for it.
+# Written out from the commit rather than downloaded as the forge's generated
+# tarball, which is a second name for the revision whose bytes nothing checks.
+# That is also why the lock carries no URL and no checksum here: there is only
+# the revision to keep right. Uncompressed because the manifest promises the
+# reader an exact command -- a .tar.gz reproduces byte for byte only under the
+# same gzip at the same level, so a recipient on GNU gzip gets different bytes
+# from the same commit. `git archive --format=tar` has no such variable, and
+# release.sh zips the whole directory afterwards, so the release is no larger
+# for it.
 NTFSCK_WORK="$(mktemp -d)"
 if git init -q "$NTFSCK_WORK" \
    && git -C "$NTFSCK_WORK" remote add origin "$NTFSCK_REPO_URL" \

@@ -7,7 +7,6 @@
 - [ ] `ask` waits without end when a program exits but a child it left keeps stdout or stderr open: the pipe never closes. Wait on the pipes for whatever the deadline has left, and close both read ends when giving up.
 - [ ] The helper's dead-mount timer runs `stopIdleMounts` on the main run loop, which can hold it for up to about 40 s (two 10 s readings, then up to 20 s stopping). Run it off the main run loop.
 - [ ] `EngineProcesses.tidyWhatServesNothing` reads the mount table through `mountTable()`, which is empty when `/sbin/mount` cannot run, and then stops every engine from this bundle. Take the table through `ask` and stop nothing unless it finished.
-- [ ] `check-coverage.sh` exits 1 silently at "Harnesses something actually runs" when a script has no row and no caller: `grep -l` finds nothing and fails the pipeline under `pipefail`, before `bad` prints the script's name.
 - [ ] `everyentrywritable` has run on one real drive, NTFS. It needs a real exFAT, FAT, ext4, XFS and btrfs drive each, named in `LUKOTTA_TEST_DEVICES`; the Linux ones also need `sudo -n` to set immutable and append-only flags.
 - [ ] `twoatonce` needs two real drives in `LUKOTTA_TEST_DEVICES`; it ran on disk images before, and only one real drive has been attached since.
 - [ ] `every-entry-is-writable.sh` never reads the stored modes back past the patched `vfs_getattr_nosec`, so it would pass vacuously if a chmod stopped reaching the disk. Read them with `ntfsinfo`, `debugfs` or `xfs_db` in the engine shell, which needs root.
