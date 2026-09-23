@@ -8,9 +8,9 @@ The SBOM is committed, so this runs from a bare checkout: no vendor tree, no
 macOS build. --check renders the table and reports what differs instead of
 writing it.
 
-The prose belongs to the document, not to this script. A version that
-generated the whole file held its own copy of that prose, which left seven
-modification statements the licences require one run away from deletion."""
+The prose belongs to the document, not to this script: the modification
+statements the licences require are hand-written, and a script that rendered
+the whole file would be one run away from dropping them."""
 import json
 import re
 import sys
